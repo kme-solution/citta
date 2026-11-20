@@ -1,12 +1,29 @@
-export const groups = [
-  { name: "sense-sphere unwholesome", summary: 12, detailed: 12 },
-  { name: "sense-sphere rootless", summary: 18, detailed: 18 },
-  { name: "sense-sphere beautiful", summary: 24, detailed: 24 },
-  { name: "fine-material", summary: 15, detailed: 15 },
-  { name: "immaterial", summary: 12, detailed: 12 },
-  { name: "supramundane", summary: 8, detailed: 40 }
-];
+import { readFileSync } from "node:fs";
+
+interface CittaType {
+  id: string;
+  group: string;
+  label: string;
+  projection: "shared" | "summary" | "detailed";
+  parentId?: string;
+}
+
+const file = new URL("../../../data/catalog/v1/citta-types.json", import.meta.url);
+const records: CittaType[] = JSON.parse(readFileSync(file, "utf8"));
+
+export function listTypes(count: 89 | 121): CittaType[] {
+  const projection = count === 89 ? "summary" : "detailed";
+  return records.filter(row => row.projection === "shared" || row.projection === projection);
+}
+
+const summary = listTypes(89);
+const detailed = listTypes(121);
+export const groups = Array.from(new Set(records.map(row => row.group)), name => ({
+  name,
+  summary: summary.filter(row => row.group === name).length,
+  detailed: detailed.filter(row => row.group === name).length
+}));
+
 export function catalogView() {
-  return { groups, summary: groups.reduce((n, g) => n + g.summary, 0),
-    detailed: groups.reduce((n, g) => n + g.detailed, 0) };
+  return { groups, summary: summary.length, detailed: detailed.length };
 }
