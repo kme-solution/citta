@@ -15,5 +15,22 @@ switch (process.argv[2]) {
     console.log(JSON.stringify(await runRecall(), null, 2));
     break;
   }
-  default: throw new Error("Choose eye, catalog, or recall.");
+  case "demo":
+  case "trace": {
+    const { quoteCommand } = await import("../infra/postgres/quote-cycle.ts");
+    await quoteCommand(process.argv[2], process.argv[3]);
+    break;
+  }
+  case "auto-recall": {
+    const { runRecall } = await import("../infra/postgres/recall-cycle.ts");
+    const { setTimeout: pause } = await import("node:timers/promises");
+    for (let tick = 0; tick < 3; tick++) {
+      const cycle = await runRecall();
+      console.log(JSON.stringify(cycle, null, 2));
+      if (cycle.status === "already resolved" || cycle.result) break;
+      await pause(1000);
+    }
+    break;
+  }
+  default: throw new Error("Choose eye, catalog, recall, auto-recall, demo, or trace.");
 }
