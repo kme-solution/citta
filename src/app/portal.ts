@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import type { IncomingMessage } from "node:http";
 import { readFile } from "node:fs/promises";
 import pg from "pg";
+import { askCodex } from "../modules/cetana/vaca-codex.ts";
 import { interpretSpeech } from "../modules/cetana/vaca-service.ts";
 import type { Observation } from "../modules/dvara/dvara-service.ts";
 
@@ -59,11 +60,15 @@ createServer(async (req,res) => {
         reply = rows[0]?.body ?? "You have no saved notes in this conversation.";
         step("Sati","Retrieve the most recent note for this conversation.",conversationId,reply);
       }
+    } else if (decision.action === "ask") {
+      step("Vācā", "Send this question to the local Codex CLI.", decision.body, "Dispatching");
+      reply = await askCodex(decision.body);
+      step("Dvāra", "Receive digital speech from Codex.", {source:"codex",kind:"speech"}, reply);
     } else if (decision.action === "read") {
       const words = decision.body.trim().split(/\s+/u).length;
       reply = "Read " + words + " whitespace-delimited words and " + Array.from(decision.body).length + " characters.";
       step("Kamma","Count words and Unicode code points in the supplied content.",decision.body,reply);
-    } else reply = "Use remember followed by a note, recall, or read followed by your text.";
+    } else reply = "Use remember followed by a note, recall, read followed by your text, or ask followed by a question for Codex.";
     step("Response","Return the result to the operator.",decision.action,reply);
     emit({type:"done",reply});
     res.end();
