@@ -1,7 +1,7 @@
-# Citta testing portal
+# Local testing portal
 
-From the repository root with Node.js 24 and dependencies installed, run `npm run portal`. Open http://127.0.0.1:4173. The local server uses built-in Node HTTP. The portal is a rule-based diagnostic conversation with local evidence and a scripted partner.
+Use Node.js 24, npm and PostgreSQL 17. Set DATABASE_URL, apply migrations/002_portal.sql once, and run npm run portal. Open http://127.0.0.1:4173.
 
-Send “Why does the lamp come on?” three times. The first two visits show WAIT. The third reaches the curiosity threshold, selects READ and returns the lamp evidence. Send “Read the draft quote”, “Ask the quote partner” or “Read deployment notes” to compare direct reading and attributed speech. Other messages receive a help reply with supported options.
+Enter “remember ” followed by your own text. Enter “recall” to retrieve your latest saved note for this conversation. Enter “read ” followed by text to inspect its word and character counts. Other messages show the supported commands. Each message is digital speech. The payload after “read ” is treated as content.
 
-Select either bubble of an exchange to inspect the corresponding diagram. The server streams each step as it happens, including inputs, outputs, rule reason and elapsed time. Expand a node for details. The mind-door sequence is an illustrative simulation invoked during message processing. Conversation history and completed traces are kept in the browser tab's session storage. The portal runs independently of the PostgreSQL demos.
+Select an exchange to inspect its actual service events and expand a node for its input, output and decision. A database error appears on the trace. Memory is in PostgreSQL. The chat display and its traces stay in this tab's session storage. A private localhost session is the intended environment. The portal uses deterministic command rules and requires no AI provider.
