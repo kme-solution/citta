@@ -1,0 +1,1 @@
+Deployment estimate for this sample quote: one engineer for two working days.
