@@ -1,13 +1,12 @@
 import { createServer } from "node:http";
 import type { IncomingMessage } from "node:http";
 import { readFile } from "node:fs/promises";
-import { dvaraVithi } from "../modules/citta-vithi/dvara-vithi-service.ts";
-import { desire } from "../modules/chanda/chanda-service.ts";
-import { nextAction } from "../modules/cetana/cetana-service.ts";
-import { readLampEvidence } from "../modules/kamma/kamma-service.ts";
-import { readQuoteFile, consultQuotePartner } from "../modules/kamma/quote-service.ts";
+import pg from "pg";
+import { interpretSpeech } from "../modules/cetana/vaca-service.ts";
 import type { Observation } from "../modules/dvara/dvara-service.ts";
 
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 async function requestData(req: IncomingMessage) {
   const chunks: Buffer[] = [];
   let bytes = 0;
@@ -18,8 +17,8 @@ async function requestData(req: IncomingMessage) {
   }
   const data = JSON.parse(Buffer.concat(chunks).toString());
   if (typeof data.text !== "string" || !data.text.trim() || data.text.length > 2000 ||
-      !Number.isSafeInteger(data.priorLampVisits) || data.priorLampVisits < 0) throw Error("Invalid message.");
-  return { text: data.text.trim() as string, priorLampVisits: Number(data.priorLampVisits) };
+      !uuid.test(data.conversationId) || !uuid.test(data.messageId)) throw Error("Invalid message.");
+  return { text: data.text.trim() as string, conversationId: String(data.conversationId), messageId: String(data.messageId) };
 }
 
 const assets: Record<string, [string,string]> = {
@@ -38,7 +37,7 @@ createServer(async (req,res) => {
     if (req.headers.origin && req.headers.origin !== "http://127.0.0.1:4173") {
       res.writeHead(403).end(); return;
     }
-    const {text, priorLampVisits} = await requestData(req);
+    const {text, conversationId, messageId} = await requestData(req);
     res.writeHead(200, {"Content-Type":"application/x-ndjson","Cache-Control":"no-store"});
     const start = performance.now();
     const emit = (event: object) => res.write(JSON.stringify(event) + "\n");
@@ -46,37 +45,27 @@ createServer(async (req,res) => {
       emit({type:"step", service, reason, input, output, ms: Math.round(performance.now()-start)});
     const observation: Observation = {kind:"speech",source:"operator",text};
     step("Dvāra", "Receive a typed message as digital speech.", text, observation);
-    const moments = dvaraVithi("mind","clear");
-    step("Citta-vīthi", "Model attention to the meaning as a clear mind-door scenario.", observation, moments);
-    const lamp = /\blamp\b/i.test(text);
-    let action: string, reason: string, decisionInput: unknown = text;
-    if (lamp) {
-      const drive = desire(priorLampVisits + 1);
-      step("Chanda","Each lamp visit raises curiosity toward the three-visit threshold.",{visit:priorLampVisits+1},drive);
-      action = nextAction(drive.formGoal);
-      reason = drive.formGoal ? "Curiosity reached the threshold." : "Curiosity is below the threshold.";
-      decisionInput = drive;
-    } else if (/\b(partner|consult)\b/i.test(text)) {
-      action="SPEAK"; reason="The message asks for the quote partner.";
-    } else if (/\b(deployment|notes)\b/i.test(text)) {
-      action="READ_NOTES"; reason="The message refers to deployment notes.";
-    } else if (/\b(quote|draft)\b/i.test(text)) {
-      action="READ_DRAFT"; reason="The message refers to the quote draft.";
-    } else {
-      action="HELP"; reason="The message has no matching local scenario.";
-    }
-    step(lamp ? "Cetanā" : "Portal router",reason,decisionInput,action);
+    const decision = interpretSpeech(text);
+    step("Cetanā",decision.reason,observation,decision.action);
     let reply: string;
-    if (action === "WAIT") reply="I’ll keep the lamp question open. Visit " + (priorLampVisits+1) + " of 3.";
-    else if (action === "HELP") reply="Ask about the lamp, the draft quote, deployment notes, or the quote partner.";
-    else {
-      const result = action === "SPEAK" ? consultQuotePartner() : action === "READ" ? await readLampEvidence()
-        : await readQuoteFile(action === "READ_NOTES" ? "deployment-notes.txt" : "quote-draft.txt");
-      step("Kamma",result.kind === "speech" ? "Received the scripted partner’s reply." : "Read the local evidence file.",action,result);
-      reply=result.text;
-    }
-    step("Response","Return the selected response to the conversation.",action,reply);
-    emit({type:"done",reply,lamp});
+    if (decision.action === "remember" || decision.action === "recall") {
+      if (!process.env.DATABASE_URL) throw Error("Set DATABASE_URL for memory commands.");
+      if (decision.action === "remember") {
+        await pool.query("INSERT INTO runtime.portal_notes(conversation_id,message_id,body) VALUES ($1,$2,$3) ON CONFLICT(message_id) DO NOTHING",[conversationId,messageId,decision.body]);
+        reply = "Saved your note.";
+        step("Sati","Save the supplied note in this conversation.",decision.body,reply);
+      } else {
+        const {rows} = await pool.query("SELECT body FROM runtime.portal_notes WHERE conversation_id=$1 ORDER BY ordinal DESC LIMIT 1",[conversationId]);
+        reply = rows[0]?.body ?? "You have no saved notes in this conversation.";
+        step("Sati","Retrieve the most recent note for this conversation.",conversationId,reply);
+      }
+    } else if (decision.action === "read") {
+      const words = decision.body.trim().split(/\s+/u).length;
+      reply = "Read " + words + " whitespace-delimited words and " + Array.from(decision.body).length + " characters.";
+      step("Kamma","Count words and Unicode code points in the supplied content.",decision.body,reply);
+    } else reply = "Use remember followed by a note, recall, or read followed by your text.";
+    step("Response","Return the result to the operator.",decision.action,reply);
+    emit({type:"done",reply});
     res.end();
   } catch (error) {
     const message=error instanceof Error ? error.message : "Request failed";
