@@ -6,4 +6,6 @@ Citta models sense-door processes and can initiate a local investigation from an
 
 Dvāra describes the six doors. Citta-saṅgaha owns classifications. Cetasika describes mental factors and feeling tone. Citta-vīthi produces modeled moments. Sati recalls a memory. Chanda evaluates desire and goal formation. Cetanā selects an intention. Kamma performs the local action. PostgreSQL stores memories, goals and action history.
 
-The first slice includes the catalog group totals, a reference process and a local recurring-question scenario. Detailed type identities, full factor associations, live AI, browser automation and desktop operations are subsequent work. Follow AGENTS.md for the project's local execution convention.
+The first slice includes the catalog groups and individual type records, a reference process and a local recurring-question scenario. Full factor associations, live AI, browser automation and desktop operations are subsequent work. Follow AGENTS.md for the project's local execution convention.
+
+Use `npm run catalog -- 89` for the summary list or `npm run catalog -- 121` for the expanded list. Each entry has a stable ID, group and English description. Each expanded supramundane entry includes its summary parent ID. Both commands use the local reference catalog without PostgreSQL. The enumeration follows the chapter I classification cited in Citta_Research_and_Requirements.md.
