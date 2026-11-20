@@ -11,7 +11,8 @@
     "recall": "node src/app/cli.ts recall",
     "demo": "node src/app/cli.ts demo",
     "trace": "node src/app/cli.ts trace",
-    "auto-recall": "node src/app/cli.ts auto-recall"
+    "auto-recall": "node src/app/cli.ts auto-recall",
+    "portal": "node src/app/portal.ts"
   },
   "dependencies": {
     "pg": "^8.13.0"
