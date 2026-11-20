@@ -2,7 +2,16 @@ import { catalogView, listTypes } from "../modules/citta-sangaha/citta-sangaha-s
 import { eyeDoorProcess } from "../modules/citta-vithi/citta-vithi-service.ts";
 
 switch (process.argv[2]) {
-  case "eye": console.table(eyeDoorProcess()); break;
+  case "eye": {
+    const door = process.argv[3] ?? "eye";
+    const grade = process.argv[4] ?? (door === "mind" ? "clear" : "very-great");
+    if (door === "eye" && grade === "very-great") console.table(eyeDoorProcess());
+    else {
+      const { dvaraVithi } = await import("../modules/citta-vithi/dvara-vithi-service.ts");
+      console.table(dvaraVithi(door, grade));
+    }
+    break;
+  }
   case "catalog": {
     const view = process.argv[3];
     if (view === undefined) console.log(catalogView());
