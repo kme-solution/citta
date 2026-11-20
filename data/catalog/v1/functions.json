@@ -1,0 +1,86 @@
+[
+  {
+    "id": "patisandhi",
+    "pali": "paṭisandhi",
+    "meaning": "rebirth-linking",
+    "context": "process-freed"
+  },
+  {
+    "id": "bhavanga",
+    "pali": "bhavaṅga",
+    "meaning": "life-continuum",
+    "context": "process-freed"
+  },
+  {
+    "id": "avajjana",
+    "pali": "āvajjana",
+    "meaning": "adverting",
+    "context": "process"
+  },
+  {
+    "id": "dassana",
+    "pali": "dassana",
+    "meaning": "seeing",
+    "context": "process"
+  },
+  {
+    "id": "savana",
+    "pali": "savana",
+    "meaning": "hearing",
+    "context": "process"
+  },
+  {
+    "id": "ghayana",
+    "pali": "ghāyana",
+    "meaning": "smelling",
+    "context": "process"
+  },
+  {
+    "id": "sayana",
+    "pali": "sāyana",
+    "meaning": "tasting",
+    "context": "process"
+  },
+  {
+    "id": "phusana",
+    "pali": "phusana",
+    "meaning": "touching",
+    "context": "process"
+  },
+  {
+    "id": "sampaticchana",
+    "pali": "sampaṭicchana",
+    "meaning": "receiving",
+    "context": "process"
+  },
+  {
+    "id": "santirana",
+    "pali": "santīraṇa",
+    "meaning": "investigating",
+    "context": "process"
+  },
+  {
+    "id": "votthapana",
+    "pali": "votthapana",
+    "meaning": "determining",
+    "context": "process"
+  },
+  {
+    "id": "javana",
+    "pali": "javana",
+    "meaning": "impulsion",
+    "context": "process"
+  },
+  {
+    "id": "tadarammana",
+    "pali": "tadārammaṇa",
+    "meaning": "registration",
+    "context": "process"
+  },
+  {
+    "id": "cuti",
+    "pali": "cuti",
+    "meaning": "death",
+    "context": "process-freed"
+  }
+]
