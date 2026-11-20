@@ -1,0 +1,314 @@
+[
+  {
+    "id": "phassa",
+    "pali": "phassa",
+    "meaning": "contact",
+    "family": "universal"
+  },
+  {
+    "id": "vedana",
+    "pali": "vedanā",
+    "meaning": "feeling",
+    "family": "universal"
+  },
+  {
+    "id": "sanna",
+    "pali": "saññā",
+    "meaning": "perception",
+    "family": "universal"
+  },
+  {
+    "id": "cetana",
+    "pali": "cetanā",
+    "meaning": "volition",
+    "family": "universal"
+  },
+  {
+    "id": "ekaggata",
+    "pali": "ekaggatā",
+    "meaning": "one-pointedness",
+    "family": "universal"
+  },
+  {
+    "id": "jivitindriya",
+    "pali": "jīvitindriya",
+    "meaning": "mental life faculty",
+    "family": "universal"
+  },
+  {
+    "id": "manasikara",
+    "pali": "manasikāra",
+    "meaning": "attention",
+    "family": "universal"
+  },
+  {
+    "id": "vitakka",
+    "pali": "vitakka",
+    "meaning": "initial application",
+    "family": "occasional"
+  },
+  {
+    "id": "vicara",
+    "pali": "vicāra",
+    "meaning": "sustained application",
+    "family": "occasional"
+  },
+  {
+    "id": "adhimokkha",
+    "pali": "adhimokkha",
+    "meaning": "decision",
+    "family": "occasional"
+  },
+  {
+    "id": "viriya",
+    "pali": "viriya",
+    "meaning": "energy",
+    "family": "occasional"
+  },
+  {
+    "id": "piti",
+    "pali": "pīti",
+    "meaning": "zest",
+    "family": "occasional"
+  },
+  {
+    "id": "chanda",
+    "pali": "chanda",
+    "meaning": "desire to act",
+    "family": "occasional"
+  },
+  {
+    "id": "moha",
+    "pali": "moha",
+    "meaning": "delusion",
+    "family": "unwholesome"
+  },
+  {
+    "id": "ahirika",
+    "pali": "ahirika",
+    "meaning": "shamelessness",
+    "family": "unwholesome"
+  },
+  {
+    "id": "anottappa",
+    "pali": "anottappa",
+    "meaning": "recklessness",
+    "family": "unwholesome"
+  },
+  {
+    "id": "uddhacca",
+    "pali": "uddhacca",
+    "meaning": "restlessness",
+    "family": "unwholesome"
+  },
+  {
+    "id": "lobha",
+    "pali": "lobha",
+    "meaning": "greed",
+    "family": "unwholesome"
+  },
+  {
+    "id": "ditthi",
+    "pali": "diṭṭhi",
+    "meaning": "wrong view",
+    "family": "unwholesome"
+  },
+  {
+    "id": "mana",
+    "pali": "māna",
+    "meaning": "conceit",
+    "family": "unwholesome"
+  },
+  {
+    "id": "dosa",
+    "pali": "dosa",
+    "meaning": "aversion",
+    "family": "unwholesome"
+  },
+  {
+    "id": "issa",
+    "pali": "issā",
+    "meaning": "envy",
+    "family": "unwholesome"
+  },
+  {
+    "id": "macchariya",
+    "pali": "macchariya",
+    "meaning": "avarice",
+    "family": "unwholesome"
+  },
+  {
+    "id": "kukkucca",
+    "pali": "kukkucca",
+    "meaning": "remorse",
+    "family": "unwholesome"
+  },
+  {
+    "id": "thina",
+    "pali": "thīna",
+    "meaning": "sloth",
+    "family": "unwholesome"
+  },
+  {
+    "id": "middha",
+    "pali": "middha",
+    "meaning": "torpor",
+    "family": "unwholesome"
+  },
+  {
+    "id": "vicikiccha",
+    "pali": "vicikicchā",
+    "meaning": "doubt",
+    "family": "unwholesome"
+  },
+  {
+    "id": "saddha",
+    "pali": "saddhā",
+    "meaning": "faith",
+    "family": "beautiful"
+  },
+  {
+    "id": "sati",
+    "pali": "sati",
+    "meaning": "mindfulness",
+    "family": "beautiful"
+  },
+  {
+    "id": "hiri",
+    "pali": "hiri",
+    "meaning": "moral shame",
+    "family": "beautiful"
+  },
+  {
+    "id": "ottappa",
+    "pali": "ottappa",
+    "meaning": "moral concern",
+    "family": "beautiful"
+  },
+  {
+    "id": "alobha",
+    "pali": "alobha",
+    "meaning": "non-greed",
+    "family": "beautiful"
+  },
+  {
+    "id": "adosa",
+    "pali": "adosa",
+    "meaning": "non-hatred",
+    "family": "beautiful"
+  },
+  {
+    "id": "tatramajjhattata",
+    "pali": "tatramajjhattatā",
+    "meaning": "mental balance",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayapassaddhi",
+    "pali": "kāyapassaddhi",
+    "meaning": "tranquillity of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittapassaddhi",
+    "pali": "cittapassaddhi",
+    "meaning": "tranquillity of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayalahuta",
+    "pali": "kāyalahutā",
+    "meaning": "lightness of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittalahuta",
+    "pali": "cittalahutā",
+    "meaning": "lightness of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayamuduta",
+    "pali": "kāyamudutā",
+    "meaning": "pliancy of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittamuduta",
+    "pali": "cittamudutā",
+    "meaning": "pliancy of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayakammannata",
+    "pali": "kāyakammaññatā",
+    "meaning": "adaptability of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittakammannata",
+    "pali": "cittakammaññatā",
+    "meaning": "adaptability of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayapagunnata",
+    "pali": "kāyapāguññatā",
+    "meaning": "proficiency of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittapagunnata",
+    "pali": "cittapāguññatā",
+    "meaning": "proficiency of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "kayujukata",
+    "pali": "kāyujukatā",
+    "meaning": "uprightness of mental factors",
+    "family": "beautiful"
+  },
+  {
+    "id": "cittujukata",
+    "pali": "cittujukatā",
+    "meaning": "uprightness of consciousness",
+    "family": "beautiful"
+  },
+  {
+    "id": "sammavaca",
+    "pali": "sammāvācā",
+    "meaning": "right speech",
+    "family": "beautiful"
+  },
+  {
+    "id": "sammakammanta",
+    "pali": "sammākammanta",
+    "meaning": "right action",
+    "family": "beautiful"
+  },
+  {
+    "id": "sammaajiva",
+    "pali": "sammāājīva",
+    "meaning": "right livelihood",
+    "family": "beautiful"
+  },
+  {
+    "id": "karuna",
+    "pali": "karuṇā",
+    "meaning": "compassion",
+    "family": "beautiful"
+  },
+  {
+    "id": "mudita",
+    "pali": "muditā",
+    "meaning": "appreciative joy",
+    "family": "beautiful"
+  },
+  {
+    "id": "pannindriya",
+    "pali": "paññindriya",
+    "meaning": "wisdom faculty",
+    "family": "beautiful"
+  }
+]
