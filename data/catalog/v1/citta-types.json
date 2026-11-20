@@ -1,0 +1,816 @@
+[
+  {
+    "id": "lobha-joy-with-wrong-view-unprompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, joy, with wrong view, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-joy-with-wrong-view-prompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, joy, with wrong view, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-joy-without-wrong-view-unprompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, joy, without wrong view, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-joy-without-wrong-view-prompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, joy, without wrong view, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-equanimity-with-wrong-view-unprompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, equanimity, with wrong view, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-equanimity-with-wrong-view-prompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, equanimity, with wrong view, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-equanimity-without-wrong-view-unprompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, equanimity, without wrong view, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "lobha-equanimity-without-wrong-view-prompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Greed-rooted, equanimity, without wrong view, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "dosa-unprompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Aversion-rooted, displeasure, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "dosa-prompted",
+    "group": "sense-sphere unwholesome",
+    "label": "Aversion-rooted, displeasure, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "moha-doubt",
+    "group": "sense-sphere unwholesome",
+    "label": "Delusion-rooted, equanimity, doubt",
+    "projection": "shared"
+  },
+  {
+    "id": "moha-restlessness",
+    "group": "sense-sphere unwholesome",
+    "label": "Delusion-rooted, equanimity, restlessness",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-seeing",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant seeing, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-hearing",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant hearing, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-smelling",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant smelling, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-tasting",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant tasting, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-touching",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant touching, pain",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-receiving",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant receiving, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-unwholesome-investigating",
+    "group": "sense-sphere rootless",
+    "label": "unwholesome-resultant investigating, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-seeing",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant seeing, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-hearing",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant hearing, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-smelling",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant smelling, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-tasting",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant tasting, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-touching",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant touching, pleasure",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-receiving",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant receiving, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-investigating",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant investigating, equanimity",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-wholesome-joyful-investigating",
+    "group": "sense-sphere rootless",
+    "label": "wholesome-resultant joyful-investigating, joy",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-five-door-adverting",
+    "group": "sense-sphere rootless",
+    "label": "Functional five door adverting",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-mind-door-adverting",
+    "group": "sense-sphere rootless",
+    "label": "Functional mind door adverting",
+    "projection": "shared"
+  },
+  {
+    "id": "ahetuka-smile-producing",
+    "group": "sense-sphere rootless",
+    "label": "Functional smile producing",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-joy-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, joy, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-joy-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, joy, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-joy-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, joy, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-joy-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, joy, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-equanimity-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, equanimity, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-equanimity-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, equanimity, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-equanimity-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, equanimity, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-wholesome-equanimity-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "wholesome, equanimity, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-joy-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, joy, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-joy-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, joy, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-joy-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, joy, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-joy-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, joy, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-equanimity-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, equanimity, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-equanimity-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, equanimity, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-equanimity-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, equanimity, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-resultant-equanimity-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "resultant, equanimity, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-joy-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, joy, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-joy-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, joy, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-joy-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, joy, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-joy-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, joy, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-equanimity-with-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, equanimity, with knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-equanimity-with-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, equanimity, with knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-equanimity-without-knowledge-unprompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, equanimity, without knowledge, unprompted",
+    "projection": "shared"
+  },
+  {
+    "id": "sobhana-functional-equanimity-without-knowledge-prompted",
+    "group": "sense-sphere beautiful",
+    "label": "functional, equanimity, without knowledge, prompted",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-wholesome-1",
+    "group": "fine-material",
+    "label": "wholesome, jhana 1",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-wholesome-2",
+    "group": "fine-material",
+    "label": "wholesome, jhana 2",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-wholesome-3",
+    "group": "fine-material",
+    "label": "wholesome, jhana 3",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-wholesome-4",
+    "group": "fine-material",
+    "label": "wholesome, jhana 4",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-wholesome-5",
+    "group": "fine-material",
+    "label": "wholesome, jhana 5",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-resultant-1",
+    "group": "fine-material",
+    "label": "resultant, jhana 1",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-resultant-2",
+    "group": "fine-material",
+    "label": "resultant, jhana 2",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-resultant-3",
+    "group": "fine-material",
+    "label": "resultant, jhana 3",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-resultant-4",
+    "group": "fine-material",
+    "label": "resultant, jhana 4",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-resultant-5",
+    "group": "fine-material",
+    "label": "resultant, jhana 5",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-functional-1",
+    "group": "fine-material",
+    "label": "functional, jhana 1",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-functional-2",
+    "group": "fine-material",
+    "label": "functional, jhana 2",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-functional-3",
+    "group": "fine-material",
+    "label": "functional, jhana 3",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-functional-4",
+    "group": "fine-material",
+    "label": "functional, jhana 4",
+    "projection": "shared"
+  },
+  {
+    "id": "rupa-functional-5",
+    "group": "fine-material",
+    "label": "functional, jhana 5",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-wholesome-infinite-space",
+    "group": "immaterial",
+    "label": "wholesome, infinite space",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-wholesome-infinite-consciousness",
+    "group": "immaterial",
+    "label": "wholesome, infinite consciousness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-wholesome-nothingness",
+    "group": "immaterial",
+    "label": "wholesome, nothingness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-wholesome-neither-perception-nor-non-perception",
+    "group": "immaterial",
+    "label": "wholesome, neither perception nor non perception",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-resultant-infinite-space",
+    "group": "immaterial",
+    "label": "resultant, infinite space",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-resultant-infinite-consciousness",
+    "group": "immaterial",
+    "label": "resultant, infinite consciousness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-resultant-nothingness",
+    "group": "immaterial",
+    "label": "resultant, nothingness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-resultant-neither-perception-nor-non-perception",
+    "group": "immaterial",
+    "label": "resultant, neither perception nor non perception",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-functional-infinite-space",
+    "group": "immaterial",
+    "label": "functional, infinite space",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-functional-infinite-consciousness",
+    "group": "immaterial",
+    "label": "functional, infinite consciousness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-functional-nothingness",
+    "group": "immaterial",
+    "label": "functional, nothingness",
+    "projection": "shared"
+  },
+  {
+    "id": "arupa-functional-neither-perception-nor-non-perception",
+    "group": "immaterial",
+    "label": "functional, neither perception nor non perception",
+    "projection": "shared"
+  },
+  {
+    "id": "lokuttara-stream-entry-path",
+    "group": "supramundane",
+    "label": "stream-entry path",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-stream-entry-path-1",
+    "group": "supramundane",
+    "label": "stream-entry path, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-path"
+  },
+  {
+    "id": "lokuttara-stream-entry-path-2",
+    "group": "supramundane",
+    "label": "stream-entry path, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-path"
+  },
+  {
+    "id": "lokuttara-stream-entry-path-3",
+    "group": "supramundane",
+    "label": "stream-entry path, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-path"
+  },
+  {
+    "id": "lokuttara-stream-entry-path-4",
+    "group": "supramundane",
+    "label": "stream-entry path, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-path"
+  },
+  {
+    "id": "lokuttara-stream-entry-path-5",
+    "group": "supramundane",
+    "label": "stream-entry path, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-path"
+  },
+  {
+    "id": "lokuttara-once-returning-path",
+    "group": "supramundane",
+    "label": "once-returning path",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-once-returning-path-1",
+    "group": "supramundane",
+    "label": "once-returning path, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-path"
+  },
+  {
+    "id": "lokuttara-once-returning-path-2",
+    "group": "supramundane",
+    "label": "once-returning path, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-path"
+  },
+  {
+    "id": "lokuttara-once-returning-path-3",
+    "group": "supramundane",
+    "label": "once-returning path, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-path"
+  },
+  {
+    "id": "lokuttara-once-returning-path-4",
+    "group": "supramundane",
+    "label": "once-returning path, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-path"
+  },
+  {
+    "id": "lokuttara-once-returning-path-5",
+    "group": "supramundane",
+    "label": "once-returning path, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-path"
+  },
+  {
+    "id": "lokuttara-non-returning-path",
+    "group": "supramundane",
+    "label": "non-returning path",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-non-returning-path-1",
+    "group": "supramundane",
+    "label": "non-returning path, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-path"
+  },
+  {
+    "id": "lokuttara-non-returning-path-2",
+    "group": "supramundane",
+    "label": "non-returning path, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-path"
+  },
+  {
+    "id": "lokuttara-non-returning-path-3",
+    "group": "supramundane",
+    "label": "non-returning path, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-path"
+  },
+  {
+    "id": "lokuttara-non-returning-path-4",
+    "group": "supramundane",
+    "label": "non-returning path, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-path"
+  },
+  {
+    "id": "lokuttara-non-returning-path-5",
+    "group": "supramundane",
+    "label": "non-returning path, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-path"
+  },
+  {
+    "id": "lokuttara-arahantship-path",
+    "group": "supramundane",
+    "label": "arahantship path",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-arahantship-path-1",
+    "group": "supramundane",
+    "label": "arahantship path, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-path"
+  },
+  {
+    "id": "lokuttara-arahantship-path-2",
+    "group": "supramundane",
+    "label": "arahantship path, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-path"
+  },
+  {
+    "id": "lokuttara-arahantship-path-3",
+    "group": "supramundane",
+    "label": "arahantship path, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-path"
+  },
+  {
+    "id": "lokuttara-arahantship-path-4",
+    "group": "supramundane",
+    "label": "arahantship path, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-path"
+  },
+  {
+    "id": "lokuttara-arahantship-path-5",
+    "group": "supramundane",
+    "label": "arahantship path, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-path"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit",
+    "group": "supramundane",
+    "label": "stream-entry fruit",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit-1",
+    "group": "supramundane",
+    "label": "stream-entry fruit, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-fruit"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit-2",
+    "group": "supramundane",
+    "label": "stream-entry fruit, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-fruit"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit-3",
+    "group": "supramundane",
+    "label": "stream-entry fruit, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-fruit"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit-4",
+    "group": "supramundane",
+    "label": "stream-entry fruit, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-fruit"
+  },
+  {
+    "id": "lokuttara-stream-entry-fruit-5",
+    "group": "supramundane",
+    "label": "stream-entry fruit, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-stream-entry-fruit"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit",
+    "group": "supramundane",
+    "label": "once-returning fruit",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit-1",
+    "group": "supramundane",
+    "label": "once-returning fruit, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-fruit"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit-2",
+    "group": "supramundane",
+    "label": "once-returning fruit, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-fruit"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit-3",
+    "group": "supramundane",
+    "label": "once-returning fruit, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-fruit"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit-4",
+    "group": "supramundane",
+    "label": "once-returning fruit, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-fruit"
+  },
+  {
+    "id": "lokuttara-once-returning-fruit-5",
+    "group": "supramundane",
+    "label": "once-returning fruit, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-once-returning-fruit"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit",
+    "group": "supramundane",
+    "label": "non-returning fruit",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit-1",
+    "group": "supramundane",
+    "label": "non-returning fruit, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-fruit"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit-2",
+    "group": "supramundane",
+    "label": "non-returning fruit, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-fruit"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit-3",
+    "group": "supramundane",
+    "label": "non-returning fruit, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-fruit"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit-4",
+    "group": "supramundane",
+    "label": "non-returning fruit, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-fruit"
+  },
+  {
+    "id": "lokuttara-non-returning-fruit-5",
+    "group": "supramundane",
+    "label": "non-returning fruit, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-non-returning-fruit"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit",
+    "group": "supramundane",
+    "label": "arahantship fruit",
+    "projection": "summary"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit-1",
+    "group": "supramundane",
+    "label": "arahantship fruit, jhana 1",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-fruit"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit-2",
+    "group": "supramundane",
+    "label": "arahantship fruit, jhana 2",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-fruit"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit-3",
+    "group": "supramundane",
+    "label": "arahantship fruit, jhana 3",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-fruit"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit-4",
+    "group": "supramundane",
+    "label": "arahantship fruit, jhana 4",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-fruit"
+  },
+  {
+    "id": "lokuttara-arahantship-fruit-5",
+    "group": "supramundane",
+    "label": "arahantship fruit, jhana 5",
+    "projection": "detailed",
+    "parentId": "lokuttara-arahantship-fruit"
+  }
+]
