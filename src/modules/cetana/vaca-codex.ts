@@ -1,0 +1,49 @@
+import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { delimiter, join } from "node:path";
+
+function executable() {
+  if (process.env.CITTA_CODEX_PATH) return process.env.CITTA_CODEX_PATH;
+  if (process.platform === "win32") {
+    for (const dir of (process.env.PATH ?? "").split(delimiter).filter(Boolean)) {
+      const native = join(dir, "codex.exe");
+      if (existsSync(native)) return native;
+      const script = join(dir, "node_modules", "@openai", "codex", "bin", "codex.js");
+      if (existsSync(script)) return script;
+    }
+  }
+  return "codex";
+}
+
+export async function askCodex(question: string): Promise<string> {
+  const cwd = await mkdtemp(join(tmpdir(), "citta-vaca-"));
+  try {
+    const file = executable();
+    const args = ["exec", "--skip-git-repo-check", "--sandbox", "read-only", "--ephemeral", "-"];
+    const script = /\.m?js$/i.test(file);
+    return await new Promise<string>((resolve, reject) => {
+      const child = execFile(script ? process.execPath : file, script ? [file, ...args] : args, {
+        cwd, timeout: 120000, killSignal: "SIGKILL", maxBuffer: 1024 * 1024, windowsHide: true
+      }, (error, stdout, stderr) => {
+        if (error) {
+          const reason = error.code === "ENOENT" ? "CLI unavailable. Check PATH or CITTA_CODEX_PATH."
+            : error.killed ? "CLI stopped before completion (timeout or output limit)."
+            : /unauthorized|sign in|authentication|not logged in|401/i.test(stderr)
+              ? "Authentication failed. Sign in to your local Codex CLI."
+              : "CLI failed. Check codex exec from the portal's terminal.";
+          reject(new Error("Codex: " + reason));
+        } else if (!stdout.trim()) reject(new Error("Codex returned an empty reply."));
+        else resolve(stdout.trim());
+      });
+      // Early CLI exit can close stdin before the child callback reports the cause.
+      child.stdin?.on("error", (error: NodeJS.ErrnoException) => {
+        if (error.code !== "EPIPE") reject(error);
+      });
+      child.stdin?.end(question);
+    });
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+}
