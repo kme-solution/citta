@@ -12,8 +12,13 @@ switch (process.argv[2]) {
       const file = new URL(`../../data/catalog/v1/${catalog}.json`, import.meta.url);
       console.table(JSON.parse(await readFile(file, "utf8")));
     }
+    else if (view === "factors") {
+      const { sampayoga } = await import("../modules/cetasika/sampayoga-service.ts");
+      if (!process.argv[4]) throw new Error("Pass a citta type ID after factors.");
+      console.log(JSON.stringify(sampayoga(process.argv[4]), null, 2));
+    }
     else if (view === "89" || view === "121") console.table(listTypes(view === "89" ? 89 : 121));
-    else throw new Error("Choose catalog view 89, 121, cetasika, or kicca.");
+    else throw new Error("Choose catalog view 89, 121, cetasika, kicca, or factors.");
     break;
   }
   case "recall": {
