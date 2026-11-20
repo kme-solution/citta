@@ -6,8 +6,13 @@ switch (process.argv[2]) {
   case "catalog": {
     const view = process.argv[3];
     if (view === undefined) console.log(catalogView());
+    else if (view === "cetasika") {
+      const { readFile } = await import("node:fs/promises");
+      const file = new URL("../../data/catalog/v1/cetasikas.json", import.meta.url);
+      console.table(JSON.parse(await readFile(file, "utf8")));
+    }
     else if (view === "89" || view === "121") console.table(listTypes(view === "89" ? 89 : 121));
-    else throw new Error("Choose catalog view 89 or 121.");
+    else throw new Error("Choose catalog view 89, 121, or cetasika.");
     break;
   }
   case "recall": {
