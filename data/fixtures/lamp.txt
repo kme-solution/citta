@@ -1,0 +1,1 @@
+The sample lamp turns on when its timer reaches five ticks.

@@ -1,0 +1,13 @@
+{
+  "name": "citta",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "eye": "node src/app/cli.ts eye",
+    "catalog": "node src/app/cli.ts catalog",
+    "recall": "node src/app/cli.ts recall"
+  },
+  "dependencies": { "pg": "^8.13.0" },
+  "devDependencies": { "@types/node": "^24.0.0", "@types/pg": "^8.11.0", "typescript": "^5.8.0" }
+}
