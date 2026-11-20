@@ -1,5 +1,5 @@
 export function interpretSpeech(text: string) {
-  const command = /^(remember|read)\s+([\s\S]+)$/i.exec(text);
+  const command = /^(remember|read|ask)\s+([\s\S]+)$/i.exec(text);
   if (command) {
     const verb = command[1].toLowerCase();
     return { action: verb, body: command[2], reason: "Matched the explicit " + verb + " command." };
