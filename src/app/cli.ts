@@ -47,7 +47,8 @@ switch (process.argv[2]) {
     for (let tick = 0; tick < 3; tick++) {
       const cycle = await runRecall();
       console.log(JSON.stringify(cycle, null, 2));
-      if (cycle.status === "already resolved" || cycle.result) break;
+      if (("status" in cycle && cycle.status === "already resolved") ||
+          ("result" in cycle && cycle.result)) break;
       await pause(1000);
     }
     break;

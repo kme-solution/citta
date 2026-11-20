@@ -6,13 +6,13 @@
     "node": ">=24"
   },
   "scripts": {
-    "eye": "node src/app/cli.ts eye",
-    "catalog": "node src/app/cli.ts catalog",
-    "recall": "node src/app/cli.ts recall",
-    "demo": "node src/app/cli.ts demo",
-    "trace": "node src/app/cli.ts trace",
-    "auto-recall": "node src/app/cli.ts auto-recall",
-    "portal": "node src/app/portal.ts"
+    "eye": "node --env-file-if-exists=.env src/app/cli.ts eye",
+    "catalog": "node --env-file-if-exists=.env src/app/cli.ts catalog",
+    "recall": "node --env-file-if-exists=.env src/app/cli.ts recall",
+    "demo": "node --env-file-if-exists=.env src/app/cli.ts demo",
+    "trace": "node --env-file-if-exists=.env src/app/cli.ts trace",
+    "auto-recall": "node --env-file-if-exists=.env src/app/cli.ts auto-recall",
+    "portal": "node --env-file-if-exists=.env src/app/portal.ts"
   },
   "dependencies": {
     "pg": "^8.13.0"
