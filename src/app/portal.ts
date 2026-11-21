@@ -4,9 +4,11 @@ import { readFile } from "node:fs/promises";
 import pg from "pg";
 import { askCodex } from "../modules/cetana/vaca-codex.ts";
 import { interpretSpeech } from "../modules/cetana/vaca-service.ts";
+import { loadIdentity } from "../modules/nama/nama-service.ts";
 import type { Observation } from "../modules/dvara/dvara-service.ts";
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const identity = loadIdentity(process.env);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 async function requestData(req: IncomingMessage) {
   const chunks: Buffer[] = [];
@@ -46,8 +48,8 @@ createServer(async (req,res) => {
       emit({type:"step", service, reason, input, output, ms: Math.round(performance.now()-start)});
     const observation: Observation = {kind:"speech",source:"operator",text};
     step("Dvāra", "Receive a typed message as digital speech.", text, observation);
-    const decision = interpretSpeech(text);
-    step("Cetanā",decision.reason,observation,decision.action);
+    const decision = interpretSpeech(text, identity);
+    step("Cetanā",decision.reason,observation,{action:decision.action,needsAi:decision.needsAi});
     let reply: string;
     if (decision.action === "remember" || decision.action === "recall") {
       if (!process.env.DATABASE_URL) throw Error("Set DATABASE_URL for memory commands.");
@@ -62,13 +64,14 @@ createServer(async (req,res) => {
       }
     } else if (decision.action === "ask") {
       step("Vācā", "Send this question to the local Codex CLI.", decision.body, "Dispatching");
-      reply = await askCodex(decision.body);
-      step("Dvāra", "Receive digital speech from Codex.", {source:"codex",kind:"speech"}, reply);
+      const advice = await askCodex(decision.body, identity);
+      step("Dvāra", "Receive advice as attributed digital speech from Codex.", {source:"codex",kind:"speech"}, advice);
+      reply = "I consulted Codex for this request. Its advice:\n\n" + advice;
     } else if (decision.action === "read") {
       const words = decision.body.trim().split(/\s+/u).length;
       reply = "Read " + words + " whitespace-delimited words and " + Array.from(decision.body).length + " characters.";
       step("Kamma","Count words and Unicode code points in the supplied content.",decision.body,reply);
-    } else reply = "Use remember followed by a note, recall, read followed by your text, or ask followed by a question for Codex.";
+    } else reply = decision.body;
     step("Response","Return the result to the operator.",decision.action,reply);
     emit({type:"done",reply});
     res.end();
