@@ -11,7 +11,7 @@ function el(tag,text) {
   node.textContent=text;
   return node;
 }
-function render() {
+function render(follow = false) {
   const chat=select("chat");
   chat.replaceChildren();
   for (const turn of session.turns) {
@@ -22,6 +22,7 @@ function render() {
     button.onclick=()=>{ active=turn; render(); };
     chat.append(button);
   }
+  if (follow) chat.scrollTop=chat.scrollHeight;
   if (!active) return;
   select("status").textContent=active.status+" · "+active.text;
   const flow=select("flow");
@@ -36,6 +37,12 @@ function render() {
     flow.append(item);
   }
 }
+select("message").addEventListener("keydown", event=>{
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
+    event.preventDefault();
+    if (!select("send").disabled) document.querySelector("form").requestSubmit();
+  }
+});
 document.querySelector("form").onsubmit=async event=>{
   event.preventDefault();
   const text=select("message").value.trim();
@@ -45,8 +52,7 @@ document.querySelector("form").onsubmit=async event=>{
   session.turns.push(turn);
   select("message").value="";
   select("send").disabled=true;
-  persist();render();
-  select("chat").scrollTop=select("chat").scrollHeight;
+  persist();render(true);
   try {
     const response=await fetch("/message",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({text,messageId:turn.id,conversationId:session.conversationId})});
@@ -66,10 +72,10 @@ document.querySelector("form").onsubmit=async event=>{
         if(item.type==="step") turn.steps.push(item);
         if(item.type==="done"){turn.reply=item.reply;turn.status="Complete";}
       }
-      render();
+      render(true);
     }
     if(turn.status!=="Complete") throw Error("Response stream interrupted.");
   } catch(error){turn.status="Failed";turn.reply=error.message;}
-  finally {persist();render();select("send").disabled=false;select("message").focus();}
+  finally {persist();render(true);select("send").disabled=false;select("message").focus();}
 };
-render();
+render(true);
