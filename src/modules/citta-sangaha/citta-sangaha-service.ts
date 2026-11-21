@@ -4,6 +4,8 @@ interface CittaType {
   id: string;
   group: string;
   label: string;
+  labelMy: string;
+  myanmarReview: "pending";
   projection: "shared" | "summary" | "detailed";
   parentId?: string;
 }

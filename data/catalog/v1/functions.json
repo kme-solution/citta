@@ -3,84 +3,112 @@
     "id": "patisandhi",
     "pali": "paṭisandhi",
     "meaning": "rebirth-linking",
-    "context": "process-freed"
+    "context": "process-freed",
+    "labelMy": "ပဋိသန္ဓေ — ဘဝသစ်ကိုဆက်ပေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "bhavanga",
     "pali": "bhavaṅga",
     "meaning": "life-continuum",
-    "context": "process-freed"
+    "context": "process-freed",
+    "labelMy": "ဘဝင် — ဘဝအဆက်ကိုထိန်းသိမ်းခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "avajjana",
     "pali": "āvajjana",
     "meaning": "adverting",
-    "context": "process"
+    "context": "process",
+    "labelMy": "အာဝဇ္ဇန်း — အာရုံဘက်သို့ဆင်ခြင်ညွှတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "dassana",
     "pali": "dassana",
     "meaning": "seeing",
-    "context": "process"
+    "context": "process",
+    "labelMy": "ဒဿန — မြင်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "savana",
     "pali": "savana",
     "meaning": "hearing",
-    "context": "process"
+    "context": "process",
+    "labelMy": "သဝန — ကြားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "ghayana",
     "pali": "ghāyana",
     "meaning": "smelling",
-    "context": "process"
+    "context": "process",
+    "labelMy": "ဃာယန — နံ့ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sayana",
     "pali": "sāyana",
     "meaning": "tasting",
-    "context": "process"
+    "context": "process",
+    "labelMy": "သာယန — အရသာကိုသိခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "phusana",
     "pali": "phusana",
     "meaning": "touching",
-    "context": "process"
+    "context": "process",
+    "labelMy": "ဖုသန — အတွေ့ကိုသိခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sampaticchana",
     "pali": "sampaṭicchana",
     "meaning": "receiving",
-    "context": "process"
+    "context": "process",
+    "labelMy": "သမ္ပဋိစ္ဆန — အာရုံကိုလက်ခံခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "santirana",
     "pali": "santīraṇa",
     "meaning": "investigating",
-    "context": "process"
+    "context": "process",
+    "labelMy": "သန္တီရဏ — အာရုံကိုစုံစမ်းခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "votthapana",
     "pali": "votthapana",
     "meaning": "determining",
-    "context": "process"
+    "context": "process",
+    "labelMy": "ဝေါဋ္ဌပန — အာရုံကိုဆုံးဖြတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "javana",
     "pali": "javana",
     "meaning": "impulsion",
-    "context": "process"
+    "context": "process",
+    "labelMy": "ဇဝန — အာရုံ၌အရှိန်ဖြင့်ဆောင်ရွက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "tadarammana",
     "pali": "tadārammaṇa",
     "meaning": "registration",
-    "context": "process"
+    "context": "process",
+    "labelMy": "တဒါရမ္မဏ — ဇောယူခဲ့သောအာရုံကိုဆက်လက်ယူခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cuti",
     "pali": "cuti",
     "meaning": "death",
-    "context": "process-freed"
+    "context": "process-freed",
+    "labelMy": "စုတိ — လက်ရှိဘဝမှစုပြတ်ခြင်း",
+    "myanmarReview": "pending"
   }
 ]

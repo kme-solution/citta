@@ -3,312 +3,416 @@
     "id": "phassa",
     "pali": "phassa",
     "meaning": "contact",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "ဖဿ — အာရုံနှင့်တွေ့ထိခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "vedana",
     "pali": "vedanā",
     "meaning": "feeling",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "ဝေဒနာ — အာရုံ၏အရသာကိုခံစားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sanna",
     "pali": "saññā",
     "meaning": "perception",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "သညာ — အာရုံကိုမှတ်သားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cetana",
     "pali": "cetanā",
     "meaning": "volition",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "စေတနာ — စေ့ဆော်တိုက်တွန်းခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "ekaggata",
     "pali": "ekaggatā",
     "meaning": "one-pointedness",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "ဧကဂ္ဂတာ — အာရုံတစ်ခုတည်း၌တည်ကြည်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "jivitindriya",
     "pali": "jīvitindriya",
     "meaning": "mental life faculty",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "ဇီဝိတိန္ဒြေ — နာမ်တရားတို့၏အသက်ကိုစောင့်ရှောက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "manasikara",
     "pali": "manasikāra",
     "meaning": "attention",
-    "family": "universal"
+    "family": "universal",
+    "labelMy": "မနသိကာရ — အာရုံဘက်သို့စိတ်ကိုညွှတ်ပေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "vitakka",
     "pali": "vitakka",
     "meaning": "initial application",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "ဝိတက် — အာရုံပေါ်သို့စိတ်ကိုတင်ပေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "vicara",
     "pali": "vicāra",
     "meaning": "sustained application",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "ဝိစာရ — အာရုံကိုဆက်လက်သုံးသပ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "adhimokkha",
     "pali": "adhimokkha",
     "meaning": "decision",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "အဓိမောက္ခ — အာရုံကိုဆုံးဖြတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "viriya",
     "pali": "viriya",
     "meaning": "energy",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "ဝီရိယ — အားထုတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "piti",
     "pali": "pīti",
     "meaning": "zest",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "ပီတိ — နှစ်သက်အားရခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "chanda",
     "pali": "chanda",
     "meaning": "desire to act",
-    "family": "occasional"
+    "family": "occasional",
+    "labelMy": "ဆန္ဒ — ပြုလုပ်လိုခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "moha",
     "pali": "moha",
     "meaning": "delusion",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "မောဟ — အမှန်ကိုမသိခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahirika",
     "pali": "ahirika",
     "meaning": "shamelessness",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "အဟိရိက — မကောင်းမှုပြုရန်မရှက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "anottappa",
     "pali": "anottappa",
     "meaning": "recklessness",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "အနောတ္တပ္ပ — မကောင်းမှုပြုရန်မကြောက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "uddhacca",
     "pali": "uddhacca",
     "meaning": "restlessness",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ဥဒ္ဓစ္စ — စိတ်ပျံ့လွင့်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha",
     "pali": "lobha",
     "meaning": "greed",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "လောဘ — အာရုံကိုတပ်မက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "ditthi",
     "pali": "diṭṭhi",
     "meaning": "wrong view",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ဒိဋ္ဌိ — မှားယွင်းစွာမြင်ယူခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "mana",
     "pali": "māna",
     "meaning": "conceit",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "မာန — မိမိကိုယ်ကိုနှိုင်းယှဉ်ထောင်လွှားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "dosa",
     "pali": "dosa",
     "meaning": "aversion",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ဒေါသ — အာရုံကိုမနှစ်သက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "issa",
     "pali": "issā",
     "meaning": "envy",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ဣဿာ — သူတစ်ပါး၏ကောင်းကျိုးကိုမနာလိုခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "macchariya",
     "pali": "macchariya",
     "meaning": "avarice",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "မစ္ဆရိယ — မိမိပိုင်ဆိုင်မှုကိုဝန်တိုခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kukkucca",
     "pali": "kukkucca",
     "meaning": "remorse",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ကုက္ကုစ္စ — ပြုခဲ့သောအမှားနှင့်မပြုခဲ့သောအကောင်းအတွက်နောင်တပူပန်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "thina",
     "pali": "thīna",
     "meaning": "sloth",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ထိန — စိတ်ထိုင်းမှိုင်းခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "middha",
     "pali": "middha",
     "meaning": "torpor",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "မိဒ္ဓ — စေတသိက်တို့ထိုင်းမှိုင်းခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "vicikiccha",
     "pali": "vicikicchā",
     "meaning": "doubt",
-    "family": "unwholesome"
+    "family": "unwholesome",
+    "labelMy": "ဝိစိကိစ္ဆာ — ယုံမှားသံသယဖြစ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "saddha",
     "pali": "saddhā",
     "meaning": "faith",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "သဒ္ဓါ — ယုံကြည်ကြည်လင်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sati",
     "pali": "sati",
     "meaning": "mindfulness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "သတိ — မမေ့မလျော့အောက်မေ့ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "hiri",
     "pali": "hiri",
     "meaning": "moral shame",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ဟိရီ — မကောင်းမှုပြုရန်ရှက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "ottappa",
     "pali": "ottappa",
     "meaning": "moral concern",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ဩတ္တပ္ပ — မကောင်းမှုပြုရန်ကြောက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "alobha",
     "pali": "alobha",
     "meaning": "non-greed",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "အလောဘ — မတပ်မက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "adosa",
     "pali": "adosa",
     "meaning": "non-hatred",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "အဒေါသ — မပြစ်မှားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "tatramajjhattata",
     "pali": "tatramajjhattatā",
     "meaning": "mental balance",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "တတြမဇ္ဈတ္တတာ — စိတ်ကိုမျှတစွာထားခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayapassaddhi",
     "pali": "kāyapassaddhi",
     "meaning": "tranquillity of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယပဿဒ္ဓိ — စေတသိက်တို့ငြိမ်းအေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittapassaddhi",
     "pali": "cittapassaddhi",
     "meaning": "tranquillity of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တပဿဒ္ဓိ — စိတ်ငြိမ်းအေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayalahuta",
     "pali": "kāyalahutā",
     "meaning": "lightness of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယလဟုတာ — စေတသိက်တို့ပေါ့ပါးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittalahuta",
     "pali": "cittalahutā",
     "meaning": "lightness of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တလဟုတာ — စိတ်ပေါ့ပါးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayamuduta",
     "pali": "kāyamudutā",
     "meaning": "pliancy of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယမုဒုတာ — စေတသိက်တို့နူးညံ့ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittamuduta",
     "pali": "cittamudutā",
     "meaning": "pliancy of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တမုဒုတာ — စိတ်နူးညံ့ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayakammannata",
     "pali": "kāyakammaññatā",
     "meaning": "adaptability of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယကမ္မညတာ — စေတသိက်တို့လုပ်ငန်းဆောင်ရွက်ရန်သင့်တော်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittakammannata",
     "pali": "cittakammaññatā",
     "meaning": "adaptability of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တကမ္မညတာ — စိတ်လုပ်ငန်းဆောင်ရွက်ရန်သင့်တော်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayapagunnata",
     "pali": "kāyapāguññatā",
     "meaning": "proficiency of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယပါဂုညတာ — စေတသိက်တို့ကျွမ်းကျင်လိမ္မာခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittapagunnata",
     "pali": "cittapāguññatā",
     "meaning": "proficiency of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တပါဂုညတာ — စိတ်ကျွမ်းကျင်လိမ္မာခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "kayujukata",
     "pali": "kāyujukatā",
     "meaning": "uprightness of mental factors",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကာယုဇုကတာ — စေတသိက်တို့ဖြောင့်မတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "cittujukata",
     "pali": "cittujukatā",
     "meaning": "uprightness of consciousness",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "စိတ္တုဇုကတာ — စိတ်ဖြောင့်မတ်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sammavaca",
     "pali": "sammāvācā",
     "meaning": "right speech",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "သမ္မာဝါစာ — မှန်ကန်သောစကားပြောခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sammakammanta",
     "pali": "sammākammanta",
     "meaning": "right action",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "သမ္မာကမ္မန္တ — မှန်ကန်သောအမှုပြုခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "sammaajiva",
     "pali": "sammāājīva",
     "meaning": "right livelihood",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "သမ္မာအာဇီဝ — မှန်ကန်သောအသက်မွေးခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "karuna",
     "pali": "karuṇā",
     "meaning": "compassion",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ကရုဏာ — သူတစ်ပါး၏ဆင်းရဲကိုပယ်ဖျောက်လိုခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "mudita",
     "pali": "muditā",
     "meaning": "appreciative joy",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "မုဒိတာ — သူတစ်ပါး၏ကောင်းကျိုးကိုဝမ်းမြောက်ခြင်း",
+    "myanmarReview": "pending"
   },
   {
     "id": "pannindriya",
     "pali": "paññindriya",
     "meaning": "wisdom faculty",
-    "family": "beautiful"
+    "family": "beautiful",
+    "labelMy": "ပညိန္ဒြေ — အမှန်ကိုသိမြင်သောပညာ",
+    "myanmarReview": "pending"
   }
 ]

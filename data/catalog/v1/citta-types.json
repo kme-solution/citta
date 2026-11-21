@@ -3,814 +3,1072 @@
     "id": "lobha-joy-with-wrong-view-unprompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, joy, with wrong view, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ သောမနဿ၊ ဒိဋ္ဌိနှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-joy-with-wrong-view-prompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, joy, with wrong view, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ သောမနဿ၊ ဒိဋ္ဌိနှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-joy-without-wrong-view-unprompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, joy, without wrong view, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ သောမနဿ၊ ဒိဋ္ဌိနှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-joy-without-wrong-view-prompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, joy, without wrong view, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ သောမနဿ၊ ဒိဋ္ဌိနှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-equanimity-with-wrong-view-unprompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, equanimity, with wrong view, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ ဥပေက္ခာ၊ ဒိဋ္ဌိနှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-equanimity-with-wrong-view-prompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, equanimity, with wrong view, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ ဥပေက္ခာ၊ ဒိဋ္ဌိနှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-equanimity-without-wrong-view-unprompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, equanimity, without wrong view, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ ဥပေက္ခာ၊ ဒိဋ္ဌိနှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "lobha-equanimity-without-wrong-view-prompted",
     "group": "sense-sphere unwholesome",
     "label": "Greed-rooted, equanimity, without wrong view, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "လောဘမူလ၊ ဥပေက္ခာ၊ ဒိဋ္ဌိနှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "dosa-unprompted",
     "group": "sense-sphere unwholesome",
     "label": "Aversion-rooted, displeasure, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဒေါသမူလ၊ ဒေါမနဿ၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "dosa-prompted",
     "group": "sense-sphere unwholesome",
     "label": "Aversion-rooted, displeasure, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဒေါသမူလ၊ ဒေါမနဿ၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "moha-doubt",
     "group": "sense-sphere unwholesome",
     "label": "Delusion-rooted, equanimity, doubt",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "မောဟမူလ၊ ဥပေက္ခာ၊ ဝိစိကိစ္ဆာနှင့်ယှဉ်သော",
+    "myanmarReview": "pending"
   },
   {
     "id": "moha-restlessness",
     "group": "sense-sphere unwholesome",
     "label": "Delusion-rooted, equanimity, restlessness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "မောဟမူလ၊ ဥပေက္ခာ၊ ဥဒ္ဓစ္စနှင့်ယှဉ်သော",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-seeing",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant seeing, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် စက္ခုဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-hearing",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant hearing, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် သောတဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-smelling",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant smelling, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် ဃာနဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-tasting",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant tasting, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် ဇိဝှါဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-touching",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant touching, pain",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် ကာယဝိညာဏ်၊ ဒုက္ခ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-receiving",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant receiving, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် သမ္ပဋိစ္ဆိုင်း၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-unwholesome-investigating",
     "group": "sense-sphere rootless",
     "label": "unwholesome-resultant investigating, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "အကုသလဝိပါက် သန္တီရဏ၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-seeing",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant seeing, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် စက္ခုဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-hearing",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant hearing, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် သောတဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-smelling",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant smelling, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် ဃာနဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-tasting",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant tasting, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် ဇိဝှါဝိညာဏ်၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-touching",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant touching, pleasure",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် ကာယဝိညာဏ်၊ သုခ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-receiving",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant receiving, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် သမ္ပဋိစ္ဆိုင်း၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-investigating",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant investigating, equanimity",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် သန္တီရဏ၊ ဥပေက္ခာ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-wholesome-joyful-investigating",
     "group": "sense-sphere rootless",
     "label": "wholesome-resultant joyful-investigating, joy",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသလဝိပါက် သောမနဿသန္တီရဏ၊ သောမနဿ",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-five-door-adverting",
     "group": "sense-sphere rootless",
     "label": "Functional five door adverting",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ပဉ္စဒွါရာဝဇ္ဇန်းကြိယာစိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-mind-door-adverting",
     "group": "sense-sphere rootless",
     "label": "Functional mind door adverting",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "မနောဒွါရာဝဇ္ဇန်းကြိယာစိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "ahetuka-smile-producing",
     "group": "sense-sphere rootless",
     "label": "Functional smile producing",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဟသိတုပ္ပါဒ်ကြိယာစိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-joy-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, joy, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-joy-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, joy, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-joy-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, joy, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-joy-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, joy, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-equanimity-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, equanimity, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-equanimity-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, equanimity, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-equanimity-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, equanimity, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-wholesome-equanimity-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "wholesome, equanimity, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-joy-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, joy, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-joy-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, joy, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-joy-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, joy, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-joy-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, joy, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-equanimity-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, equanimity, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-equanimity-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, equanimity, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-equanimity-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, equanimity, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-resultant-equanimity-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "resultant, equanimity, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-joy-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "functional, joy, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-joy-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "functional, joy, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ သောမနဿ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-joy-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "functional, joy, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-joy-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "functional, joy, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ သောမနဿ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-equanimity-with-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "functional, equanimity, with knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-equanimity-with-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "functional, equanimity, with knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်ယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-equanimity-without-knowledge-unprompted",
     "group": "sense-sphere beautiful",
     "label": "functional, equanimity, without knowledge, unprompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ အသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "sobhana-functional-equanimity-without-knowledge-prompted",
     "group": "sense-sphere beautiful",
     "label": "functional, equanimity, without knowledge, prompted",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဥပေက္ခာ၊ ဉာဏ်နှင့်မယှဉ်သော၊ သသင်္ခါရိက",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-wholesome-1",
     "group": "fine-material",
     "label": "wholesome, jhana 1",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-wholesome-2",
     "group": "fine-material",
     "label": "wholesome, jhana 2",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-wholesome-3",
     "group": "fine-material",
     "label": "wholesome, jhana 3",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-wholesome-4",
     "group": "fine-material",
     "label": "wholesome, jhana 4",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-wholesome-5",
     "group": "fine-material",
     "label": "wholesome, jhana 5",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-resultant-1",
     "group": "fine-material",
     "label": "resultant, jhana 1",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-resultant-2",
     "group": "fine-material",
     "label": "resultant, jhana 2",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-resultant-3",
     "group": "fine-material",
     "label": "resultant, jhana 3",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-resultant-4",
     "group": "fine-material",
     "label": "resultant, jhana 4",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-resultant-5",
     "group": "fine-material",
     "label": "resultant, jhana 5",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-functional-1",
     "group": "fine-material",
     "label": "functional, jhana 1",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-functional-2",
     "group": "fine-material",
     "label": "functional, jhana 2",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-functional-3",
     "group": "fine-material",
     "label": "functional, jhana 3",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-functional-4",
     "group": "fine-material",
     "label": "functional, jhana 4",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "rupa-functional-5",
     "group": "fine-material",
     "label": "functional, jhana 5",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-wholesome-infinite-space",
     "group": "immaterial",
     "label": "wholesome, infinite space",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ အာကာသာနဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-wholesome-infinite-consciousness",
     "group": "immaterial",
     "label": "wholesome, infinite consciousness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ ဝိညာဏဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-wholesome-nothingness",
     "group": "immaterial",
     "label": "wholesome, nothingness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ အာကိဉ္စညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-wholesome-neither-perception-nor-non-perception",
     "group": "immaterial",
     "label": "wholesome, neither perception nor non perception",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကုသိုလ်၊ နေဝသညာနာသညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-resultant-infinite-space",
     "group": "immaterial",
     "label": "resultant, infinite space",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ အာကာသာနဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-resultant-infinite-consciousness",
     "group": "immaterial",
     "label": "resultant, infinite consciousness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ ဝိညာဏဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-resultant-nothingness",
     "group": "immaterial",
     "label": "resultant, nothingness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ အာကိဉ္စညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-resultant-neither-perception-nor-non-perception",
     "group": "immaterial",
     "label": "resultant, neither perception nor non perception",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ဝိပါက်၊ နေဝသညာနာသညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-functional-infinite-space",
     "group": "immaterial",
     "label": "functional, infinite space",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ အာကာသာနဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-functional-infinite-consciousness",
     "group": "immaterial",
     "label": "functional, infinite consciousness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ ဝိညာဏဉ္စာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-functional-nothingness",
     "group": "immaterial",
     "label": "functional, nothingness",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ အာကိဉ္စညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "arupa-functional-neither-perception-nor-non-perception",
     "group": "immaterial",
     "label": "functional, neither perception nor non perception",
-    "projection": "shared"
+    "projection": "shared",
+    "labelMy": "ကြိယာ၊ နေဝသညာနာသညာယတန",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path",
     "group": "supramundane",
     "label": "stream-entry path",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path-1",
     "group": "supramundane",
     "label": "stream-entry path, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-path"
+    "parentId": "lokuttara-stream-entry-path",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path-2",
     "group": "supramundane",
     "label": "stream-entry path, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-path"
+    "parentId": "lokuttara-stream-entry-path",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path-3",
     "group": "supramundane",
     "label": "stream-entry path, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-path"
+    "parentId": "lokuttara-stream-entry-path",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path-4",
     "group": "supramundane",
     "label": "stream-entry path, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-path"
+    "parentId": "lokuttara-stream-entry-path",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-path-5",
     "group": "supramundane",
     "label": "stream-entry path, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-path"
+    "parentId": "lokuttara-stream-entry-path",
+    "labelMy": "သောတာပတ္တိမဂ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path",
     "group": "supramundane",
     "label": "once-returning path",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path-1",
     "group": "supramundane",
     "label": "once-returning path, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-path"
+    "parentId": "lokuttara-once-returning-path",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path-2",
     "group": "supramundane",
     "label": "once-returning path, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-path"
+    "parentId": "lokuttara-once-returning-path",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path-3",
     "group": "supramundane",
     "label": "once-returning path, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-path"
+    "parentId": "lokuttara-once-returning-path",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path-4",
     "group": "supramundane",
     "label": "once-returning path, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-path"
+    "parentId": "lokuttara-once-returning-path",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-path-5",
     "group": "supramundane",
     "label": "once-returning path, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-path"
+    "parentId": "lokuttara-once-returning-path",
+    "labelMy": "သကဒါဂါမိမဂ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path",
     "group": "supramundane",
     "label": "non-returning path",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "အနာဂါမိမဂ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path-1",
     "group": "supramundane",
     "label": "non-returning path, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-path"
+    "parentId": "lokuttara-non-returning-path",
+    "labelMy": "အနာဂါမိမဂ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path-2",
     "group": "supramundane",
     "label": "non-returning path, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-path"
+    "parentId": "lokuttara-non-returning-path",
+    "labelMy": "အနာဂါမိမဂ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path-3",
     "group": "supramundane",
     "label": "non-returning path, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-path"
+    "parentId": "lokuttara-non-returning-path",
+    "labelMy": "အနာဂါမိမဂ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path-4",
     "group": "supramundane",
     "label": "non-returning path, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-path"
+    "parentId": "lokuttara-non-returning-path",
+    "labelMy": "အနာဂါမိမဂ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-path-5",
     "group": "supramundane",
     "label": "non-returning path, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-path"
+    "parentId": "lokuttara-non-returning-path",
+    "labelMy": "အနာဂါမိမဂ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path",
     "group": "supramundane",
     "label": "arahantship path",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "အရဟတ္တမဂ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path-1",
     "group": "supramundane",
     "label": "arahantship path, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-path"
+    "parentId": "lokuttara-arahantship-path",
+    "labelMy": "အရဟတ္တမဂ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path-2",
     "group": "supramundane",
     "label": "arahantship path, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-path"
+    "parentId": "lokuttara-arahantship-path",
+    "labelMy": "အရဟတ္တမဂ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path-3",
     "group": "supramundane",
     "label": "arahantship path, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-path"
+    "parentId": "lokuttara-arahantship-path",
+    "labelMy": "အရဟတ္တမဂ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path-4",
     "group": "supramundane",
     "label": "arahantship path, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-path"
+    "parentId": "lokuttara-arahantship-path",
+    "labelMy": "အရဟတ္တမဂ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-path-5",
     "group": "supramundane",
     "label": "arahantship path, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-path"
+    "parentId": "lokuttara-arahantship-path",
+    "labelMy": "အရဟတ္တမဂ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit",
     "group": "supramundane",
     "label": "stream-entry fruit",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit-1",
     "group": "supramundane",
     "label": "stream-entry fruit, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-fruit"
+    "parentId": "lokuttara-stream-entry-fruit",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit-2",
     "group": "supramundane",
     "label": "stream-entry fruit, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-fruit"
+    "parentId": "lokuttara-stream-entry-fruit",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit-3",
     "group": "supramundane",
     "label": "stream-entry fruit, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-fruit"
+    "parentId": "lokuttara-stream-entry-fruit",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit-4",
     "group": "supramundane",
     "label": "stream-entry fruit, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-fruit"
+    "parentId": "lokuttara-stream-entry-fruit",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-stream-entry-fruit-5",
     "group": "supramundane",
     "label": "stream-entry fruit, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-stream-entry-fruit"
+    "parentId": "lokuttara-stream-entry-fruit",
+    "labelMy": "သောတာပတ္တိဖိုလ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit",
     "group": "supramundane",
     "label": "once-returning fruit",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit-1",
     "group": "supramundane",
     "label": "once-returning fruit, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-fruit"
+    "parentId": "lokuttara-once-returning-fruit",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit-2",
     "group": "supramundane",
     "label": "once-returning fruit, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-fruit"
+    "parentId": "lokuttara-once-returning-fruit",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit-3",
     "group": "supramundane",
     "label": "once-returning fruit, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-fruit"
+    "parentId": "lokuttara-once-returning-fruit",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit-4",
     "group": "supramundane",
     "label": "once-returning fruit, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-fruit"
+    "parentId": "lokuttara-once-returning-fruit",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-once-returning-fruit-5",
     "group": "supramundane",
     "label": "once-returning fruit, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-once-returning-fruit"
+    "parentId": "lokuttara-once-returning-fruit",
+    "labelMy": "သကဒါဂါမိဖိုလ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit",
     "group": "supramundane",
     "label": "non-returning fruit",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit-1",
     "group": "supramundane",
     "label": "non-returning fruit, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-fruit"
+    "parentId": "lokuttara-non-returning-fruit",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit-2",
     "group": "supramundane",
     "label": "non-returning fruit, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-fruit"
+    "parentId": "lokuttara-non-returning-fruit",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit-3",
     "group": "supramundane",
     "label": "non-returning fruit, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-fruit"
+    "parentId": "lokuttara-non-returning-fruit",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit-4",
     "group": "supramundane",
     "label": "non-returning fruit, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-fruit"
+    "parentId": "lokuttara-non-returning-fruit",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-non-returning-fruit-5",
     "group": "supramundane",
     "label": "non-returning fruit, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-non-returning-fruit"
+    "parentId": "lokuttara-non-returning-fruit",
+    "labelMy": "အနာဂါမိဖိုလ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit",
     "group": "supramundane",
     "label": "arahantship fruit",
-    "projection": "summary"
+    "projection": "summary",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit-1",
     "group": "supramundane",
     "label": "arahantship fruit, jhana 1",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-fruit"
+    "parentId": "lokuttara-arahantship-fruit",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်၊ ပထမဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit-2",
     "group": "supramundane",
     "label": "arahantship fruit, jhana 2",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-fruit"
+    "parentId": "lokuttara-arahantship-fruit",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်၊ ဒုတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit-3",
     "group": "supramundane",
     "label": "arahantship fruit, jhana 3",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-fruit"
+    "parentId": "lokuttara-arahantship-fruit",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်၊ တတိယဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit-4",
     "group": "supramundane",
     "label": "arahantship fruit, jhana 4",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-fruit"
+    "parentId": "lokuttara-arahantship-fruit",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်၊ စတုတ္ထဈာန်",
+    "myanmarReview": "pending"
   },
   {
     "id": "lokuttara-arahantship-fruit-5",
     "group": "supramundane",
     "label": "arahantship fruit, jhana 5",
     "projection": "detailed",
-    "parentId": "lokuttara-arahantship-fruit"
+    "parentId": "lokuttara-arahantship-fruit",
+    "labelMy": "အရဟတ္တဖိုလ်စိတ်၊ ပဉ္စမဈာန်",
+    "myanmarReview": "pending"
   }
 ]
