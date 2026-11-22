@@ -47,7 +47,7 @@ export const config = {
   internalIntervalMs: integer('CITTA_INTERNAL_INTERVAL_MS', 1000, 1000, 86400000),
   contactIntervalMs: integer('CITTA_CONTACT_INTERVAL_MS', 3600000, 60000, 86400000),
   hourlyWorkLimit: integer('CITTA_HOURLY_WORK_LIMIT', 12, 0, 120000),
-  readRoot: resolve(process.env.CITTA_READ_ROOT || 'data/fixtures'),
+  readRoot: resolve(process.env.CITTA_READ_ROOT || '.local/sources'),
   adviserEnabled: process.env.CITTA_ADVISER_ENABLED !== 'false',
 };
 export function requireDatabase() {

@@ -6,6 +6,7 @@ export function reviewOutcome(kind: string, outcome: Outcome) {
       state: 'exhausted',
       reason: 'The effect may have occurred; redispatch is blocked pending reconciliation.',
     };
+  const provider = (outcome.usage as { provider?: string } | undefined)?.provider;
   if (
     !outcome.ok &&
     kind === 'INFER' &&
@@ -17,7 +18,9 @@ export function reviewOutcome(kind: string, outcome: Outcome) {
       criterion: 'not_met',
       state: 'exhausted',
       reason:
-        'I could not finish local reasoning because the local model connection failed or timed out. Your message is saved. Check the local model service before retrying.',
+        provider === 'codex'
+          ? 'Codex reasoning could not finish because its connection failed or timed out. Your message is saved. Check Connections before retrying.'
+          : 'I could not finish local reasoning because the local model connection failed or timed out. Your message is saved. Check the local model service before retrying.',
     };
   if (!outcome.ok)
     return {

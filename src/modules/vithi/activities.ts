@@ -1,3 +1,4 @@
+import { config } from '../../app/config.ts';
 import { ComputerFailure } from '../../infra/computer/desktop.ts';
 import { heartbeat, Context as ActivityContext } from '@temporalio/activity';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
@@ -56,6 +57,7 @@ export async function perform(id: string) {
           (claimed.work.kind === 'COMPUTER' &&
             (!(error instanceof ComputerFailure) || error.effectUncertain)),
         usage: {
+          ...(claimed.work.kind === 'INFER' ? { provider: config.cognitionProvider } : {}),
           wallMs: Date.now() - started,
           usageUnknown:
             !(error instanceof AdviserFailure || error instanceof ComputerFailure) ||

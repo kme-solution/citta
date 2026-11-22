@@ -467,3 +467,10 @@ test('goal backlog cannot crowd out the current request and retained focus evide
   assert.ok(Buffer.byteLength(JSON.stringify(selected)) <= 10000);
   assert.equal(ctx.eligibleGoals?.length, 10);
 });
+
+test('reasoning failures identify Codex without rewriting legacy outcome review', () => {
+  const outcome = { ok: false, error: 'Connection timed out', usage: { provider: 'codex' } };
+  assert.match(reviewOutcome('INFER', outcome).reason, /Codex.*Connections/);
+  assert.match(reviewOutcome('INFER', { ok: false, error: outcome.error }).reason, /local model/);
+  assert.equal(reviewOutcome('CONSULT_AI', { ...outcome, unknown: true }).criterion, 'unknown');
+});

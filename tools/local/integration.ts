@@ -38,6 +38,7 @@ const env = {
   CITTA_ADVISER_ENABLED: 'false',
   CITTA_INTERNAL_INTERVAL_MS: '10000',
   CITTA_COMPUTER_ENABLED: 'false',
+  CITTA_READ_ROOT: 'data/fixtures',
   CITTA_CODEX_TRANSPORT: 'exec',
 };
 const exec = promisify(execFile);

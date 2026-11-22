@@ -4,23 +4,23 @@
 
 ## Current scope and authority
 
-- Deliver a real continuing agent: persistent observations/memory, configured identity, motives, goals, one foreground stream, bounded abilities, interruptions, feedback and internally originated activity. Codex is conditional advice, not a default message router.
-- Kyaw authorized local testing/setup/fixes after source commit `28971bc` and requested everyday human-style interaction checks. The earlier source-only hold is superseded for this task. No new push is requested.
+- Deliver a real continuing agent: persistent observations/memory, configured identity, motives, goals, one foreground stream, bounded abilities, interruptions, feedback and internally originated activity. Deterministic routines avoid unnecessary inference; configured Codex cognition handles selected complex/internal consideration, while separate adviser speech remains attributable and unverified.
+- For this delivery Kyaw explicitly requested local commits, a dashboard, source formatting, service restart and sequential module/service review. Execution permission covers the necessary checks/migrations/restarts for this task; ordinary future implementation remains source-only under AGENTS.md until explicitly requested. No push was requested.
 - Kyaw explicitly deferred Myanmar conversation and accepted English models. Keep Myanmar catalog labels and existing literal operations; general Myanmar cognition is outside this delivery gate.
-- Stack: Node/TypeScript, Fastify/SSE, React/Vite, PostgreSQL, Temporal, Ollama and optional Codex CLI. The canonical additive runtime schema is `citta.*`; original `runtime.*` records and private `.env` remain intact.
-- Working tree contains verification fixes and evidence beyond the pushed source commit. Do not overwrite or reset them.
+- Stack: Node/TypeScript, Fastify/SSE, React/Vite, PostgreSQL, Temporal and configured Codex App Server; Ollama is an explicit alternative. The canonical additive runtime schema is `citta.*`; original `runtime.*` records and private `.env` remain intact.
+- Delivery commits are local on main; private .env/.env.runtime, credentials, operator screenshots and state remain excluded from Git.
 
 ## Running services
 
 | Service | Observed state / boundary |
 |---|---|
-| Updated portal | `http://localhost:4174`; root HTTP 200, database/runner ready. Uses isolated `citta_agent_dev`; English cognition is enabled for operator testing with Qwen 4B and a 300-second inference deadline. Supervisor log: `.local/state/portal-preview.log`. |
-| Existing portal | Original service/data preserved on 4173. |
+| Updated portal | `http://localhost:4174`; Dashboard landing, database/runner/Codex ready, control running. Uses isolated `citta_agent_dev`; Codex App Server cognition enabled. Latest supervisor session 69192; log `.local/state/portal-preview.log`. Normal READ sources are the private empty .local/sources directory. |
+| Existing portal | Original schema/data preserved; legacy portal is not the current operator delivery target. |
 | Temporal | Persistent local development server on 7233, UI 8233. |
-| PostgreSQL | Existing service preserved; new runtime/test databases isolated. Migrations 003–005 applied to development and verification databases. Applied migration checksums remain immutable. |
+| PostgreSQL | Existing service preserved; new runtime/test databases isolated. Migrations 003–012 applied to development and verification databases. Applied migration checksums remain immutable. |
 | Ollama | Loopback 11434, container quota three CPUs / 8 GiB; installed Qwen 4B and Gemma3 4B. Extra 8B download and mixed-language experiment stopped after scope changed. |
 
-`xdg-open` returned success for the preview. CUA had no available browser surface; operator-window visual inspection is not claimed. Separate real Chromium verification used synthetic test identity/data.
+Live headless-Chrome UI smoke and isolated fixture-browser checks are recorded below. Native desktop input is not claimed. The current snapshot supersedes earlier stage notes; the following sections retain chronological delivery evidence.
 
 ## Implemented behavior
 
@@ -268,3 +268,49 @@ At Kyaw’s request, formatted TypeScript/TSX, CSS, HTML and tsconfig with Prett
 Post-format verification: typecheck/build and 33 unit tests passed; 27 isolated integration checks and the browser suite passed again, including dashboard data/pagination/quoted replies, existing portal flows and desktop/mobile layout. All formatter checks, Python syntax compilation and shell syntax passed. Prettier required a second write on three TS files to reach its own stable check; final check passes. Dashboard screenshots were visually reviewed after the mobile navigation adjustment.
 
 Re-rendered architecture/behavior PDF/gallery artifacts from the accepted current sources with the formatted renderer. Link/anchor/stable-ID checks and render hashes pass. Visually reviewed changed F21 and A08 diagrams; they retain readable nodes/edges/captions. Generated artifacts/evidence are staged separately from the mechanical source commit. Operator restart and sequential module/service review follow.
+
+## Dashboard/format restart and sequential module/service review
+
+Activated migration 011 and restarted supervised services (session 56371), with Dashboard on the landing route. Live API returned actual published updates and ten queued contacts. Post-restart read-only sampling observed 32 successful INFER actions and one running action, with no failed actions created since that restart. Recent focus episodes showed linked two-turn inquiries and retained next steps; this is limited real-provider evidence, not a claim of autonomous research or complete human behavior.
+
+Initial source review, one module at a time, covered the continuing runtime and the reference/demo entrypoints. Existing 33 unit / 27 integration / 14 browser checks support the exercised paths; source review is not exhaustive verification of all scenarios or doctrinal mappings.
+
+| Module | Review result / next improvement |
+|---|---|
+| nama | Configured identity and unknown fields are explicit; conversational changes cannot silently replace it. Long identity fields can still exceed the required context budget; clearer configuration-size validation is optional. |
+| dvara | Observation kinds and source distinction are present. The portal is a speech channel; biological sense simulation is reference-only. |
+| sati | Context backlog defect fixed and replayed against real failures. **Next major work: relevance-based agent-wide memory retrieval**, retaining conversation provenance and correction validity. General conversation reads remain scoped. |
+| chanda | One retained focus, next step and deliberate deferred return are implemented. Real source-linked multi-turn progress was observed. Semantic useful-progress/deferral acceptance and durable skill consolidation need further evaluation. |
+| manasikara | Single recorded selection and interruption fairness are explicit and replayed. Priority/novelty could later use stronger concern relevance; avoid forcing unrelated topics or parallel minds. |
+| cetana | Evidence IDs, actual criterion, explicit task changes and scope are independently checked. Prompts still need scenario evaluation for stable focus and corrections; schema validity alone is insufficient. Legacy vaca demo dispatch is not the live runtime dispatcher. |
+| sikkha | File root, regular UTF-8/size, symlink and independent ability guards are present. Computer permission remains an OS/session capability; completion still needs actual screenshot feedback and no blind uncertain-effect retry. |
+| kamma | Real effects, source reads and desktop receipt handling are separated from proposals. **Found/fixed default fixture exposure**: normal sources now use private .local/sources; demos/integration explicitly select data/fixtures. Historical sample observations stay historical, not KME facts. |
+| paccavekkhana | Unknown external effects cannot become success; adviser claims stay unverified. **Found/fixed provider wording**: new Codex failures carry provider metadata and direct the operator to Connections, while legacy outcomes retain replay-compatible wording. |
+| vedana | Appraisals remain contextual metadata, not subjective feelings or factual evidence. Operational failures should continue to be distinguished from modeled affect in UI. |
+| vithi | Serialized owner, retained outcomes, pause/stop, fenced versions and offline replay are present. Activity/history could use dedicated pagination/filtering for older operator commitments instead of competing with frequent internal turns. |
+| citta-sangaha | Catalog projection/count paths remain separate from live agent state; domain/browser checks exercise actual data. No new source-code blocker found in inspected projection path. |
+| cetasika | Association/reference and demo feedback are not treated as proof of live human feeling. Myanmar and doctrinal terminology review remains pending. |
+| citta-vithi | Door/process reference fixtures remain explicit educational/reference paths; their fixed sequences are not the continuing-agent scheduler. Do not wire fixture moments into live-thinking evidence. |
+| khandha | Reference descriptions remain isolated from live runtime claims. Scientific/subjective equivalence is not established. |
+
+| Service / adapter | Review result / remaining work |
+|---|---|
+| Fastify portal/dashboard | Local host/origin write checks, bounded feed pages, original conversation links, truthful queued states and refresh routes reviewed. Dashboard browser/API checks passed; no fabricated operator messages in the operator database. |
+| PostgreSQL | Agent lock, transactions, outbox, idempotent receipts and correction lineage retained. A measured recent-thought query took ~26 ms; added pending migration 012 partial agent/time index matching its predicate to avoid a growing snapshot scan/sort. Broader retention/index planning should follow measured growth. |
+| Temporal worker | One foreground selection stream and bounded concurrent effects are distinct. Recorded history replay passed; no live effects execute during replay. |
+| Relay/supervisor | Outbox claim/lease and signalWithStart recovery reviewed. Local dependencies remain separately supervised; the laptop still needs documented backup/recovery acceptance beyond these smoke checks. |
+| Codex broker/App Server | Private per-agent auth, bounded transport, abort/watchdog/cooldown, working-context versions and progress metadata reviewed. Account connection and completed consideration remain separate signals. Full reusable-skill learning is not supplied merely by provider threads. |
+| Ollama | Loopback-only bounded transport and abort behavior covered by protocol tests. It remains an explicit alternative, with no automatic fallback; model-quality acceptance is separate. |
+| GNOME desktop driver | Last-granted keyboard/pointer/screen diagnostics are now available. **Actual OS-approved screen/input acceptance remains outstanding**; a user-approved retry is needed to identify the missing component. No root escalation or fabricated desktop operation. |
+| Telemetry/UI | Module/action summaries derive from retained records; span export omits prompts/content/credentials. Growing operational history needs a retention/archive policy separate from durable personal memory. |
+| Legacy CLI/demo adapters | Checked entrypoints use separate runtime-schema/sample flows. Keep explicitly labelled as demos; they are not evidence that the continuing runtime learned something. |
+
+Review corrections are a separate behavior commit after mechanical formatting. The private runtime source-root override changes only CITTA_READ_ROOT from data/fixtures to .local/sources; the original .env, identity and history remain intact, and no sample documents were copied. Final targeted tests/index timing and latest-source restart follow. Recommended next implementation priority is sati: one individual’s sourced memory across communication contexts, with bounded relevance selection rather than dumping all history into the model.
+
+## Final review corrections — activated and verified
+
+Final supervisor session 69192 runs the formatted dashboard and reviewed services with migration 012 applied. Live health reports database/runner/Codex ready and control running. A fresh successful INFER uses prompt v18 and availableSources=[]: no demo files are advertised. .local/sources is genuinely empty, not filled with generated sample data. Actual records/history and original private .env remain intact; .env.runtime changes only the reading-root override.
+
+Final checks: 34 unit tests, 27 isolated integration checks, typecheck and formatter checks passed. The unchanged dashboard UI retains its successful 14-check browser verification and desktop/mobile visual review; a final live read-only Dashboard/Mind refresh/layout smoke also passed with no submitted operator message. Python/shell syntax checks and design link/hash checks passed. The recent-thought query used the new partial index and took ~0.098 ms in the post-index local check, versus ~26 ms in the earlier sample; these are individual observations, not a performance SLA.
+
+Local delivery commits so far: 86ce858 runtime checkpoint, d584cf5 dashboard, e1cb129 mechanical formatting. Final service-review corrections/generated-design refresh and evidence are committed next; no push is authorized. Scope result: Dashboard, formatting, restart and initial sequential module/service review COMPLETE. The broader application remains PARTIAL: agent-wide conversational memory retrieval, sustained-focus/deferred-return semantic acceptance, reusable skill consolidation and real GNOME control acceptance remain outstanding. Next recommended module implementation: sati, with bounded relevance-based agent memory and preserved provenance.

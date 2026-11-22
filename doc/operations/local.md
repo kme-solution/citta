@@ -171,3 +171,7 @@ Waiting to share shows up to ten currently queued/deferred contacts, explicitly 
 Use Prettier 3.10.1 with .prettierrc.json for TypeScript/TSX, CSS, HTML and source configuration; Black 26.10.1 with line length 100 for tools/**/*.py; shfmt 3.14.1 with two-space indentation for tools/local/temporal.sh. Formatting tools were installed in private local/cache directories without changing dependency versions or lockfiles. Example Prettier invocation: `npm exec --yes --package=prettier@3.10.1 -- prettier --write --ignore-unknown src web tests tools package.json tsconfig.json .prettierrc.json`.
 
 Applied SQL migrations are checksum-pinned and excluded. Generated artifacts, doctrinal data, node_modules and private state are not formatter targets. Keep mechanical source formatting separate from behavior commits. Systemd unit files already use the supported readable key/value format.
+
+## Real reading sources versus examples
+
+The operator service now defaults to .local/sources. Put permitted real text documents there or explicitly set CITTA_READ_ROOT to a chosen evidence directory. An empty directory supplies no files to READ; persistent thought may still use sourced memory or permitted computer use. The checked-in data/fixtures lamp/quote/deployment files remain only for explicit demo/test runs. Integration verification selects data/fixtures explicitly. This change does not import, invent or delete operator records; historical sample-file observations are not evidence about KME’s real projects.

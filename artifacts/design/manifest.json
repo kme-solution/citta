@@ -1,16 +1,16 @@
 {
   "baseline": "accepted behavior, internal initiative and technology stack, 2026-11-22",
   "sources": {
-    "doc/design/architecture.md": "3435da7b8df24a543b7847438ce06718ad6514935c123bb25632e77895dcf479",
-    "doc/design/behavior-flows.md": "3b19000ae5c5da3b2c5523a06e2fc1a47ef028f1f156f3ae98f829983ac7d7e2"
+    "doc/design/architecture.md": "b7502f7c93d275733cc49ad2922ae9615d984f0df20a90027d5eafc0410a4e98",
+    "doc/design/behavior-flows.md": "fdf8916518d98fa0fe373af2cbedb3b20575abcb2f72e5778d634f5e11c910aa"
   },
   "renderer": {
-    "tools/docs/render_design.py": "00133701d2b4bdf4b09ec0b8d32e11fb95d339b0228a9225f0e1b635f6ea3db2"
+    "tools/docs/render_design.py": "ea01219fa24b393a7bd8ca7b728cfdbaef30ae35405f2896ac0d23067f049e30"
   },
   "outputs": {
-    "artifacts/design/behavior-flows.pdf": "a9ac724035b1a641d626d6f1be1ae852fc7df21142dcc2cde0452f9ec8c95680",
-    "artifacts/design/architecture.pdf": "02f4c01d56262fd333df4cfb79cf5c51f99ffb8ec6898f58f806d2b15bc0250f",
-    "artifacts/design/flowcharts.html": "9470b64fed168c7614a773d717d94a4aea6668d0de42588ee1667e5e5d85109d"
+    "artifacts/design/behavior-flows.pdf": "39bcc36785725c442b3fcc47478194851c7b7ffc8a203dd0be37c2a71b158db6",
+    "artifacts/design/architecture.pdf": "eabfb57e402e5d28dd5d85254faa285283357af02318d702909cdbfedd05d5df",
+    "artifacts/design/flowcharts.html": "aedf47f4a22a5e396e804dd80cb29a297be04b61c826f54ec4c3611466285e53"
   },
   "diagrams": {
     "behavior": 26,
