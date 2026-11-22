@@ -13,3 +13,6 @@ export interface RuntimeState {
  actions:{id:string;goal_id:string;kind:string;state:string;motive?:string}[];
   memories:{id:string;kind:string;content:string;source_id:string;supersedes?:string;valid:boolean;created_at:string}[];
 }
+
+export interface DashboardMessage extends Message {conversation_id:string;conversation_title:string}
+export interface DashboardFeed {items:DashboardMessage[];queued:{id:string;goal_id:string;conversation_id:string;text:string;reason:string;state:string;created_at:string}[];hasOlder:boolean;nextBefore:string|null}

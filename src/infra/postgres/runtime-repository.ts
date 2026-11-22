@@ -245,3 +245,29 @@ export async function goalDetail(id:string) {
     return {goal,frame,versions,transitions,decisions,actions,steps:activitySteps(decisions,actions)};
   });
 }
+
+export async function dashboardFeed(filter:'all'|'questions'|'reports'='all',before?:string){
+ const agentId=config.agentId;
+ const {rows}=await pool.query(`WITH candidates AS (
+   (SELECT m.id,m.ordinal FROM citta.messages m WHERE m.agent_id=$1 AND m.role='citta'
+    AND $2<>'questions' AND (m.initiative OR m.source='milestone')
+    AND ($2<>'reports' OR m.source='milestone')
+    AND COALESCE(m.contact_state,'') NOT IN ('declined','expired')
+    AND ($3::bigint IS NULL OR m.ordinal<$3::bigint) ORDER BY m.ordinal DESC LIMIT 11)
+   UNION
+   (SELECT m.id,m.ordinal FROM citta.goals g JOIN LATERAL (
+     SELECT id,ordinal FROM citta.messages WHERE agent_id=g.agent_id AND goal_id=g.id
+     AND conversation_id=g.conversation_id AND role='citta' ORDER BY ordinal DESC LIMIT 1
+    ) m ON true WHERE g.agent_id=$1 AND $2<>'reports' AND g.state='waiting'
+    AND g.wait_reason IN ('operator_input','evidence_or_operator_input')
+    AND ($3::bigint IS NULL OR m.ordinal<$3::bigint) ORDER BY m.ordinal DESC LIMIT 11)
+  ) SELECT ${conversationMessageFields},m.conversation_id,c.title AS conversation_title
+  FROM (SELECT id,ordinal FROM candidates ORDER BY ordinal DESC LIMIT 11) candidate
+  JOIN citta.messages m ON m.id=candidate.id AND m.agent_id=$1
+  JOIN citta.conversations c ON c.id=m.conversation_id AND c.agent_id=m.agent_id
+  ${conversationMessageJoins} ORDER BY m.ordinal DESC`,[agentId,filter,before||null]);
+ const {rows:queued}=await pool.query(`SELECT id,goal_id,conversation_id,text,reason,state,created_at FROM citta.contacts
+  WHERE agent_id=$1 AND state IN ('created','deferred') AND expires_at>now() ORDER BY created_at DESC,id LIMIT 10`,[agentId]);
+ const items=rows.slice(0,10);
+ return {items,queued,hasOlder:rows.length>10,nextBefore:items.at(-1)?.ordinal||null};
+}

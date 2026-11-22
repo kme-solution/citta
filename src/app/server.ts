@@ -12,7 +12,7 @@ import { config } from './config.ts';
 import { capabilities } from '../modules/kamma/registry.ts';
 import type { ServerResponse } from 'node:http';
 import { pool } from '../infra/postgres/database.ts';
-import { initialize, ingest, control, getState, eventsAfter, markSeen, declineContact, messageHistory, reviewProposal, goalDetail, replyToGoal, Conflict, Missing, type ControlRequest, type ProposalReviewRequest } from '../infra/postgres/runtime-repository.ts';
+import { initialize, ingest, control, getState, dashboardFeed, eventsAfter, markSeen, declineContact, messageHistory, reviewProposal, goalDetail, replyToGoal, Conflict, Missing, type ControlRequest, type ProposalReviewRequest } from '../infra/postgres/runtime-repository.ts';
 const app = Fastify({logger:{level:'info',redact:['req.headers.authorization','req.headers.cookie','req.body.apiKey']},bodyLimit:24000});
 const streams=new Set<ServerResponse>();
 app.addHook('preClose',async()=>{for(const stream of streams)stream.end();streams.clear();});
@@ -62,6 +62,7 @@ app.post<{Body:{conversationId:string;messageId:string;text:string;replyToContac
   return reply.code(202).send(result);
 });
 app.post<{Body:ControlRequest}>('/api/control',{schema:{body:{type:'object',additionalProperties:false,required:['requestId','operation','expectedVersion'],properties:{requestId:uuid,operation:{enum:['pause','resume','stop','cancel','extend','quiet','unquiet']},expectedVersion:{type:'integer',minimum:0},goalId:uuid}}}},async request=>control(request.body));
+app.get<{Querystring:{filter?:'all'|'questions'|'reports';before?:string}}>('/api/dashboard',{schema:{querystring:{type:'object',additionalProperties:false,properties:{filter:{enum:['all','questions','reports']},before:{type:'string',pattern:'^[0-9]{1,18}$'}}}}},async request=>dashboardFeed(request.query.filter,request.query.before));
 app.post<{Body:{conversationId:string}}>('/api/seen',{schema:{body:{type:'object',additionalProperties:false,required:['conversationId'],properties:{conversationId:uuid}}}},async request=>{await markSeen(request.body.conversationId);return {ok:true};});
 app.post<{Body:{contactId:string}}>('/api/contact/decline',{schema:{body:{type:'object',additionalProperties:false,required:['contactId'],properties:{contactId:uuid}}}},async request=>declineContact(request.body.contactId));
 app.post<{Body:ProposalReviewRequest}>('/api/proposals/review',{schema:{body:{type:'object',additionalProperties:false,required:['requestId','proposalId','expectedVersion','decision'],properties:{requestId:uuid,proposalId:uuid,expectedVersion:{type:'integer',minimum:1},decision:{enum:['accepted','declined']}}}}},async request=>reviewProposal(request.body));

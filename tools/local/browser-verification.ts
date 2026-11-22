@@ -26,7 +26,7 @@ try {
   console.log('Browser: '+browser.version());
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
-  await page.goto(base);await expect(page.getByRole('heading',{name:'A place to think together'})).toBeVisible();
+  await page.goto(base+'/#/inbox');await expect(page.getByRole('heading',{name:'A place to think together'})).toBeVisible();
   const editor=page.getByRole('textbox',{name:'Message Citta'});
   await editor.fill('remember browser persistence check');await editor.press('Enter');
   await expect(page.locator('.message.citta').filter({hasText:'Saved as your reported note'})).toHaveCount(1,{timeout:15000});
@@ -61,14 +61,27 @@ try {
   await expect(page.locator('.reply-topic')).toBeVisible();await expect(editor).toBeFocused();
   await editor.fill('Hello');await editor.press('Enter');
   await expect(page.locator('.message.operator').last().locator('.message-quote')).toBeVisible();await expect(editor).toBeFocused();
+  await expect(page.locator('.message.citta').last()).toContainText("Hello. I'm Citta verification.");
   passed('conversation Reply quotes the selected message and keeps the composer focused');
   // Explicit browser-only report fixture; never inserted in the operator database.
   const reportGoal=(await db.query('SELECT id,observation_id FROM citta.goals WHERE agent_id=$1 AND conversation_id=$2 ORDER BY created_at LIMIT 1',[agent,conversation])).rows[0];
   await db.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,goal_id,observation_id,source) VALUES($1,$2,$3,'citta',$4,$5,$6,'milestone')",[randomUUID(),agent,conversation,'Milestone report · completed\n\nGoal: Browser verification fixture\n\nOutcome: A test-owned saved note was recorded.\n\nEvidence: Reported note; suggestions remain unverified.\n\nNext: Review the activity.',reportGoal.id,reportGoal.observation_id]);
-  await page.goto(base);await expect(page.getByRole('link',{name:'View activity details →'})).toBeVisible();
+  await page.goto(base+'/#/inbox');await page.reload();await expect(page.getByRole('link',{name:'View activity details →'})).toBeVisible();
   await page.getByRole('link',{name:'View activity details →'}).click();await expect(page.getByRole('heading',{name:'Processing steps'})).toBeVisible();
   await page.getByRole('button',{name:/Inbox/}).click();await expect(page.locator('.message').last()).toContainText('Milestone report');
   passed('milestone report is readable in conversation and opens its actual activity');
+  await page.goto(base);await expect(page.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'Dashboard',exact:true})).toHaveAttribute('aria-current','page');
+  await page.getByRole('button',{name:'Milestone reports',exact:true}).click();
+  const dashboardReport=page.locator('.dashboard-updates article').filter({hasText:'Browser verification fixture'});
+  await expect(dashboardReport).toBeVisible();await page.screenshot({path:'artifacts/verification/dashboard-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'artifacts/verification/dashboard-mobile.png',fullPage:true});await page.setViewportSize({width:1440,height:1000});
+  await dashboardReport.getByRole('button',{name:'Reply',exact:true}).click();
+  await expect(page).toHaveURL(/#\/inbox$/);await expect(page.locator('.reply-topic')).toContainText('Browser verification fixture');await expect(editor).toBeFocused();
+  await page.getByRole('button',{name:'Cancel reply',exact:true}).click();
+  await page.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'Mind',exact:true}).click();await page.reload();await expect(page.getByRole('heading',{name:'Citta verification’s mind',exact:true})).toBeVisible();
+  await page.getByRole('navigation',{name:'Main navigation'}).getByRole('button',{name:'Inbox',exact:true}).click();await page.reload();await expect(editor).toBeVisible();
+  passed('dashboard landing/report filter opens the source quoted reply; refresh preserves Mind and Inbox');
+
   await page.screenshot({path:'artifacts/verification/milestone-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});await expect(page.locator('.mobile-conversations')).toBeVisible();await expect(editor).toBeVisible();
   await expect.poll(()=>thread.evaluate(el=>el.scrollHeight-el.scrollTop-el.clientHeight)).toBeLessThan(30);
@@ -76,7 +89,7 @@ try {
   await page.screenshot({path:'artifacts/verification/milestone-mobile.png',fullPage:true});passed('desktop/mobile layouts keep navigation, conversation and composer within viewport');
   assert.deepEqual(errors,[]);passed('no browser console or uncaught page errors');
   await context.close();
-  await writeFile('artifacts/verification/milestone-browser-results.json',JSON.stringify({revision:'working-tree (milestone reports)',browser:browser.version(),checks,errors,limits:'Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.'},null,2));
+  await writeFile('artifacts/verification/milestone-browser-results.json',JSON.stringify({revision:'working-tree (dashboard and continuing focus)',browser:browser.version(),checks,errors,limits:'Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.'},null,2));
 } finally {
   await browser?.close();try{await temporal.workflow.getHandle('citta/'+agent).terminate('Browser verification teardown');}catch{}
   for(const child of children)child.kill('SIGTERM');

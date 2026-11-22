@@ -61,3 +61,7 @@ Kyaw can miss individual suggestions in the thought stream. Deliver durable conv
 ### Continuing focus and free thought
 
 Kyaw clarified that conversations are communication contexts for one continuing individual, not separate memories/personas. Fix scattered attention first, then complete shared-memory retrieval. Retain one concern, its outcome/next step and source across turns, interruptions and conversation changes. New ideas can be unrelated to the immediate environment: preserve curiosity, imagination and memory associations. A deliberate detour records its reason and return point; do not force work-only/KME-only attention or manufacture continuous filler. Portal refresh must preserve the selected view, not return to stale Activity.
+
+### Dashboard and delivery communication
+
+Kyaw requested a dashboard where Kyaw2 can report back when he wants to say something. Use actual published initiatives, questions and milestone records across conversations, with ten-row pages, source conversation/activity links and the existing quoted Reply path. Show queued contact separately as undelivered; do not fabricate messages or bypass Quiet/contact controls. Source formatting belongs in a separate mechanical commit; applied migration contents are checksum-pinned. After dashboard/formatting/restart, review modules and services one by one and record concrete defects separately from optional improvements in the existing delivery document.

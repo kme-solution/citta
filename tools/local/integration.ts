@@ -210,6 +210,18 @@ try {
   assert.equal(acceptedQuote.reply_to.id,quotedMessage.id);assert.equal(acceptedQuote.goal_id,quotedGoal.goal);
   assert.equal((await request('/api/messages',{...quotedReply,text:'changed'})).status,409);
   passed('conversation reply retains scoped quote, resumes original task and stays idempotent after completion');
+  const dashboardQuestion=await recordedProposal('CLARIFY','Which source should the dashboard update use?');
+  await until(()=>request('/api/dashboard?filter=questions'),r=>r.data.items?.some((m:any)=>m.goal_id===dashboardQuestion.goal&&m.needs_reply));
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'quiet',expectedVersion:snapshot.agent.control_version});
+  const queuedQuestion=await recordedProposal('CLARIFY','A queued test question waiting for permission to share',{kind:'mental'});
+  await until(()=>request('/api/dashboard'),r=>r.data.queued?.some((c:any)=>c.goal_id===queuedQuestion.goal));
+  for(let i=0;i<12;i++)await db.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,source,goal_id,observation_id) VALUES($1,$2,$3,'citta',$4,'milestone',$5,$6)",[randomUUID(),agent,conversationId,'Dashboard fixture '+i,upgrade.goal,upgrade.input]);
+  const firstPage=(await request('/api/dashboard?filter=reports')).data;
+  assert.equal(firstPage.items.length,10);assert.equal(firstPage.hasOlder,true);assert.ok(firstPage.items.every((m:any)=>m.source==='milestone'&&m.conversation_id===conversationId));
+  const secondPage=(await request('/api/dashboard?filter=reports&before='+firstPage.nextBefore)).data;
+  assert.ok(secondPage.items.length);assert.ok(secondPage.items.every((m:any)=>!firstPage.items.some((n:any)=>n.id===m.id)));
+  assert.equal((await request('/api/dashboard?filter=wrong')).status,400);assert.equal((await request('/api/dashboard?before=invalid')).status,400);
+  passed('dashboard reads actual questions/reports/queued contacts, preserves source scope and pages ten rows without duplicates');
   const {rows:decisions}=await db.query<RecordedDecision>('SELECT id,engine,policy,snapshot,decision FROM citta.decisions WHERE agent_id=$1 ORDER BY created_at',[agent]);
   const replay=decisions.map(replayDecision);assert.ok(replay.length>5);assert.deepEqual(replay.filter(r=>r.state!=='matched'),[]);passed('offline replay of actual committed decisions');
   const archive={goals:(await db.query('SELECT id,state,version FROM citta.goals WHERE agent_id=$1',[agent])).rows,frames:(await db.query('SELECT goal_id,state,parent_goal_id,continuation_depth FROM citta.frames WHERE agent_id=$1',[agent])).rows,transitions:(await db.query('SELECT goal_id,version,previous_state,state,ordinal FROM citta.goal_transitions WHERE agent_id=$1 ORDER BY ordinal',[agent])).rows,actions:(await db.query('SELECT id,goal_id,goal_version,kind,state,reviewed FROM citta.actions WHERE agent_id=$1',[agent])).rows};

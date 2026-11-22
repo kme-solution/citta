@@ -154,3 +154,14 @@ test('profile interruption stays local and does not invent completion of prior w
   const answer=considerLocal(ctx)!;assert.equal(answer.action,'RESPOND');assert.match(answer.text,/Test identity/);assert.doesNotMatch(answer.text,/completed|finished/);
   assert.throws(()=>validateProposal({...proposal,text:'My name is Test identity. I have completed your earlier task as instructed.',goalReview:{criterion:'Task',status:'met',evidenceIds:['profile']}},ctx),/unfinished commitments/);
 });
+
+test('goal backlog cannot crowd out the current request and retained focus evidence',()=>{
+ const focus={id:'focus',version:1,topic:'A sourced concern',turns:1,lastOutcome:'A question was identified',nextStep:'Read the supporting note',reason:'Continue the same concern',sourceMemoryId:'focus-note',sourceConversationId:'conversation'};
+ const ctx:Context={...base,text:'Continue my task',goalCriterion:'Keep this criterion exactly',focus,
+  eligibleGoals:Array.from({length:10},(_,i)=>({id:'old-'+i,description:'Old internal opportunity '.repeat(100),criterion:'An unchanged old criterion',state:'exhausted',version:1})),
+  evidence:[{id:'focus-note',kind:'reported',origin:'memory',content:'Operator supplied concern'},{id:'input',kind:'reported',origin:'observation',content:'Continue my task'}]};
+ const selected=selectContext(ctx);
+ assert.equal(selected.text,ctx.text);assert.equal(selected.goalCriterion,ctx.goalCriterion);assert.equal(selected.focus?.id,focus.id);
+ assert.ok(selected.evidence.some(e=>e.id==='focus-note'));assert.equal(selected.contextSelection?.omittedGoals,10);
+ assert.ok(Buffer.byteLength(JSON.stringify(selected))<=10000);assert.equal(ctx.eligibleGoals?.length,10);
+});

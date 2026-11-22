@@ -1,16 +1,17 @@
+import {DashboardPage} from './DashboardPage.tsx';
 import {ConnectionsPage} from './ConnectionsPage.tsx';
 import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import type {RuntimeState, Message} from './types.ts';
+import type {RuntimeState, Message, DashboardMessage} from './types.ts';
 import {api} from './api.ts';
 import {MemoryRecords} from './MemoryRecords.tsx';
 import {MindPage} from './MindPage.tsx';
 import {ActivityPage} from './ActivityPage.tsx';
 import './style.css';
-type View = 'inbox'|'activity'|'mind'|'memory'|'catalog'|'connections';
+type View = 'dashboard'|'inbox'|'activity'|'mind'|'memory'|'catalog'|'connections';
 type Pending = {conversationId:string;messageId:string;text:string;replyToContactId?:string;replyToMessageId?:string};
 function readPending(): Pending|null { try {return JSON.parse(localStorage.getItem('citta.pending')||'null');} catch {return null;} }
-function viewFromHash():View {const name=location.hash.replace(/^#\/?/,'').split('/')[0];return ['inbox','activity','mind','memory','catalog','connections'].includes(name)?name as View:'inbox';}
+function viewFromHash():View {const name=location.hash.replace(/^#\/?/,'').split('/')[0];return ['dashboard','inbox','activity','mind','memory','catalog','connections'].includes(name)?name as View:'dashboard';}
 const timestamp = (value: string) => new Date(value).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 function App() {
   const [view,setView]=useState<View>(viewFromHash);
@@ -43,6 +44,8 @@ function App() {
   const follow=useRef(true);
   const loadVersion=useRef(0);
   const draftRef=useRef<HTMLTextAreaElement>(null);
+  const dashboardReply=useRef<DashboardMessage|null>(null);
+  function openDashboardMessage(message:DashboardMessage,reply:boolean){dashboardReply.current=reply?message:null;setReplyMessage(null);setConversation(message.conversation_id);navigate('inbox');}
   const load=useCallback(async()=> {
     const version=++loadVersion.current;
     try {
@@ -79,6 +82,7 @@ function App() {
     observer.observe(element);return ()=>observer.disconnect();
   },[view,conversation]);
   useEffect(()=>{follow.current=true;setJump(false);setReplyMessage(null);setOlder([]);setHistoryEnd(false);previousWindow.current=[];historyRequested.current=false;},[conversation]);
+  useEffect(()=>{const message=dashboardReply.current;if(message&&view==='inbox'&&conversation===message.conversation_id&&loadedConversation===conversation){setReplyMessage({id:message.id,role:message.role,text:message.text});dashboardReply.current=null;draftRef.current?.focus();}},[view,conversation,loadedConversation]);
   useLayoutEffect(()=>{if(previousHeight.current&&thread.current){thread.current.scrollTop+=thread.current.scrollHeight-previousHeight.current;previousHeight.current=0;}},[older]);
   useEffect(()=> {
     const seen=()=>{if(view==='inbox'&&conversation&&document.visibilityState==='visible')void api('/api/seen',{conversationId:conversation}).catch(()=>{});};
@@ -117,16 +121,17 @@ function App() {
   const filtered=rows.filter(row=>(catalogType!=='citta'||row.projection==='shared'||row.projection===projection)&&JSON.stringify(row).toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="app">
     <aside className="rail">
-      <a className="brand" href="#" onClick={e=>{e.preventDefault();navigate('inbox');}}><span className="brand-mark">စိတ်</span><span>{state?.profile.name||'Citta'}<small>Continuing local agent</small></span></a>
-      <nav aria-label="Main navigation">{([['inbox','Inbox','↗'],['activity','Activity','◎'],['mind','Mind','◉'],['memory','Memory','◇'],['catalog','Catalog','▤'],['connections','Connections','⚙']] as const).map(([key,label,icon])=><button key={key} aria-current={view===key?'page':undefined} className={view===key?'selected':''} onClick={()=>navigate(key)}><span aria-hidden="true">{icon}</span>{label}{key==='activity'&&activeGoals.length>0&&<b>{activeGoals.length}</b>}</button>)}</nav>
+      <a className="brand" href="#" onClick={e=>{e.preventDefault();navigate('dashboard');}}><span className="brand-mark">စိတ်</span><span>{state?.profile.name||'Citta'}<small>Continuing local agent</small></span></a>
+      <nav aria-label="Main navigation">{([['dashboard','Dashboard','▦'],['inbox','Inbox','↗'],['activity','Activity','◎'],['mind','Mind','◉'],['memory','Memory','◇'],['catalog','Catalog','▤'],['connections','Connections','⚙']] as const).map(([key,label,icon])=><button key={key} aria-current={view===key?'page':undefined} className={view===key?'selected':''} onClick={()=>navigate(key)}><span aria-hidden="true">{icon}</span>{label}{key==='activity'&&activeGoals.length>0&&<b>{activeGoals.length}</b>}</button>)}</nav>
       <div className="conversation-heading"><span>CONVERSATIONS</span><button title="New conversation" aria-label="New conversation" onClick={()=>{setConversation(crypto.randomUUID());navigate('inbox');}}>+</button></div>
       <div className="conversations">{state?.conversations.map(c=><button key={c.id} className={conversation===c.id?'current':''} onClick={()=>{setConversation(c.id);navigate('inbox');}}>{c.title}</button>)}{!state?.conversations.length&&<p className="muted">Your conversations will appear here.</p>}</div>
       <div className="rail-footer"><span className={'dot '+(connected?'online':'')}/>{connected?'Live connection':'Reconnecting…'}<small>Local inbox · private device</small></div>
     </aside>
     <main>
-      <header className="topbar"><div><div className="eyebrow">CITTA / {view.toUpperCase()}</div><h1>{view==='inbox'?'A place to think together':view==='activity'?'Thought & ongoing work':view==='mind'?`${state?.profile.name||'Citta'}’s mind`:view==='memory'?'Saved experience':view==='connections'?'Connect reasoning':'Reference catalog'}</h1></div><div className={'mode '+(state?.agent.control||'offline')}><span className="dot"/>{state?.agent.control||'Connecting'}</div></header>
+      <header className="topbar"><div><div className="eyebrow">CITTA / {view.toUpperCase()}</div><h1>{view==='dashboard'?`${state?.profile.name||'Kyaw2'}’s dashboard`:view==='inbox'?'A place to think together':view==='activity'?'Thought & ongoing work':view==='mind'?`${state?.profile.name||'Citta'}’s mind`:view==='memory'?'Saved experience':view==='connections'?'Connect reasoning':'Reference catalog'}</h1></div><div className={'mode '+(state?.agent.control||'offline')}><span className="dot"/>{state?.agent.control||'Connecting'}</div></header>
       <div className="mobile-conversations"><label className="sr-only" htmlFor="conversation">Conversation</label><select id="conversation" value={conversation} onChange={e=>setConversation(e.target.value)}>{!state?.conversations.some(c=>c.id===conversation)&&<option value={conversation}>New conversation</option>}{state?.conversations.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select><button aria-label="New conversation" onClick={()=>{setConversation(crypto.randomUUID());navigate('inbox');}}>＋ New</button></div><div className="controlbar"><span>{health.runner==='ready'?'Runner connected':'Runner unavailable'} · English conversation · Cognition: {health.cognition||'checking'}{health.cognition==='connect from Connections'&&<button className="connection-shortcut" onClick={()=>navigate('connections')}>Connect Codex →</button>}</span><div><button disabled={!state||busy||state.agent.control==='paused'} onClick={()=>void control('pause')}>Pause</button><button disabled={!state||busy||state.agent.control==='running'} onClick={()=>void control('resume')}>Resume</button><button disabled={!state||busy||state.agent.control==='stopped'} onClick={()=>void control('stop')}>Stop</button><button aria-pressed={state?.agent.quiet||false} disabled={!state||busy} onClick={()=>void control(state?.agent.quiet?'unquiet':'quiet')}>{state?.agent.quiet?'Quiet on':'Quiet'}</button></div></div>
       {error&&<div className="error" role="alert"><span>{error}</span><button aria-label="Dismiss error" onClick={()=>setError('')}>×</button></div>}
+      {view==='dashboard'&&<DashboardPage state={state} onOpen={openDashboardMessage} replyDisabled={sending||!!pending} onMind={()=>navigate('mind')} onActivity={id=>{location.hash='/activity/'+id;setView('activity');}}/>}
       {view==='inbox'&&<section className="inbox" aria-label="Conversation">
         {activeGoals.length>0&&<div className="ongoing"><span className="pulse"/> {activeGoals.length} ongoing {activeGoals.length===1?'commitment':'commitments'}<button onClick={()=>navigate('activity')}>View activity →</button></div>}
         <div className="thread" ref={thread} onScroll={()=>{const el=thread.current;if(el){follow.current=el.scrollHeight-el.scrollTop-el.clientHeight<100;if(follow.current)setJump(false);}}}>

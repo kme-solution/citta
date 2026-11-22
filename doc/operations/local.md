@@ -159,3 +159,9 @@ Portal view navigation writes the current view into the URL hash. Refresh restor
 ## Inference context-budget errors
 
 The selector bounds complete context to 10,000 UTF-8 bytes, rather than a token count. It excludes exhausted/closed targets, excerpts optional descriptions, reduces background goals before evidence, protects current request/criterion/focus sources and records omitted/excerpted context metadata. The original stored memories/tasks are not deleted. “Undetermined” on an infrastructure error means no modeled tone was assigned; it is not evidence of a human feeling. An irreducible request/focus/policy overflow is reported as an application context limit before a provider call, not as a request to use cloud fallback when Codex is already configured.
+
+## Dashboard
+
+Dashboard is the landing page. It shows ten actual shared updates at a time across Kyaw2’s conversations: initiatives, unanswered questions and milestone reports. Use All updates, Needs your reply or Milestone reports, and Older/Newer to browse history. Reply opens the source conversation with that message quoted in the existing composer. View activity opens the originating goal. A retained-concern preview links to Mind.
+
+Waiting to share shows up to ten currently queued/deferred contacts, explicitly not delivered. Opening the dashboard does not override Quiet or delivery limits. Source messages/history remain authoritative. Migration 011 adds feed indexes; apply before deploying the new API. Dashboard reads do not mark messages answered or approve proposals.

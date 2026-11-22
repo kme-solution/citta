@@ -1,8 +1,9 @@
 {
+  "revision": "working-tree (milestone reports)",
   "browser": "154.0.8037.57",
   "checks": [
     "Enter preserves composer focus after acceptance",
-    "browser \u2192 HTTP \u2192 Temporal \u2192 PostgreSQL \u2192 rendered durable reply",
+    "browser → HTTP → Temporal → PostgreSQL → rendered durable reply",
     "Shift+Enter newline and IME composition do not send prematurely",
     "refresh restores real scoped conversation and memory",
     "new conversation does not display previous private turns",
@@ -12,10 +13,10 @@
     "conversation auto-scroll, reading-position protection and stationary composer/inbox",
     "conversation Reply quotes the selected message and keeps the composer focused",
     "milestone report is readable in conversation and opens its actual activity",
+    "dashboard landing/report filter opens the source quoted reply; refresh preserves Mind and Inbox",
     "desktop/mobile layouts keep navigation, conversation and composer within viewport",
     "no browser console or uncaught page errors"
   ],
   "errors": [],
-  "limits": "Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.",
-  "revision": "working-tree (milestone reports)"
+  "limits": "Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite."
 }
