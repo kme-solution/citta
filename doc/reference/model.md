@@ -4,7 +4,7 @@
 
 ## Deep module research ledger
 
-Checked 2026-11-22 for the first [manasikara contract](../design/modules/manasikara.md). Discourses below use Thanissaro Bhikkhu's English translations on dhammatalks.org. Descriptions are paraphrases; application requirements are separately labelled engineering interpretations. The translated discourse and a translator's introduction/commentary are different source layers.
+Checked 2026-11-22 for the first [manasikara contract](../design/modules/manasikara/02-digital-model.md). Discourses below use Thanissaro Bhikkhu's English translations on dhammatalks.org. Descriptions are paraphrases; application requirements are separately labelled engineering interpretations. The translated discourse and a translator's introduction/commentary are different source layers.
 
 | ID     | Source and layer                                                                                                                                                                                                                                                                                                                                      | Narrow finding used here                                                                                                                                                                           |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -140,3 +140,17 @@ Trace positions 1–3 as life-continuum phases and positions 4–17 as process c
 - Ru-Yi Meditation Center, cross-checks for [catalog](https://www.ruyimeditation.org/theravada/abhidhamma/citta-sangaha/), [classification axes](https://www.ruyimeditation.org/theravada/abhidhamma/pakinnaka-sangaha/) and [process variants](https://www.ruyimeditation.org/theravada/abhidhamma/vithi-sangaha/).
 - Discourses: [SN 22.48, the aggregates](https://suttacentral.net/sn22.48/en/bodhi), [SN 35.23, the six sense pairs](https://www.dhammatalks.org/suttas/SN/SN35_23.html), [MN 18, contact and thought](https://www.dhammatalks.org/suttas/MN/MN18.html), [MN 148, the six sets](https://suttacentral.net/mn148/en/bodhi), and [AN 6.63, intention and action](https://suttacentral.net/an6.63/en/sujato).
 - OWASP, [AI Agent Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html).
+
+## Additional module research sources
+
+Checked 2026-11-22 while preparing the remaining module documents. Module-local source IDs and the exact source-versus-interpretation boundary belong to each module's first document, linked from the [inventory](../README.md#module-documentation-three-documents-one-module-at-a-time). New discourse references use Thanissaro Bhikkhu's translations; doctrinal summaries in Myanmar are project paraphrases pending specialist terminology review.
+
+- [MN 148, Chachakka](https://www.dhammatalks.org/suttas/MN/MN148.html): dvara/phassa source locations.
+- [SN 22.79, Khajjaniya](https://www.dhammatalks.org/suttas/SN/SN22_79.html): sanna source location.
+- [SN 36.6, Sallattha](https://www.dhammatalks.org/suttas/SN/SN36_6.html): vedana source location.
+- [SN 51.15, To Unnabha](https://www.dhammatalks.org/suttas/SN/SN51_15.html): chanda; the dialogue is Ananda's explanation within a discourse, not incorrectly attributed as direct Buddha speech.
+- [AN 3.88, Sekhin](https://www.dhammatalks.org/suttas/AN/AN3_88.html): sikkha source location.
+- [MN 58, Abhaya](https://www.dhammatalks.org/suttas/MN/MN58.html): vaca; use the actual discourse section separately from translator introduction/commentary.
+- [SN 22.59, Anatta-lakkhana](https://www.dhammatalks.org/suttas/SN/SN22_59.html): khandha source location.
+
+The previously identified BPS 2007 manual was inspected at chapter I (catalog classifications), II (factor association and definitions), III (doors), IV (processes), and VIII sections 29–31 (concept/designation). These are later Theravada reference layers. Catalog/process-rule expert review and Myanmar wording approval remain open; source inspection does not certify every existing classification rule.

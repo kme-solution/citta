@@ -1,33 +1,12 @@
-# Manasikara: attending to an object
+# Manasikara — digital model
 
-**Stage:** researched specification and implementation boundary; behavioral acceptance is pending. This is the first deep module review, not certification of the whole application. The earlier operational review and passing infrastructure tests do not establish this contract.
+**State:** behavioral specification; structural source exists but is unverified. Read the [Myanmar Buddhist explanation](01-buddhist-explanation.md) first and the [implementation design](03-implementation.md) next. This contract refines A02/A08, F02/F08/F21 and REQ-03/REQ-14/REQ-15/REQ-18. Actual evidence belongs to [status](../../../delivery/status.md).
 
-**Owners:** doctrinal provenance belongs to [source/model reference](../../reference/model.md); runtime ownership belongs to [contracts](../contracts.md); progress and executed evidence belong to [status](../../delivery/status.md). This document owns the detailed manasikara behavior and MA requirements. It refines A02/A08, F02/F08/F21 and REQ-03/REQ-14/REQ-15/REQ-18 without assigning literal consciousness to software.
+## Interpretation and source mapping
 
-## 1. Research basis and limits
+This is our software interpretation, not a literal mental process or claim of consciousness. MA-S7 supplies the later Theravada object-orientation explanation; MA-S1 and MA-S6 motivate examining what continued attention supports; MA-S2/MA-S3 motivate reconsidering elaboration. The [shared ledger](../../../reference/model.md) preserves source identities. Goal relevance, commercial usefulness and queue priority do not establish appropriate attention in the Buddhist sense.
 
-Use source IDs MA-S1 through MA-S10 in the reference ledger. Those entries distinguish translated discourses from later Theravada explanation. No queue length, scheduler tick, database row, language-model invocation or screenshot is itself a Buddhist thought-moment.
-
-MA-S7 explains the technical Theravada use of attention as orientation toward an object, alongside associated factors. MA-S1 concerns appropriate versus inappropriate attention, which is a different question from merely selecting an object. These must not be collapsed into a single numeric priority or a model-generated claim that its attention is wise.
-
-The engineering interpretation below is ours. Practical usefulness, evidence discipline, respecting the operator and avoiding harmful action are application criteria; they are not a substitute for the discourses' liberative aim. A curious thought about astronomy is not automatically inappropriate because it is unrelated to KME. A task-relevant thought is not automatically appropriate merely because it may earn money.
-
-MA-S2 and MA-S3 motivate reviewing the consequences of continued elaboration and changing direction when needed. They do not prescribe a fixed number of model turns. MA-S4 motivates care about self-reinforcing interpretation, but a repeated software string is not a diagnosis of papanca. MA-S5/MA-S6/MA-S8/MA-S9 identify adjacent concepts that need their own deep contracts.
-
-## 2. The current implementation gap
-
-| Existing mechanism                    | What it really supplies                                                               | What it does not establish                                                               |
-| ------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `selectAttention` priority comparator | An engineering choice among ready work, with stable tie-breaking and a fairness quota | The object being attended to, the orientation of consideration, or appropriate attention |
-| One Temporal foreground loop          | Serialized domain decisions and effect review                                         | Literal mental succession, associated mental factors or a human stream of consciousness  |
-| Persistent focus record               | A retained concern, source, next step and release reason                              | Proof that each generated response stays relevant or that settlement is justified        |
-| Evidence IDs and kinds                | Provenance and some independent factual/authority checks                              | Complete perception, mindfulness, understanding or ethical discernment                   |
-| A fluent reflection or `focusReview`  | A model proposal, with recorded text                                                  | Actual investigation, wisdom, learning, a verified outcome or spiritual attainment       |
-| Activity's old manasikara label       | A presentation of a queue-selection record                                            | A measured invocation of a doctrinal attention mechanism                                 |
-
-The comparator is useful and should move to `vithi`, where queue arbitration belongs. Removing the wrong ownership does not require deleting its tested scheduling guarantees. The new manasikara implementation must add a meaningful object contract and use it in actual consideration; renaming a function or attaching a decorative Pali label is insufficient.
-
-## 3. Three concepts that remain separate
+## Distinct concepts
 
 **Work opportunity:** an event the runtime can process now, such as a message, completed effect or internal cue. Queue arbitration decides which opportunity gets a turn. Its quota and tie-break are engineering policy.
 
@@ -37,7 +16,7 @@ The comparator is useful and should move to `vithi`, where queue arbitration bel
 
 A result of inference is a proposal about the current object; it must not become an independent observed fact merely because a provider returned it. A real file/screen result can become the next attended object while the task and its criterion remain retained. The active object's source kind must survive that transition.
 
-## 4. Requirements derived for Kyaw2
+## Requirements
 
 All MA requirements are engineering decisions informed by the research. They are not presented as quotations or literal equivalences.
 
@@ -58,25 +37,7 @@ All MA requirements are engineering decisions informed by the research. They are
 | MA-13 | Do not certify wisdom through a field                                | An object-ID check establishes reference consistency only; semantic suitability needs evidence and consequence review with other modules |
 | MA-14 | Preserve user control and truthful failure                           | Pause/Stop, scope, stale versions and unknown-effect guards outrank proposed curiosity or orientation                                    |
 
-## 5. Object representation
-
-The first implementation should use existing decision/action JSON snapshots rather than invent another authoritative store for the same data.
-
-An object-attention record contains:
-
-- A versioned engineering policy identifier.
-- The primary object ID, administrative kind and a bounded descriptive excerpt.
-- Source reference IDs and their existing configured/reported/observed/inferred status.
-- The original task ID, current trigger observation and, when present, focus ID/version.
-- The mode of orientation: receive, examine feedback, remember, continue a question, explore a starting interest or revisit a scheduled concern.
-- A short derived reason stating why this object is present. It is not a hidden reasoning transcript.
-- A feedback status when needed: returned, failed or effect unconfirmed. Receiving a screenshot does not itself establish a successful application action.
-
-Source references must come from the retained input, owned memory or actual effect records. A source missing from selected context cannot be silently invented. A synopsis is explicitly an excerpt. Do not truncate the actual operator request or current criterion to manufacture a fit.
-
-The object should remain stable across an INFER request and its returned proposal. A subsequent file/screen result can change the object; the transition records why. The original concern remains a distinct retained link. `continuationTask`, focus and selected evidence remain needed; the new object record must not replace them with one overloaded text string.
-
-## 6. Cooperation with the other modules
+## Cooperation with other modules
 
 | Boundary                       | Responsibility                                                                                                                   |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -94,7 +55,7 @@ The object should remain stable across an INFER request and its returned proposa
 
 These are software responsibilities. In the later Theravada account, associated mental factors are not a sequence of independent microservices taking turns as separate minds. The application may record their modeled facets in separate tables without claiming that database insertion order is doctrinal order.
 
-## 7. Lifecycle and correction rules
+## Behavioral lifecycle
 
 1. The scheduler admits one ready opportunity under current controls and records its engineering selection.
 2. The runtime selects owned, valid context and establishes the primary object. The object can be a received stimulus or internally supplied content.
@@ -107,7 +68,7 @@ These are software responsibilities. In the later Theravada account, associated 
 
 No step creates a fake text thought to make an idle screen appear alive. A future settled-attentive mode must be specified with vithi/chanda and Kyaw's continuous-mind requirement; it must preserve independent initiative without mechanically demanding a new sentence every second. This first object-binding slice must not quietly introduce an arbitrary idle cutoff.
 
-## 8. Detailed scenarios
+## Acceptance scenarios
 
 | ID     | Situation                                             | Required outcome / forbidden shortcut                                                                                          |
 | ------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -132,14 +93,6 @@ No step creates a fake text thought to make an idle screen appear alive. A futur
 
 For each semantic scenario, evaluate distinct paraphrases and contexts, inspect source/correction lineage, and review the actual next action/outcome. A golden sentence or successful JSON parse is not the acceptance oracle.
 
-## 9. Implementation slices and honest completion
+## Completion boundary
 
-**MA-A, structural foundation:** move queue arbitration to vithi; add a real object-attention record to new considered decisions and model context; independently bind proposals to that object; correct Activity's module attribution; retain old snapshot replay. This can be implemented without an extra SQL table.
-
-**MA-B, behavioral continuity:** prove interruption/return, feedback-object transitions, correction handling, free thought and explicit detours through the actual runtime. Requires authorized tests and provider/browser observation; fixtures alone are insufficient.
-
-**MA-C, appropriate orientation:** research and implement consequence-oriented consideration in cooperation with cetana/sikkha/paccavekkhana, including unhelpful elaboration and justified redirection. Do not add a fake `wise=true` field or treat goal relevance as wholesomeness. This gate is not satisfied by MA-A.
-
-**MA-D, cross-module fidelity:** complete the phassa/sanna/vedana/sati/chanda/identity contracts and revisit the shared object/facet boundaries. Missing modules and naming debt must remain explicit until their mechanisms and acceptance scenarios exist.
-
-The whole manasikara module remains PARTIAL until the relevant behavioral and cross-module gates have evidence. Source completion, a scheduler's fairness test and a Pali filename cannot substitute for that evidence.
+MA-01–MA-14 and MA-C01–MA-C18 remain the behavioral authority. Object binding alone cannot prove useful continuation, appropriate redirection or consequence awareness. Missing phassa/sanna and the detailed adjacent-module contracts remain explicit dependencies. The coding document distinguishes current source from remaining work.

@@ -28,8 +28,8 @@ src/
     dvara/              # Observation ingestion and provenance
     manasikara/         # Object orientation and source binding
     sati/               # Scoped memory, correction lineage and recall
-    chanda/             # Commitments, priorities and success criteria
-    cetana/             # Interpretation, consideration and proposed intention
+    chanda/             # Attributable interests and candidate concerns
+    cetana/             # Coordinated intention; interpretation belongs to vaca/sanna
     vedana/             # Explicitly modeled application appraisal
     sikkha/             # Independent constraints and authorization
     kamma/              # Registry, typed ability adapters and effect normalization
@@ -446,8 +446,12 @@ Normal operator operation reads only explicitly configured real local evidence, 
 
 ## Deep module alignment: manasikara boundary
 
-The detailed owner is [manasikara](modules/manasikara.md). Queue arbitration is engineering scheduling owned by vithi, not a sufficient implementation of the attention factor. New decisions need an explicit primary object and source binding, with associated modeled facets tied to that decision/object. Maintain compatibility readers for historical queue snapshots without manufacturing new records for old history. Appropriate-attention behavior remains a separate consequence-oriented gate involving cetana/sikkha/paccavekkhana. Pali names, type counts and generic infrastructure tests do not certify doctrinal fidelity.
+The detailed owner is [manasikara](modules/manasikara/02-digital-model.md). Queue arbitration is engineering scheduling owned by vithi, not a sufficient implementation of the attention factor. New decisions need an explicit primary object and source binding, with associated modeled facets tied to that decision/object. Maintain compatibility readers for historical queue snapshots without manufacturing new records for old history. Appropriate-attention behavior remains a separate consequence-oriented gate involving cetana/sikkha/paccavekkhana. Pali names, type counts and generic infrastructure tests do not certify doctrinal fidelity.
 
 ## Cetana ownership correction
 
-The [cetana module contract](modules/cetana.md) owns CE-01–CE-10. Communication interpretation lives in vaca/interpret.ts; proposal constraints live in sikkha/proposal.ts. Neither is sufficient intention formation. Explicit coordinated intention remains pending; do not present this ownership repair as a completed behavioral model.
+The [cetana module contract](modules/cetana/02-digital-model.md) owns CE-01–CE-10. Communication interpretation lives in vaca/interpret.ts; proposal constraints live in sikkha/proposal.ts. Neither is sufficient intention formation. Explicit coordinated intention remains pending; do not present this ownership repair as a completed behavioral model.
+
+## Complete module-documentation boundary
+
+The [documentation inventory](../README.md#module-documentation-three-documents-one-module-at-a-time) now lists three documents for all 16 existing module folders and the missing phassa/sanna/pannatti boundaries. This is the owning module-level research/digital/coding specification set. The preceding source tree is an older intended layout, not proof of implemented ownership. The [structure review](../delivery/status.md#module-and-service-structure-review--read-only) identifies current mismatches and the safe correction sequence. Do not create services for every doctrinal factor, turn catalogs into runtime diagnoses or call infrastructure Buddhist mental processes.
