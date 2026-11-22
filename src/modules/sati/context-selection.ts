@@ -8,6 +8,8 @@ function excerpt(text:string,maxBytes:number) {
 /** Select explicit excerpts before inference; the actual selected context is persisted with its outcome. */
 export function selectContext(context:Context):Context {
   const selected=structuredClone(context);
+  selected.responseLanguage='en';
+  selected.preferences=selected.preferences?.filter(p=>p.key!=='response-language'||p.value==='en');
   delete selected.proposal;delete selected.reviewedOutcome;
   delete selected.attention;delete selected.inferenceAttention;delete selected.motiveSnapshot;
   delete selected.invalidatedEvidenceIds;delete selected.inferenceRequestId;

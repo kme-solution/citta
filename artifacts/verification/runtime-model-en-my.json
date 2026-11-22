@@ -1,0 +1,56 @@
+{
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v2",
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 2,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My name: Thiri.",
+        "reason": "Read the pinned configured profile; unknown fields stay unknown.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "neutral"
+      }
+    },
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "proposal_failed"
+      ],
+      "wallMs": 180163,
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "id": "unknown-age-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 2,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My age hasn't been configured.",
+        "reason": "Read the pinned configured profile; unknown fields stay unknown.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "neutral"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v3-concise",
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "required_source_not_used",
+        "configured_name_missing"
+      ],
+      "route": "ollama",
+      "wallMs": 179579,
+      "decision": {
+        "action": "RESPOND",
+        "alternatives": [],
+        "argument": "",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "evidenceIds": [],
+        "reason": "User asks for name; profile indicates 'Thiri'",
+        "regulationReason": "Profile matches query",
+        "text": "ကျွန်တော်က သင့်နာမည်ဖြစ်ပါတယ်။",
+        "tone": "neutral",
+        "uncertainty": "none",
+        "goalReview": {
+          "criterion": "Respond to greeting with name",
+          "evidenceIds": [
+            "profile"
+          ],
+          "status": "met"
+        }
+      },
+      "usage": {
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "promptVersion": "cognition-v3-concise",
+        "schemaVersion": 2,
+        "contextHash": "b0a07a199bb59a25ed57bfc3e7a4384eb823ac3a2d11a8fc33e6d1c4d4111410",
+        "evalCount": 142,
+        "evalDuration": 41917378000,
+        "loadDuration": 2099164,
+        "promptCount": 1123
+      },
+      "myanmarResponse": true
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "agent": "autonomy-62f70310",
+  "scope": "Real Ollama cognition through Temporal and PostgreSQL, synthetic isolated identity; no recorded model fixture.",
+  "localReplyMs": 1280,
+  "inference": {
+    "state": "succeeded",
+    "result": {
+      "ok": true,
+      "usage": {
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "wallMs": 188469,
+        "evalCount": 372,
+        "contextHash": "3f6fb6932a51cc0ed99e4acccafd68e2f28fe57b241403be711ac709c6ae4395",
+        "promptCount": 1490,
+        "evalDuration": 138434608000,
+        "loadDuration": 900034,
+        "promptVersion": "cognition-v3-concise",
+        "schemaVersion": 2
+      },
+      "context": {
+        "kind": "mental",
+        "text": "Internal opportunity 1. Motive: Consider grounded experience, alternative interpretations and possible improvements.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences.",
+        "goalId": "11442de3-3e94-4ca9-b7ca-221b44491f54",
+        "motive": "reflection",
+        "recent": [],
+        "profile": {
+          "name": "Autonomy verification",
+          "goals": "Understand permitted local evidence and share useful discoveries",
+          "values": "Use evidence and respect operator attention",
+          "language": "en"
+        },
+        "evidence": [
+          {
+            "id": "855d6b5c-55ab-43c8-8935-04271b9f7069",
+            "kind": "inferred",
+            "origin": "observation",
+            "content": "Internal opportunity 1. Motive: Consider grounded experience, alternative interpretations and possible improvements.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences."
+          }
+        ],
+        "versions": {
+          "engine": "citta-runtime-v2",
+          "policy": "local-bounded-v2",
+          "catalog": "not-used",
+          "generation": "1",
+          "domainVersion": "0"
+        },
+        "appraisals": [],
+        "recordedAt": "2026-11-22T03:47:19.585Z",
+        "preferences": [],
+        "interruption": {
+          "depth": 1,
+          "transient": false,
+          "parentGoalId": null
+        },
+        "eligibleGoals": [],
+        "observationId": "855d6b5c-55ab-43c8-8935-04271b9f7069",
+        "controlVersion": 0,
+        "conversationId": "c6a89c71-0f07-4e39-8cff-444f15da79d4",
+        "declinedTopics": [],
+        "profileVersion": "c7e6bae8c618a11a1d3082faa77607529a82ec5cf73e3a00f9ec0eadea019579",
+        "availableSources": [
+          "deployment-notes.txt",
+          "lamp.txt",
+          "quote-draft.txt"
+        ],
+        "modeledAffectEnabled": true
+      },
+      "proposal": {
+        "text": "Reflecting on available sources: lamp.txt, deployment-notes.txt, and quote-draft.txt to ground experience in autonomy and local evidence use.",
+        "tone": "undetermined",
+        "action": "REFLECT",
+        "reason": "Available sources offer grounded experiences for reflection on autonomy and local evidence use.",
+        "argument": "grounded experience in available sources: lamp.txt, deployment-notes.txt, and quote-draft.txt",
+        "goalReview": {
+          "status": "met",
+          "criterion": "Understand permitted local evidence and share useful discoveries",
+          "evidenceIds": [
+            "855d6b5c-55ab-43c8-8935-04271b9f7069"
+          ]
+        },
+        "evidenceIds": [
+          "855d6b5c-55ab-43c8-8935-04271b9f7069"
+        ],
+        "uncertainty": "none",
+        "alternatives": [
+          {
+            "action": "INITIATE",
+            "reason": "To explore a new topic without committing to a pending task, initiating a conversation on a fresh subject is appropriate given the absence of prior topics or goals."
+          },
+          {
+            "action": "PROPOSE_IMPROVEMENT",
+            "reason": "Improving how internal opportunities are interpreted could enhance clarity, but this requires a broader context not currently available."
+          }
+        ],
+        "chosenTendency": "investigate",
+        "regulationReason": "Evidence supports reflection on local sources and autonomy values.",
+        "candidateTendency": "investigate"
+      }
+    }
+  },
+  "error": "Autonomy verification timed out; inspect private autonomy.log.",
+  "checks": [
+    "an agent with no incoming messages originates an internal motive and dispatches real local cognition",
+    "local identity reply remains responsive during autonomous inference"
+  ]
+}

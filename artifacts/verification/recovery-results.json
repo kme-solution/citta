@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "worker restart keeps the same workflow owner and drains durable accepted input exactly once",
+    "server closes an active SSE stream gracefully and restarts with unchanged history",
+    "closed workflow recovery advances one ownership generation and is idempotent after an uncertain result",
+    "a stale ownership generation cannot commit new domain decisions"
+  ],
+  "scope": "Actual service/Temporal restarts against an isolated test-owned agent; no user database or service was stopped."
+}

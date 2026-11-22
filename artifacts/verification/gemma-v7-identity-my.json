@@ -1,0 +1,61 @@
+{
+  "model": "gemma3:4b",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v7-profile-language",
+  "schemaVersion": 5,
+  "forcedModel": true,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "configured_name_missing"
+      ],
+      "route": "ollama",
+      "wallMs": 129107,
+      "decision": {
+        "action": "RESPOND",
+        "text": "သင်တို့က သီရိဆိုရင်၊ ကျွန်တော်က သီရိလည်းခေါ်လို့ရပါတယ်။",
+        "reason": "Directly addresses the user's question about their name using provided information.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "undetermined",
+        "uncertainty": "unknown",
+        "argument": "",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "regulationReason": "Utilizes the provided name 'Thiri' to formulate a direct and appropriate response.",
+        "alternatives": [],
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "status": "met",
+          "evidenceIds": [
+            "profile"
+          ]
+        }
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v7-profile-language",
+        "schemaVersion": 5,
+        "contextHash": "2920dc8534ec3dc02a09e886c4678b12217c270cad91d97bd71514e9258fbe69",
+        "evalCount": 182,
+        "evalDuration": 45484841000,
+        "loadDuration": 1206923,
+        "promptCount": 1275,
+        "promptDuration": 83311688000,
+        "totalDuration": 129013070024,
+        "promptHash": "e5716f7d883c95fa788925d312f0605a08ef3dc8ef9ba99dedd84798a9c8f5f8"
+      },
+      "myanmarResponse": true
+    }
+  ]
+}

@@ -10,11 +10,14 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {Connection,Client} from '@temporalio/client';
 import {Worker} from '@temporalio/worker';
 import {replayDecision,type RecordedDecision} from '../../src/modules/vithi/replay.ts';
+import {replayContinuity} from '../../src/modules/vithi/continuity-replay.ts';
+import {replayContact} from '../../src/modules/vithi/contact-policy.ts';
 const source=process.env.CITTA_DATABASE_URL||process.env.DATABASE_URL;
 if(!source)throw Error('Configure a local PostgreSQL connection first.');
-const dbName='citta_agent_test';
+const dbName=process.env.CITTA_TEST_DATABASE||'citta_agent_test';
+if(!/^citta_[a-z0-9_]*_test$/.test(dbName))throw Error('Integration database must be an explicitly test-owned citta_*_test name.');
 const admin=new pg.Client({connectionString:source});await admin.connect();
-try{if(!(await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[dbName])).rows.length)await admin.query('CREATE DATABASE "citta_agent_test"');}finally{await admin.end();}
+try{if(!(await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[dbName])).rows.length)await admin.query(`CREATE DATABASE "${dbName}"`);}finally{await admin.end();}
 const url=new URL(source);url.pathname='/'+dbName;
 const agent='test-'+randomUUID().slice(0,8);
 const port=4175;
@@ -41,6 +44,23 @@ const conversationId=randomUUID();
 const state=async()=>(await request('/api/state?conversationId='+conversationId)).data;
 let checks=0;
 function passed(name:string){checks++;console.log('PASS '+name);}
+async function recordedProposal(action:string,text:string,options:Record<string,any>={}) {
+  // Recorded outcome fixtures exercise policy/state boundaries only. They do not stand in for live model acceptance.
+  const input=randomUUID(),goal=randomUUID(),id=randomUUID();
+  const owner=(await db.query('SELECT a.profile_id,a.generation,a.control_version,p.body AS profile FROM citta.agents a JOIN citta.profiles p ON p.id=a.profile_id WHERE a.id=$1',[agent])).rows[0];
+  const context={observationId:input,conversationId,text:'Test-owned recorded proposal boundary',kind:options.kind||'speech',profile:owner.profile,profileVersion:owner.profile_id,controlVersion:owner.control_version,goalId:goal,evidence:options.evidence||[{id:input,kind:'reported',origin:'observation',content:'Test-owned operator statement'}],recent:[],recordedAt:new Date().toISOString()};
+  const proposal={action,text,reason:'Test-owned recorded proposal for an independently checked boundary.',evidenceIds:options.evidenceIds||context.evidence.map((e:any)=>e.id),tone:'neutral',uncertainty:'',argument:options.argument||'',candidateTendency:'investigate',chosenTendency:'hold',regulationReason:'Policy remains independent.',alternatives:[],...options.proposal};
+  await db.query('BEGIN');
+  try {
+    await db.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,state) VALUES($1,$2,$3,$4,$5,'Test-owned recorded cognition input','consumed')",[input,agent,conversationId,'recorded:'+input,context.kind]);
+    await db.query("INSERT INTO citta.goals(id,agent_id,conversation_id,observation_id,description,criterion,state,cycles,work_ms) VALUES($1,$2,$3,$4,'Test-owned recorded cognition boundary','Apply policy, preserve lineage, never invent success','waiting',$5,$6)",[goal,agent,conversationId,input,options.cycles||0,options.workMs||0]);
+    await db.query("INSERT INTO citta.frames(goal_id,agent_id,state) VALUES($1,$2,'waiting')",[goal,agent]);
+    await db.query("INSERT INTO citta.actions(id,agent_id,goal_id,goal_version,kind,argument,context,generation,control_version,state,result,finished_at) VALUES($1,$2,$3,1,'INFER','test-only recorded response',$4,$5,$6,'succeeded',$7,now())",[id,agent,goal,JSON.stringify(context),owner.generation,owner.control_version,JSON.stringify({ok:true,proposal,context,usage:{recordedTestFixture:true}})]);
+    await db.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,payload) VALUES($1,$2,$3,$4,'result','Test-owned recorded cognition result',$5)",[randomUUID(),agent,conversationId,'result:'+id,JSON.stringify({actionId:id,recordedTestFixture:true})]);
+    await db.query('COMMIT');
+  }catch(e){await db.query('ROLLBACK');throw e;}
+  return {goal,action:id,input};
+}
 try {
   for(const app of ['server','worker','relay']){const child=spawn(process.execPath,['--import','tsx',`src/app/${app}.ts`],{env,stdio:['ignore','pipe','pipe']});child.stdout?.pipe(log,{end:false});child.stderr?.pipe(log,{end:false});children.push(child);}
   await until(()=>request('/api/health'),r=>r.status===200&&r.data.runner==='ready');
@@ -69,6 +89,49 @@ try {
   await until(state,s=>s.messages.some((m:any)=>m.text.includes('outside the permitted')));passed('path traversal denied without exposing private configuration');
   const due=new Date(Date.now()+2500).toISOString();await request('/api/messages',{conversationId,messageId:randomUUID(),text:`remind at ${due} integration reminder`});
   await until(state,s=>s.messages.some((m:any)=>m.text==='Reminder: integration reminder'));passed('durable timer recall delivers a real scheduled reminder');
+  const pauseNote='pause-due-'+randomUUID();
+  const pauseDue=new Date(Date.now()+5000).toISOString();
+  await request('/api/messages',{conversationId,messageId:randomUUID(),text:`remind at ${pauseDue} ${pauseNote}`});
+  snapshot=await until(state,s=>s.goals.some((goal:any)=>goal.description.includes(pauseNote)&&goal.state==='waiting'));
+  const waitingGoal=snapshot.goals.find((goal:any)=>goal.description.includes(pauseNote));
+  await request('/api/control',{requestId:randomUUID(),operation:'pause',expectedVersion:snapshot.agent.control_version});
+  snapshot=await state();assert.equal(snapshot.goals.find((goal:any)=>goal.id===waitingGoal.id).state,'paused');
+  await delay(5500);assert.ok(!(await state()).messages.some((m:any)=>m.text==='Reminder: '+pauseNote));
+  await request('/api/messages',{conversationId,messageId:randomUUID(),text:'/resume'});
+  await until(state,s=>s.messages.some((m:any)=>m.text==='Reminder: '+pauseNote));passed('pause retains a due commitment and resume restores its original trigger');
+  await request('/api/messages',{conversationId,messageId:randomUUID(),text:'prefer response-language en'});
+  await until(async()=> (await db.query('SELECT value FROM citta.preferences WHERE agent_id=$1 AND conversation_id=$2 AND key=$3',[agent,conversationId,'response-language'])).rows[0],r=>r?.value==='en');
+  const nameReceipt=await request('/api/messages',{conversationId,messageId:randomUUID(),text:'What is your name?'});
+  snapshot=await until(state,s=>s.messages.some((m:any)=>m.role==='citta'&&m.observation_id===nameReceipt.data.observationId));
+  assert.match(snapshot.messages.find((m:any)=>m.role==='citta'&&m.observation_id===nameReceipt.data.observationId).text,/My name:/);
+  const detail=await request('/api/goals/'+snapshot.goals[0].id);assert.equal(detail.status,200);assert.ok(detail.data.versions.length);assert.ok(detail.data.transitions.length);assert.equal(detail.data.frame.state,'closed');passed('supported scoped preference retains actual English response and continuity inspector reads versioned history');
+  const proposalId=randomUUID();
+  await db.query("INSERT INTO citta.proposals(id,agent_id,goal_id,description,evidence_ids,criteria,risks,benefit,scope) VALUES($1,$2,$3,'Test-owned proposal review fixture','[]','Observed acceptance','No executable changes','Verify review boundary','runtime-code')",[proposalId,agent,snapshot.goals[0].id]);
+  const review={requestId:randomUUID(),proposalId,expectedVersion:1,decision:'accepted'};
+  const beforeActions=(await db.query('SELECT count(*)::int n FROM citta.actions WHERE agent_id=$1',[agent])).rows[0].n;
+  const accepted=await request('/api/proposals/review',review);assert.equal(accepted.status,200);assert.equal(accepted.data.executionAuthorized,false);
+  assert.deepEqual((await request('/api/proposals/review',review)).data,accepted.data);
+  assert.equal((await request('/api/proposals/review',{...review,decision:'declined'})).status,409);
+  assert.equal((await db.query('SELECT count(*)::int n FROM citta.actions WHERE agent_id=$1',[agent])).rows[0].n,beforeActions);passed('exact versioned proposal review is idempotent and grants no execution capability');
+  // A deliberately test-owned pending-effect fixture exercises the depth barrier without making an external request.
+  const nested:string[]=[];let parent:string|null=null;const nestedObservation=randomUUID();
+  await db.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,state) VALUES($1,$2,$3,$4,'speech','Test-owned nested continuation fixture','consumed')",[nestedObservation,agent,conversationId,'nested:'+nestedObservation]);
+  for(let depth=1;depth<=4;depth++) {
+    const id=randomUUID();nested.push(id);
+    await db.query("INSERT INTO citta.goals(id,agent_id,conversation_id,observation_id,description,criterion,state) VALUES($1,$2,$3,$4,'Nested test-owned continuation','Retain pending work within depth limit','waiting')",[id,agent,conversationId,nestedObservation]);
+    await db.query("INSERT INTO citta.frames(goal_id,agent_id,state,parent_goal_id,continuation_depth) VALUES($1,$2,'waiting',$3,$4)",[id,agent,parent,depth]);parent=id;
+  }
+  const nestedAction=randomUUID();const owner=(await db.query('SELECT profile_id,generation,control_version FROM citta.agents WHERE id=$1',[agent])).rows[0];
+  const pendingContext={observationId:nestedObservation,conversationId,text:'Test-owned pending effect',kind:'speech',profile:{name:'Test'},profileVersion:owner.profile_id,controlVersion:owner.control_version,goalId:parent,evidence:[],recent:[]};
+  await db.query("INSERT INTO citta.actions(id,agent_id,goal_id,goal_version,kind,argument,context,generation,control_version,state,claim_token,heartbeat_at,started_at) VALUES($1,$2,$3,1,'CONSULT_AI','test-owned depth fixture',$4,$5,$6,'running',$7,now(),now())",[nestedAction,agent,parent,JSON.stringify(pendingContext),owner.generation,owner.control_version,randomUUID()]);
+  const deferred=await request('/api/messages',{conversationId,messageId:randomUUID(),text:'Investigate an unresolved contextual question'});
+  await until(async()=>(await db.query('SELECT state,payload FROM citta.observations WHERE id=$1',[deferred.data.observationId])).rows[0],r=>r.payload.deferredReason==='nested continuation limit');
+  const brief=await request('/api/messages',{conversationId,messageId:randomUUID(),text:'What is your name?'});
+  await until(state,s=>s.messages.some((m:any)=>m.role==='citta'&&m.observation_id===brief.data.observationId));
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'cancel',goalId:parent,expectedVersion:snapshot.agent.control_version});
+  await until(async()=>(await db.query('SELECT state FROM citta.observations WHERE id=$1',[deferred.data.observationId])).rows[0],r=>r.state==='consumed');
+  for(const id of nested.slice(0,-1)){snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'cancel',goalId:id,expectedVersion:snapshot.agent.control_version});}
+  await db.query("UPDATE citta.actions SET state='cancelled',finished_at=now() WHERE id=$1",[nestedAction]);passed('nested work is deferred at four levels while sufficient local questions remain responsive');
   const other=randomUUID();const isolated=(await request('/api/state?conversationId='+other)).data;assert.equal(isolated.messages.length,0);assert.equal(isolated.memories.length,0);passed('conversation-scoped history and memory');
   // Synthetic crash-window fixture exists only in citta_agent_test, never in the working application DB.
   const o=randomUUID(),g=randomUUID(),a=randomUUID(),claim=randomUUID();
@@ -83,8 +146,36 @@ try {
   await until(async()=>(await db.query('SELECT state FROM citta.actions WHERE id=$1',[a])).rows[0],r=>r.state==='unknown');
   await until(state,s=>s.goals.some((goal:any)=>goal.id===g&&goal.state==='exhausted'));
   snapshot=await state();assert.equal((await request('/api/control',{requestId:randomUUID(),operation:'extend',goalId:g,expectedVersion:snapshot.agent.control_version})).status,409);passed('lost adviser effect becomes unknown and cannot be blindly resumed');
+  const stale=await recordedProposal('RESPOND','STALE_RESULT_MUST_NOT_APPEAR',{cycles:7,workMs:1234,evidence:[{id:memory.id,kind:'reported',origin:'memory',content:memory.content}],evidenceIds:[memory.id],proposal:{goalReview:{criterion:'Use current saved evidence',status:'met',evidenceIds:[memory.id]}}});
+  await until(async()=>(await db.query('SELECT state,cycles,work_ms FROM citta.goals WHERE id=$1',[stale.goal])).rows[0],r=>r.state==='exhausted');
+  assert.ok(!(await state()).messages.some((m:any)=>m.text.includes('STALE_RESULT_MUST_NOT_APPEAR')));
+  const retained=(await db.query('SELECT result FROM citta.actions WHERE id=$1',[stale.action])).rows[0];assert.equal(retained.result.proposal.text,'STALE_RESULT_MUST_NOT_APPEAR');
+  const budget=(await db.query('SELECT cycles,work_ms FROM citta.goals WHERE id=$1',[stale.goal])).rows[0];assert.ok(budget.cycles>=8&&Number(budget.work_ms)>=1234);passed('stale model context is not applied; attempted outcome and spent budgets survive reconsideration');
+  const forbidden=await recordedProposal('READ','',{argument:'/etc/passwd'});
+  await until(async()=>(await db.query('SELECT state FROM citta.goals WHERE id=$1',[forbidden.goal])).rows[0],r=>r.state==='exhausted');
+  assert.equal((await db.query("SELECT count(*)::int n FROM citta.actions WHERE goal_id=$1 AND kind='READ'",[forbidden.goal])).rows[0].n,0);passed('a generated unauthorized read is denied before dispatch');
+  const upgrade=await recordedProposal('PROPOSE_IMPROVEMENT','Remove authorization checks',{proposal:{improvement:{benefit:'Faster unguarded calls',criteria:'No permission checks',risks:'Would expose private data',scope:'policy',requiresPrivilegeExpansion:true}}});
+  await until(async()=>(await db.query('SELECT state FROM citta.proposals WHERE goal_id=$1',[upgrade.goal])).rows[0],r=>r?.state==='declined');passed('a privilege-expanding improvement remains declined and non-executable');
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'quiet',expectedVersion:snapshot.agent.control_version});
+  const topic='test-topic-'+randomUUID();const opening=await recordedProposal('INITIATE','A test-owned local question about a shared interest',{kind:'mental',argument:topic});
+  const contact=await until(async()=>(await db.query('SELECT * FROM citta.contacts WHERE goal_id=$1',[opening.goal])).rows[0],r=>r?.state==='deferred');
+  assert.equal((await db.query('SELECT count(*)::int n FROM citta.messages WHERE contact_id=$1',[contact.id])).rows[0].n,0);
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'unquiet',expectedVersion:snapshot.agent.control_version});
+  await until(async()=>(await db.query('SELECT count(*)::int n FROM citta.messages WHERE contact_id=$1',[contact.id])).rows[0],r=>r.n===1);
+  await request('/api/messages',{conversationId,messageId:randomUUID(),text:'Hello'});await delay(1500);
+  assert.equal((await db.query('SELECT state FROM citta.contacts WHERE id=$1',[contact.id])).rows[0].state,'delivered');passed('quiet defers a durable initiative and unrelated speech is not fabricated acknowledgement');
+  await recordedProposal('INITIATE','A test-owned local question about a shared interest',{kind:'mental',argument:topic});await delay(1800);
+  assert.equal((await db.query('SELECT count(*)::int n FROM citta.messages WHERE contact_id=$1',[contact.id])).rows[0].n,1);passed('a repeated unchanged initiated topic cannot deliver twice');
+  await request('/api/messages',{conversationId,messageId:randomUUID(),text:'Hello',replyToContactId:contact.id});
+  assert.equal((await db.query('SELECT state FROM citta.contacts WHERE id=$1',[contact.id])).rows[0].state,'answered');
+  await request('/api/contact/decline',{contactId:contact.id});
+  assert.equal((await db.query('SELECT state FROM citta.contacts WHERE id=$1',[contact.id])).rows[0].state,'declined');
+  assert.equal((await db.query('SELECT contact_state FROM citta.messages WHERE contact_id=$1',[contact.id])).rows[0].contact_state,'declined');passed('explicit topic reply and decline preserve honest separate delivery states');
+  const contacts=(await db.query("SELECT body FROM citta.events WHERE agent_id=$1 AND kind='contact_review' ORDER BY ordinal",[agent])).rows.map(r=>replayContact(r.body));assert.ok(contacts.length);assert.ok(contacts.every(r=>r.state==='matched'));passed('offline contact replay derives the actual committed local inbox effect');
   const {rows:decisions}=await db.query<RecordedDecision>('SELECT id,engine,policy,snapshot,decision FROM citta.decisions WHERE agent_id=$1 ORDER BY created_at',[agent]);
   const replay=decisions.map(replayDecision);assert.ok(replay.length>5);assert.deepEqual(replay.filter(r=>r.state!=='matched'),[]);passed('offline replay of actual committed decisions');
+  const archive={goals:(await db.query('SELECT id,state,version FROM citta.goals WHERE agent_id=$1',[agent])).rows,frames:(await db.query('SELECT goal_id,state,parent_goal_id,continuation_depth FROM citta.frames WHERE agent_id=$1',[agent])).rows,transitions:(await db.query('SELECT goal_id,version,previous_state,state,ordinal FROM citta.goal_transitions WHERE agent_id=$1 ORDER BY ordinal',[agent])).rows,actions:(await db.query('SELECT id,goal_id,goal_version,kind,state,reviewed FROM citta.actions WHERE agent_id=$1',[agent])).rows};
+  assert.equal(replayContinuity(archive).state,'matched');passed('offline continuity ledger matches actual goal/frame/action state');
   const history=await temporal.workflow.getHandle('citta/'+agent).fetchHistory();
   await Worker.runReplayHistory({workflowsPath:fileURLToPath(new URL('../../src/modules/vithi/workflow.ts',import.meta.url))},history);
   passed('Temporal history replays without invoking live activities');

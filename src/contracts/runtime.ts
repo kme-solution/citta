@@ -23,7 +23,7 @@ export interface Proposal {
 }
 export interface Context {
   observationId: string; conversationId: string; text: string; kind: string;
-  profile: Identity; profileVersion: string; controlVersion: number; goalId: string;
+  profile: Identity; profileVersion: string; controlVersion: number; goalId: string; goalCriterion?:string; responseLanguage?:'en'|'my'; goalRevisionAllowed?:boolean; goalCancellationAllowed?:boolean;
   evidence: Evidence[]; recent: {role: string; text: string}[]; motive?: string;
   availableSources?: string[];
   eligibleGoals?: {id:string;description:string;state:string;version:number;criterion:string}[];
@@ -49,6 +49,6 @@ export interface Work { id: string; kind: Ability; argument: string; context: Co
 export interface Outcome { ok: boolean; text?: string; proposal?: Proposal; context?:Context; error?: string; unknown?: boolean; usage?: unknown }
 export interface Tick { work: Work[]; waiting: boolean }
 export interface Decision { action: string; reason: string; text: string; evidenceIds: string[]; tone: Proposal['tone']; uncertainty?: string; argument?: string;candidateTendency?:Proposal['candidateTendency'];chosenTendency?:Proposal['chosenTendency'];regulationReason?:string;alternatives?:Proposal['alternatives'];improvement?:ImprovementDetails;goalReview?:GoalReview }
-export const ENGINE_VERSION = 'citta-runtime-v2';
-export const POLICY_VERSION = 'local-bounded-v2';
+export const ENGINE_VERSION = 'citta-runtime-v3';
+export const POLICY_VERSION = 'local-bounded-v3';
 export const TASK_QUEUE = 'citta-vithi';

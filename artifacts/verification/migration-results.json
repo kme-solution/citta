@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "fresh migration chain preserves existing legacy-schema records",
+    "repeated migration checksums/ledger do not reapply or duplicate schema",
+    "database foreign keys independently reject cross-agent observation and goal links",
+    "goal criterion history is append-only and completed goals cannot silently resume"
+  ],
+  "database": "citta_migration_2fe5a883_test",
+  "scope": "Dedicated newly created test database; original application databases untouched."
+}

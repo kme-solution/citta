@@ -4,6 +4,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import type { Identity } from "../nama/nama-service.ts";
+export class AdviserFailure extends Error {
+  readonly effectUncertain:boolean;
+  constructor(message:string,effectUncertain:boolean){super(message);this.name='AdviserFailure';this.effectUncertain=effectUncertain;}
+}
 
 function executable() {
   if (process.env.CITTA_CODEX_PATH) return process.env.CITTA_CODEX_PATH;
@@ -28,7 +32,9 @@ function adviserEnvironment(): NodeJS.ProcessEnv {
 }
 
 export async function askCodex(question: string, identity: Identity, signal?: AbortSignal): Promise<string> {
-  const cwd = await mkdtemp(join(tmpdir(), "citta-vaca-"));
+  if(signal?.aborted)throw new AdviserFailure('Codex: cancelled before process startup.',false);
+  let cwd:string;
+  try{cwd=await mkdtemp(join(tmpdir(), "citta-vaca-"));}catch{throw new AdviserFailure('Codex: could not prepare an isolated working directory.',false);}
   try {
     const file = executable();
     const args = ["exec", "--skip-git-repo-check", "--sandbox", "read-only", "--ephemeral", "-"];
@@ -38,13 +44,15 @@ export async function askCodex(question: string, identity: Identity, signal?: Ab
         cwd, env: adviserEnvironment(), timeout: 120000, killSignal: "SIGKILL", maxBuffer: 1024 * 1024, windowsHide: true, signal
       }, (error, stdout, stderr) => {
         if (error) {
+          const authenticationRejected=!error.killed&&!signal?.aborted&&/unauthorized|authentication (?:failed|required)|not (?:logged in|authenticated)|please (?:log|sign) in|\b401\b/i.test(stderr);
           const reason = error.code === "ENOENT" ? "CLI unavailable. Check PATH or CITTA_CODEX_PATH."
             : error.killed ? "CLI stopped before completion (timeout or output limit)."
-            : /unauthorized|sign in|authentication|not logged in|401/i.test(stderr)
+            : authenticationRejected
               ? "Authentication failed. Sign in to your local Codex CLI."
               : "CLI failed. Check codex exec from the portal's terminal.";
-          reject(new Error("Codex: " + reason));
-        } else if (!stdout.trim()) reject(new Error("Codex returned an empty reply."));
+          const definiteFailure=error.code==='ENOENT'||authenticationRejected;
+          reject(new AdviserFailure("Codex: " + reason,!definiteFailure));
+        } else if (!stdout.trim()) reject(new AdviserFailure("Codex returned an empty reply.",true));
         else resolve(stdout.trim());
       });
       // Early CLI exit can close stdin before the child callback reports the cause.
@@ -61,6 +69,6 @@ export async function askCodex(question: string, identity: Identity, signal?: Ab
       ].join("\n\n"));
     });
   } finally {
-    await rm(cwd, { recursive: true, force: true });
+    await rm(cwd, { recursive: true, force: true }).catch(()=>console.warn('Codex: temporary working directory cleanup failed.'));
   }
 }

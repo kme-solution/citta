@@ -1,0 +1,22 @@
+{
+  "agent": "autonomy-fe0ca444",
+  "scope": "Real Ollama cognition through Temporal and PostgreSQL, synthetic isolated identity; no recorded model fixture.",
+  "localReplyMs": 1278,
+  "inference": {
+    "state": "failed",
+    "result": {
+      "ok": false,
+      "error": "The operation was aborted due to timeout",
+      "usage": {
+        "wallMs": 180045,
+        "usageUnknown": true
+      },
+      "unknown": false
+    }
+  },
+  "error": "{\"ok\":false,\"error\":\"The operation was aborted due to timeout\",\"usage\":{\"wallMs\":180045,\"usageUnknown\":true},\"unknown\":false}\n+ actual - expected\n\n+ 'failed'\n- 'succeeded'\n",
+  "checks": [
+    "an agent with no incoming messages originates an internal motive and dispatches real local cognition",
+    "local identity reply remains responsive during autonomous inference"
+  ]
+}

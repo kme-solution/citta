@@ -1,0 +1,22 @@
+{
+  "model": "gemma3:4b",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v5-criterion",
+  "forcedModel": true,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "proposal_failed"
+      ],
+      "wallMs": 122013,
+      "error": "A generated response needs an explicit review of the actual goal criterion."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "model": "gemma3:4b",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v8-english",
+  "schemaVersion": 5,
+  "forcedModel": false,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 1,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My name: Thiri.",
+        "reason": "Read the pinned configured profile; unknown fields stay unknown.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "neutral"
+      }
+    },
+    {
+      "id": "unknown-age-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 2,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My age hasn't been configured.",
+        "reason": "Read the pinned configured profile; unknown fields stay unknown.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "neutral"
+      }
+    }
+  ],
+  "abortedReason": "Correct fixture condition placement without changing operator text or deterministic routing."
+}

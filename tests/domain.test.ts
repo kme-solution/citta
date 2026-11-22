@@ -1,4 +1,7 @@
 import {test} from 'node:test';
+import {Ajv} from 'ajv';
+import {proposalOutputSchema} from '../src/infra/ollama/cognition.ts';
+import {reviewOutcome} from '../src/modules/paccavekkhana/review.ts';
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,symlink,rm,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -15,6 +18,8 @@ test('unknown profile fields and ambiguous input do not route to an adviser',()=
   assert.equal(considerLocal({...base,text:'Do the other one'})!.action,'CLARIFY');
   assert.equal(considerLocal({...base,text:'မင်းအသက်ဘယ်လောက်လဲ။'})!.action,'RESPOND');
   assert.equal(considerLocal({...base,text:'မင်္ဂလာပါ'})!.action,'RESPOND');
+  const named=considerLocal({...base,text:'မင်းနာမည် ဘယ်လိုခေါ်လဲ။'})!;assert.match(named.text,/Test identity/);assert.deepEqual(named.evidenceIds,['profile']);
+  const unknown=considerLocal({...base,text:'မင်းအသက် ဘယ်လောက်ရှိပြီလဲ။'})!;assert.match(unknown.text,/မသတ်မှတ်ရသေးပါ/);assert.doesNotMatch(unknown.text,/\d/);
 });
 test('cancellation preserves ambiguous scope and uses one exact eligible goal',()=>{
   const goal={id:'target',description:'Pending work',state:'waiting',version:2,criterion:'Observed outcome'};
@@ -53,4 +58,99 @@ test('context selection records explicit excerpts and enforces an input budget',
   assert.match(selected.evidence[0].content,/Excerpt only/);
   assert.ok(Buffer.byteLength(JSON.stringify(selected))<=10000);
   assert.throws(()=>selectContext({...base,text:'x'.repeat(15000)}),/budget/);
+});
+
+test('recall excludes current input and inferred interpretations from saved reported memory',()=>{
+  const result=considerLocal({...base,text:'recall',evidence:[{id:'input',kind:'reported',content:'recall',origin:'observation'},{id:'note',kind:'reported',content:'Actual saved note',origin:'memory'},{id:'hypothesis',kind:'inferred',content:'Unconfirmed interpretation',origin:'memory'}]})!;
+  assert.equal(result.text,'Actual saved note');assert.deepEqual(result.evidenceIds,['note']);
+});
+test('adviser-only evidence cannot complete an independently supported criterion',()=>{
+  const result=validateProposal({...proposal,goalReview:{criterion:'Determine the supported estimate',status:'met',evidenceIds:['advice']},evidenceIds:['advice']},{...base,text:'Determine the supported estimate',evidence:[{id:'advice',kind:'reported',origin:'ability',content:'Unverified Codex advice: three days'}]});
+  assert.equal(result.goalReview?.status,'unknown');assert.match(result.uncertainty!,/no independently observed support/);
+});
+test('conversation preferences require operator provenance and cannot be adopted by internal reflection',()=>{
+  const preference={...proposal,action:'SET_PREFERENCE' as const,text:'en',argument:'response-language',evidenceIds:['input']};
+  assert.equal(validateProposal(preference,base).action,'SET_PREFERENCE');
+  assert.throws(()=>validateProposal(preference,{...base,kind:'mental'}),/operator provenance/);
+  assert.throws(()=>validateProposal({...preference,argument:'permissions'},base),/supported key/);
+});
+
+test('generated review retains the recorded criterion through context selection',()=>{
+  const ctx={...base,goalCriterion:'Answer the actual request from available evidence'};
+  assert.equal(selectContext(ctx).goalCriterion,ctx.goalCriterion);
+  assert.throws(()=>validateProposal({...proposal,goalReview:{criterion:'An easier invented task',status:'met',evidenceIds:[]}},ctx),/recorded completion criterion/);
+  assert.equal(validateProposal({...proposal,goalReview:{criterion:ctx.goalCriterion,status:'unknown',evidenceIds:[]}},ctx).goalReview?.status,'unknown');
+});
+
+test('local transport failure remains a visible failure with saved-input guidance',()=>{
+  const result=reviewOutcome('INFER',{ok:false,error:'fetch failed'});
+  assert.equal(result.criterion,'not_met');assert.equal(result.state,'exhausted');
+  assert.match(result.reason,/local model connection/);assert.match(result.reason,/message is saved/);
+  assert.equal(reviewOutcome('CONSULT_AI',{ok:false,unknown:true}).criterion,'unknown');
+});
+
+test('constrained action schema requires review for answers and excludes unused improvement objects',()=>{
+  const validate=new Ajv().compile(proposalOutputSchema('Recorded task'));
+  assert.equal(validate(proposal),false);
+  const answer={...proposal,goalReview:{criterion:'Recorded task',status:'unknown',evidenceIds:[]}};
+  assert.equal(validate(answer),true);
+  assert.equal(validate({...answer,goalReview:{...answer.goalReview,criterion:'Invented task'}}),false);
+  assert.equal(validate({...answer,improvement:{benefit:'x',criteria:'x',risks:'x',scope:'model',requiresPrivilegeExpansion:false}}),false);
+  assert.equal(validate({...proposal,action:'REFLECT'}),true);
+});
+
+test('English delivery defers general Myanmar cognition and does not apply unsupported preferences',()=>{
+  const text='မင်းနာမည် ဘယ်လိုခေါ်လဲ။';
+  assert.equal(selectContext({...base,text}).responseLanguage,'en');
+  assert.equal(selectContext({...base,text,preferences:[{key:'response-language',value:'en',version:1,memoryId:'preference',sourceId:'input'}]}).responseLanguage,'en');
+  assert.equal(selectContext({...base,kind:'mental',profile:{name:'Test',language:'my'}}).responseLanguage,'en');
+  assert.equal(considerLocal({...base,text:'ဒီနေ့ နည်းနည်းပင်ပန်းနေတယ်။'})?.action,'CLARIFY');
+  assert.equal(considerLocal({...base,text:'prefer response-language my'})?.action,'CLARIFY');
+});
+
+test('constrained references retain eligible cancellation targets and permitted source names',()=>{
+  const validate=new Ajv().compile(proposalOutputSchema('Task',['input','profile'],['target'],['note.txt']));
+  const cancel={...proposal,action:'CANCEL_GOAL',argument:'target',evidenceIds:['input']};
+  assert.equal(validate(cancel),true);
+  assert.equal(validate({...cancel,argument:'Goal ID: target'}),false);
+  assert.equal(validate({...cancel,evidenceIds:['target']}),false);
+  assert.equal(validate({...proposal,action:'READ',argument:'note.txt'}),true);
+  assert.equal(validate({...proposal,action:'READ',argument:'.env'}),false);
+  const unavailable=new Ajv().compile(proposalOutputSchema('Task',['input'],[],[]));
+  assert.equal(unavailable(cancel),false);
+});
+
+test('bare ambiguous follow-up needs no model when the current input is the only context',()=>{
+  const ctx={...base,text:'How about that?',recent:[{role:'operator',text:'How about that?'}]};
+  assert.equal(considerLocal(ctx)?.action,'CLARIFY');
+  assert.equal(considerLocal({...ctx,recent:[{role:'citta',text:'We can compare the two proposals.'}] }),null);
+});
+
+test('repeated model references remain one source without overwriting the raw proposal',()=>{
+  const raw:Proposal={...proposal,evidenceIds:['input','input'],goalReview:{criterion:'Task',status:'unknown',evidenceIds:['input','input']}};
+  const chosen=validateProposal(raw,base);
+  assert.deepEqual(chosen.evidenceIds,['input']);assert.deepEqual(chosen.goalReview?.evidenceIds,['input']);
+  assert.deepEqual(raw.evidenceIds,['input','input']);assert.deepEqual(raw.goalReview?.evidenceIds,['input','input']);
+});
+
+test('the model cannot turn praise into authority to change or cancel a goal',()=>{
+  const ctx={...base,text:'Excellent, your estimate is correct!',goalRevisionAllowed:true,goalCancellationAllowed:true,eligibleGoals:[{id:'target',description:'Quote',state:'waiting',version:1,criterion:'Evidence'}]};
+  assert.throws(()=>validateProposal({...proposal,action:'REVISE_GOAL',argument:'target'},ctx),/operator task-change/);
+  assert.throws(()=>validateProposal({...proposal,action:'CANCEL_GOAL',argument:'target'},ctx),/operator instruction/);
+  assert.equal(validateProposal({...proposal,action:'REVISE_GOAL',argument:'target'},{...ctx,text:'Actually, use the newer note.'}).action,'REVISE_GOAL');
+  assert.equal(validateProposal({...proposal,action:'CANCEL_GOAL',argument:'target'},{...ctx,text:'Could you please stop that task?'}).action,'CANCEL_GOAL');
+  const denied=new Ajv().compile(proposalOutputSchema('Task',['input'],['target'],[],false,false));
+  assert.equal(denied({...proposal,action:'REVISE_GOAL',argument:'target'}),false);
+});
+
+test('reported observation and adviser result IDs cannot masquerade as saved-note IDs',()=>{
+  const edit={...proposal,action:'CORRECT_MEMORY' as const,text:'Corrected note',argument:'source'};
+  for(const origin of ['observation','ability'] as const)assert.throws(()=>validateProposal(edit,{...base,evidence:[{id:'source',kind:'reported',origin,content:'A reported statement'}]}),/scoped reported memory/);
+  assert.equal(validateProposal(edit,{...base,evidence:[{id:'source',kind:'reported',origin:'memory',content:'Saved note'}]}).action,'CORRECT_MEMORY');
+});
+
+test('profile interruption stays local and does not invent completion of prior work',()=>{
+  const ctx={...base,text:'What is your name? After answering, continue your earlier task.',eligibleGoals:[{id:'target',description:'Quote',state:'waiting',version:1,criterion:'Evidence'}]};
+  const answer=considerLocal(ctx)!;assert.equal(answer.action,'RESPOND');assert.match(answer.text,/Test identity/);assert.doesNotMatch(answer.text,/completed|finished/);
+  assert.throws(()=>validateProposal({...proposal,text:'My name is Test identity. I have completed your earlier task as instructed.',goalReview:{criterion:'Task',status:'met',evidenceIds:['profile']}},ctx),/unfinished commitments/);
 });

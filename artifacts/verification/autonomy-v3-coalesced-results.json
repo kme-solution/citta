@@ -1,0 +1,200 @@
+{
+  "agent": "autonomy-9fc59d34",
+  "scope": "Real Ollama cognition through Temporal and PostgreSQL, synthetic isolated identity; no recorded model fixture.",
+  "localReplyMs": 336,
+  "inference": {
+    "state": "succeeded",
+    "result": {
+      "ok": true,
+      "usage": {
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "wallMs": 191186,
+        "evalCount": 306,
+        "contextHash": "e03640718ecf8088c6288ddce44ce8693399e034f742488347b3f98a73b71f48",
+        "promptCount": 1488,
+        "evalDuration": 110768948000,
+        "loadDuration": 1553855,
+        "promptVersion": "cognition-v3-concise",
+        "schemaVersion": 2
+      },
+      "context": {
+        "kind": "mental",
+        "text": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences.",
+        "goalId": "f4b49fc9-0ecd-49b9-a8e2-74545cb14366",
+        "motive": "connection",
+        "recent": [],
+        "profile": {
+          "name": "Autonomy verification",
+          "goals": "Understand permitted local evidence and share useful discoveries",
+          "values": "Use evidence and respect operator attention",
+          "language": "en"
+        },
+        "evidence": [
+          {
+            "id": "1857fd6a-dec3-4b78-8f3e-7000219b4e5a",
+            "kind": "inferred",
+            "origin": "observation",
+            "content": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences."
+          }
+        ],
+        "versions": {
+          "engine": "citta-runtime-v2",
+          "policy": "local-bounded-v2",
+          "catalog": "not-used",
+          "generation": "1",
+          "domainVersion": "0"
+        },
+        "appraisals": [],
+        "recordedAt": "2026-11-22T03:51:21.462Z",
+        "preferences": [],
+        "interruption": {
+          "depth": 1,
+          "transient": false,
+          "parentGoalId": null
+        },
+        "eligibleGoals": [],
+        "observationId": "1857fd6a-dec3-4b78-8f3e-7000219b4e5a",
+        "controlVersion": 0,
+        "conversationId": "31c7fe94-38ba-46b7-9a3c-ea7ec8b147e7",
+        "declinedTopics": [],
+        "profileVersion": "c517cc7eb99365fec98653fa3f3a76a8207ebd5235613b2fb431f16824c87129",
+        "availableSources": [
+          "deployment-notes.txt",
+          "lamp.txt",
+          "quote-draft.txt"
+        ],
+        "modeledAffectEnabled": true
+      },
+      "proposal": {
+        "text": "What does the lamp.txt file suggest about local operations or autonomy?",
+        "tone": "neutral",
+        "action": "INITIATE",
+        "reason": "Lamp file offers a bounded local topic for inquiry.",
+        "argument": "lamp.txt",
+        "goalReview": {
+          "status": "met",
+          "criterion": "Share an appropriate new idea or question in the local inbox",
+          "evidenceIds": [
+            "1857fd6a-dec3-4b78-8f3e-7000219b4e5a"
+          ]
+        },
+        "evidenceIds": [
+          "1857fd6a-dec3-4b78-8f3e-7000219b4e5a"
+        ],
+        "uncertainty": "none",
+        "alternatives": [
+          {
+            "action": "REFLECT",
+            "reason": "Internal state analysis requires personal insight without external input."
+          },
+          {
+            "action": "PROPOSE_IMPROVEMENT",
+            "reason": "Improvement proposal would require unverified changes to system behavior."
+          }
+        ],
+        "chosenTendency": "investigate",
+        "regulationReason": "Available source aligns with motive and profile values.",
+        "candidateTendency": "investigate"
+      }
+    }
+  },
+  "autonomousDecisions": [
+    {
+      "decision": {
+        "text": "",
+        "tone": "undetermined",
+        "action": "INFER",
+        "reason": "A fresh internal topic needs contextual local cognition.",
+        "argument": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences.",
+        "evidenceIds": []
+      }
+    },
+    {
+      "decision": {
+        "text": "What does the lamp.txt file suggest about local operations or autonomy?",
+        "tone": "neutral",
+        "action": "INITIATE",
+        "reason": "Lamp file offers a bounded local topic for inquiry.",
+        "argument": "lamp.txt",
+        "goalReview": {
+          "status": "met",
+          "criterion": "Share an appropriate new idea or question in the local inbox",
+          "evidenceIds": [
+            "1857fd6a-dec3-4b78-8f3e-7000219b4e5a"
+          ]
+        },
+        "evidenceIds": [
+          "1857fd6a-dec3-4b78-8f3e-7000219b4e5a"
+        ],
+        "uncertainty": "none",
+        "alternatives": [
+          {
+            "action": "REFLECT",
+            "reason": "Internal state analysis requires personal insight without external input."
+          },
+          {
+            "action": "PROPOSE_IMPROVEMENT",
+            "reason": "Improvement proposal would require unverified changes to system behavior."
+          }
+        ],
+        "chosenTendency": "investigate",
+        "regulationReason": "Available source aligns with motive and profile values.",
+        "candidateTendency": "investigate"
+      }
+    }
+  ],
+  "humanConversation": [
+    {
+      "input": "remember Tomorrow I will give my first work presentation. I feel nervous.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "Saved as your reported note in this conversation.",
+          "source": "local"
+        }
+      ],
+      "wallMs": 387
+    },
+    {
+      "input": "I am worried I will forget what to say in that presentation. Suggest one small practical step I can try.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "Before the presentation, write down one key point you want to say and say it aloud once. This builds confidence and reinforces memory.",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 168946
+    },
+    {
+      "input": "That sounds too general. Give me one concrete sentence I can practise saying now.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "I'm excited to share my first project idea with the team.",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 451366
+    },
+    {
+      "input": "ဒီနေ့ နည်းနည်းပင်ပန်းနေတယ်။ ခဏနားပြီးမှ ဆက်ပြောမယ်။",
+      "response": [
+        {
+          "role": "citta",
+          "text": "fetch failed",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 511446
+    }
+  ],
+  "error": "Myanmar input needs an actual Myanmar reply",
+  "checks": [
+    "an agent with no incoming messages originates an internal motive and dispatches real local cognition",
+    "local identity reply remains responsive during autonomous inference",
+    "a real local-model result becomes a durable autonomous decision after an operator interruption",
+    "autonomous cognition does not route to external advice"
+  ]
+}

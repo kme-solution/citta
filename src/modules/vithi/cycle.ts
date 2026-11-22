@@ -45,6 +45,7 @@ async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argum
   const {rows:[uncertain]}=await tx.query("SELECT id FROM citta.actions WHERE goal_id=$1 AND state='unknown' LIMIT 1",[ctx.goalId]);
   if(uncertain)throw Error('This goal has an unknown effect. Reconcile it before dispatching more work.');
   if (agent.work_used >= config.hourlyWorkLimit) throw Error('Global work budget is exhausted for this hour.');
+  ctx.goalCriterion=goal.criterion;
   const id = randomUUID();
   await tx.query('INSERT INTO citta.actions(id,agent_id,goal_id,goal_version,kind,argument,context,generation,control_version) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',
     [id,config.agentId,ctx.goalId,goal.version,kind,argument,JSON.stringify(ctx),agent.generation,agent.control_version]);
@@ -204,6 +205,8 @@ async function internalObservation(tx: Tx, agent: Row, files: string[]) {
   if (!config.cognitionEnabled || agent.work_used >= Math.max(1,Math.floor(config.hourlyWorkLimit/2)) || new Date(agent.next_internal_at).getTime()>Date.now()) return null;
   const {rows:[pending]}=await tx.query("SELECT id FROM citta.observations WHERE agent_id=$1 AND state='pending' AND kind='mental' AND NOT(payload ? 'recallGoalId') LIMIT 1",[config.agentId]);
   if(pending)return null;
+  const {rows:[thinking]}=await tx.query("SELECT id FROM citta.actions WHERE agent_id=$1 AND kind='INFER' AND state IN ('queued','running') LIMIT 1",[config.agentId]);
+  if(thinking)return null;
   let {rows:[conversation]} = await tx.query('SELECT id FROM citta.conversations WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 1',[config.agentId]);
   if (!conversation) {
     conversation = {id:randomUUID()};

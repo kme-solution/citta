@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "local identity response arrives before actual in-flight Codex advice",
+    "real advice is persisted, attributed and explicitly unverified",
+    "cancellation of real adviser work cannot publish a late result or revive its goal"
+  ],
+  "localResponseMs": 986,
+  "scope": "Actual Codex CLI/provider requests in a synthetic isolated test conversation; no fabricated adviser output."
+}

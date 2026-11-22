@@ -1,0 +1,181 @@
+{
+  "agent": "autonomy-ce2bd6fb",
+  "scope": "Real Ollama cognition through Temporal and PostgreSQL, synthetic isolated identity; no recorded model fixture.",
+  "localReplyMs": 1284,
+  "inference": {
+    "state": "succeeded",
+    "result": {
+      "ok": true,
+      "usage": {
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "wallMs": 234485,
+        "threads": 3,
+        "evalCount": 147,
+        "promptHash": "d7b35813f70f2abc0805eac88e5c0783260d5e870c379613ae5eed6ce9d4ce0a",
+        "contextHash": "ecad37ae2eef04d05b5bda40bf42e5f397a1df1a00c0dc1762c9cc135decf5c4",
+        "promptCount": 1917,
+        "evalDuration": 58367595000,
+        "loadDuration": 7136164364,
+        "promptVersion": "cognition-v11-goal-authority",
+        "schemaVersion": 7,
+        "totalDuration": 234431398523,
+        "promptDuration": 168834395000,
+        "thinkingReturned": false,
+        "thinkingRequested": false
+      },
+      "context": {
+        "kind": "mental",
+        "text": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences.",
+        "goalId": "f18ae6e5-7855-4926-a557-0918dd2d2234",
+        "motive": "connection",
+        "recent": [],
+        "profile": {
+          "name": "Autonomy verification",
+          "goals": "Understand permitted local evidence and share useful discoveries",
+          "values": "Use evidence and respect operator attention",
+          "language": "en"
+        },
+        "evidence": [
+          {
+            "id": "d08e8915-6deb-4bb8-87d2-35a4ec33cc66",
+            "kind": "inferred",
+            "origin": "observation",
+            "content": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences."
+          }
+        ],
+        "versions": {
+          "engine": "citta-runtime-v3",
+          "policy": "local-bounded-v3",
+          "catalog": "not-used",
+          "generation": "1",
+          "domainVersion": "0"
+        },
+        "appraisals": [],
+        "recordedAt": "2026-11-22T05:30:44.907Z",
+        "preferences": [],
+        "interruption": {
+          "depth": 1,
+          "transient": false,
+          "parentGoalId": null
+        },
+        "eligibleGoals": [],
+        "goalCriterion": "Record a bounded grounded reflection, permitted exploration, local conversation opening or improvement proposal.",
+        "observationId": "d08e8915-6deb-4bb8-87d2-35a4ec33cc66",
+        "controlVersion": 0,
+        "conversationId": "47ffb273-8460-41ce-9ea8-82dc7d60c1d7",
+        "declinedTopics": [],
+        "profileVersion": "085c32b2732a370d5925a1455b94a364aa49cc56002d79083de59539a2af6fc0",
+        "availableSources": [
+          "deployment-notes.txt",
+          "lamp.txt",
+          "quote-draft.txt"
+        ],
+        "responseLanguage": "en",
+        "goalRevisionAllowed": false,
+        "modeledAffectEnabled": true,
+        "goalCancellationAllowed": false
+      },
+      "proposal": {
+        "text": "What does the lamp in the deployment notes symbolize in the context of autonomy verification?",
+        "tone": "undetermined",
+        "action": "REFLECT",
+        "reason": "Lamp may represent visibility or illumination of autonomy in operational settings.",
+        "argument": "What does the lamp in the deployment notes symbolize in the context of autonomy verification?",
+        "evidenceIds": [
+          "d08e8915-6deb-4bb8-87d2-35a4ec33cc66"
+        ],
+        "uncertainty": "low",
+        "alternatives": [],
+        "chosenTendency": "investigate",
+        "regulationReason": "Connects to autonomy theme via available source content.",
+        "candidateTendency": "investigate"
+      }
+    },
+    "finished_at": "2026-11-22T05:34:39.698Z"
+  },
+  "mentalActionsAtFirstCompletion": 1,
+  "autonomousDecisions": [
+    {
+      "decision": {
+        "text": "",
+        "tone": "undetermined",
+        "action": "INFER",
+        "reason": "A fresh internal topic needs contextual local cognition.",
+        "argument": "Internal opportunity 1. Motive: Share an appropriate new idea or question in the local inbox.. Previous topic: none. Choose a fresh bounded topic, not a pending task. Available source names: deployment-notes.txt, lamp.txt, quote-draft.txt. Quiet contact: false. Your interest can lead to reflection without speaking. Do not invent experiences.",
+        "evidenceIds": []
+      }
+    },
+    {
+      "decision": {
+        "text": "What does the lamp in the deployment notes symbolize in the context of autonomy verification?",
+        "tone": "undetermined",
+        "action": "REFLECT",
+        "reason": "Lamp may represent visibility or illumination of autonomy in operational settings.",
+        "argument": "What does the lamp in the deployment notes symbolize in the context of autonomy verification?",
+        "evidenceIds": [
+          "d08e8915-6deb-4bb8-87d2-35a4ec33cc66"
+        ],
+        "uncertainty": "low",
+        "alternatives": [],
+        "chosenTendency": "investigate",
+        "regulationReason": "Connects to autonomy theme via available source content.",
+        "candidateTendency": "investigate"
+      }
+    }
+  ],
+  "humanConversation": [
+    {
+      "input": "remember Tomorrow I will give my first work presentation. I feel nervous.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "Saved as your reported note in this conversation.",
+          "source": "local"
+        }
+      ],
+      "wallMs": 803
+    },
+    {
+      "input": "I am worried I will forget what to say in that presentation. Suggest one small practical step I can try.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "Before your presentation, write down one sentence of your key message on a piece of paper. Review it once before speaking. This simple step builds confidence and reduces the fear of forgetting.",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 162103
+    },
+    {
+      "input": "That sounds too general. Give me one concrete sentence I can practise saying now.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "For your presentation, say: 'I'm excited to share how our work supports autonomy in real-world decisions.'",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 156302
+    },
+    {
+      "input": "I feel sad because a close friend moved away. I just want someone to listen.",
+      "response": [
+        {
+          "role": "citta",
+          "text": "I hear you. It's hard to lose a friend, and having someone listen can make a difference. Thank you for sharing that.",
+          "source": "local-cognition"
+        }
+      ],
+      "wallMs": 150009
+    }
+  ],
+  "checks": [
+    "an agent with no incoming messages originates an internal motive and dispatches real local cognition",
+    "local identity reply remains responsive during autonomous inference",
+    "a real local-model result becomes a durable autonomous decision after an operator interruption",
+    "autonomous cognition does not route to external advice"
+  ],
+  "interruptedByOperatorTakeover": true,
+  "remainingHumanScenarios": "Not executed; operator requested access to test directly."
+}

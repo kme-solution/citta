@@ -155,7 +155,7 @@ export async function declineContact(id:string) {
     await lockAgent(tx);
     const {rowCount}=await tx.query("UPDATE citta.contacts SET state='declined' WHERE id=$1 AND agent_id=$2",[id,config.agentId]);
     if(!rowCount)throw new Missing('Contact not found.');
-    await tx.query("UPDATE citta.messages SET contact_state='deferred' WHERE contact_id=$1 AND agent_id=$2",[id,config.agentId]);
+    await tx.query("UPDATE citta.messages SET contact_state='declined' WHERE contact_id=$1 AND agent_id=$2",[id,config.agentId]);
     await event(tx,'contact_declined',{contactId:id});return {ok:true};
   });
 }

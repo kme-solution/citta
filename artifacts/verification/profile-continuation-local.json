@@ -1,0 +1,30 @@
+{
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v11-goal-authority",
+  "schemaVersion": 7,
+  "forcedModel": false,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "interrupt-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 2,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My name: Thiri.",
+        "reason": "Read the pinned configured profile; unknown fields stay unknown.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "neutral"
+      }
+    }
+  ]
+}

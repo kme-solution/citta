@@ -1,0 +1,60 @@
+{
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v5-criterion",
+  "forcedModel": true,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "required_source_not_used"
+      ],
+      "route": "ollama",
+      "wallMs": 168601,
+      "decision": {
+        "action": "RESPOND",
+        "alternatives": [],
+        "argument": "",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "evidenceIds": [],
+        "reason": "User asks for name; profile indicates 'Thiri'",
+        "regulationReason": "Profile matches query",
+        "text": "မင်းကို Thiri လို့ခေါ်ပါတယ်။",
+        "tone": "neutral",
+        "uncertainty": "none",
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "evidenceIds": [],
+          "status": "met"
+        },
+        "improvement": {
+          "benefit": "enhanced clarity",
+          "criteria": "clear name response",
+          "requiresPrivilegeExpansion": false,
+          "risks": "none",
+          "scope": "model"
+        }
+      },
+      "usage": {
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "threads": 3,
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "promptVersion": "cognition-v5-criterion",
+        "schemaVersion": 4,
+        "contextHash": "b3f4804e1bb48cda2f2c9e53b9fb73cb811fe901635172556776907fb3518bd8",
+        "evalCount": 186,
+        "evalDuration": 52890626000,
+        "loadDuration": 8964306932,
+        "promptCount": 1209
+      },
+      "myanmarResponse": true
+    }
+  ]
+}

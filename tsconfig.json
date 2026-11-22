@@ -1,1 +1,1 @@
-{"compilerOptions":{"target":"ES2023","module":"NodeNext","strict":true,"noEmit":true,"allowImportingTsExtensions":true,"erasableSyntaxOnly":true,"jsx":"react-jsx","esModuleInterop":true,"skipLibCheck":true},"include":["src","tools/local","web"]}
+{"compilerOptions":{"target":"ES2023","module":"NodeNext","strict":true,"noEmit":true,"allowImportingTsExtensions":true,"erasableSyntaxOnly":true,"jsx":"react-jsx","esModuleInterop":true,"skipLibCheck":true},"include":["src","tools/local","tools/evaluation","tests","web"]}

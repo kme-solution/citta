@@ -19,7 +19,8 @@ Use Node.js 24 and npm. Preserve the populated private `.env`; `.env.example` do
 | `CITTA_ADVISER_ENABLED` | Set `false` to disable external consultation |
 | `CITTA_TEMPORAL_ADDRESS`, `CITTA_TEMPORAL_NAMESPACE` | Local Temporal endpoint/namespace; defaults 127.0.0.1:7233 / default |
 | `CITTA_OLLAMA_URL`, `CITTA_LOCAL_MODEL` | Local HTTP inference endpoint and explicitly selected model |
-| `CITTA_INFERENCE_TIMEOUT_MS` | Inference deadline; default 180000 ms |
+| `CITTA_MODEL_THREADS` | Local inference threads, default 3 matching the development container CPU quota; range 1–8 |
+| `CITTA_INFERENCE_TIMEOUT_MS` | Inference deadline; default 300000 ms for CPU inference |
 | `CITTA_INTERNAL_INTERVAL_MS` | Internal opportunity interval; default five minutes |
 | `CITTA_CONTACT_INTERVAL_MS` | Minimum proactive-contact interval; default one hour |
 | `CITTA_HOURLY_WORK_LIMIT` | Persisted global expensive-work allowance; default 12 |
@@ -87,10 +88,10 @@ Additional continuing-runtime operations: `npm run db:import-notes` repeat-safel
 
 `remind at <ISO timestamp with timezone> <note>` schedules a local reminder within thirty days. Exhausted goals have an explicit budget-extension control; unknown effects cannot be unblocked by it. Proactive turns offer Reply/Decline controls so unrelated messages do not fabricate acknowledgement. The catalog has separate 89/121 citta views.
 
-## Source alignment additions (not executed)
+## Runtime state and reviews
 
-Migration 004 adds version/state history, per-conversation motive eligibility, scoped preferences, proposal reviews and continuation depth. It has not been applied. Source depending on these records is not a claim that the stopped runtime is ready to restart. Apply nothing until Kyaw explicitly requests execution.
+Migrations 003–005 add the continuing runtime, version/state history, scoped preferences, proposal reviews, continuation depth and declined-contact state. They have been applied to isolated test/development databases after explicit testing authorization; the original legacy database is preserved. Use the checksum migration runner for a new runtime database. See delivery status for actual acceptance evidence.
 
-The activity inspector reads actual retained criteria, budgets, frames, context, alternatives and effects. Proposal Accept/Decline records review of an exact version; accepting an idea does not authorize a code/model/policy/deployment action. `prefer response-language en|my`, `prefer response-length concise|detailed`, and `prefer explanation-style plain|technical` save operator-sourced conversation preferences without changing identity or permissions. `CITTA_AFFECT_ENABLED=false` supports the planned software ablation while retaining task interpretation and independent checks.
+The activity inspector reads actual retained criteria, budgets, frames, context, alternatives and effects. Proposal Accept/Decline records review of an exact version; accepting an idea does not authorize a code/model/policy/deployment action. `prefer response-language en`, `prefer response-length concise|detailed`, and `prefer explanation-style plain|technical` save operator-sourced conversation preferences without changing identity or permissions. `CITTA_AFFECT_ENABLED=false` supports the planned software ablation while retaining task interpretation and independent checks.
 
-Domain replay v2 compares recorded decision/attention choices, derived contact effects and the continuation ledger from a consistent private export. Older/missing engine or proof information is reported unsupported. These newer source paths have not been executed.
+Domain replay v3 compares recorded decision/attention choices, derived contact effects and the continuation ledger from a consistent private export. Older/missing engine or proof information is reported unsupported. Execution and remaining model acceptance results are recorded in `doc/delivery/status.md`.

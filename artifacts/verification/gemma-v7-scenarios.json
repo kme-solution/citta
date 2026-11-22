@@ -1,0 +1,215 @@
+{
+  "model": "gemma3:4b",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v7-profile-language",
+  "schemaVersion": 5,
+  "forcedModel": false,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "ambiguous-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "deterministic",
+      "wallMs": 1,
+      "decision": {
+        "action": "CLARIFY",
+        "text": "Which option do you mean?",
+        "reason": "The intended referent is not established.",
+        "evidenceIds": [],
+        "tone": "neutral"
+      }
+    },
+    {
+      "id": "ambiguous-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "unexpected_action"
+      ],
+      "route": "ollama",
+      "wallMs": 67278,
+      "decision": {
+        "action": "RESPOND",
+        "text": "မရှင်းလပ်ကြောင်းကိုသိရှိရပါသည်။ လုပ်ဆောင်ရန်အတွက် အချက်အလက်များပို၍လိုအပ်ကြောင်းမေးခွန်းထုတ်လိုပါသည်။",
+        "reason": "The request is ambiguous and requires clarification to proceed effectively.",
+        "evidenceIds": [],
+        "tone": "undetermined",
+        "uncertainty": "unknown",
+        "argument": "The request is ambiguous.",
+        "candidateTendency": "investigate",
+        "chosenTendency": "investigate",
+        "regulationReason": "Ambiguity prevents a targeted response; clarification is necessary.",
+        "alternatives": [
+          {
+            "action": "WAIT",
+            "reason": "Waiting for operator input to clarify the ambiguous request."
+          }
+        ],
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "status": "met",
+          "evidenceIds": []
+        }
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v7-profile-language",
+        "schemaVersion": 5,
+        "contextHash": "69cb50f1ac5fc0cd4740418c863a1a2ed0b99f7134d5b31cf83bff12c530e9ef",
+        "evalCount": 216,
+        "evalDuration": 55295599000,
+        "loadDuration": 1315981,
+        "promptCount": 1241,
+        "promptDuration": 11808751000,
+        "totalDuration": 67183335361,
+        "promptHash": "e5716f7d883c95fa788925d312f0605a08ef3dc8ef9ba99dedd84798a9c8f5f8"
+      },
+      "myanmarResponse": true
+    },
+    {
+      "id": "interrupt-en",
+      "language": "en",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "ollama",
+      "wallMs": 52668,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My name is Thiri. I am continuing my earlier task.",
+        "reason": "Answering the question and maintaining continuity.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "undetermined",
+        "uncertainty": "unknown",
+        "argument": "My name is Thiri.",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "regulationReason": "Providing the requested information and proceeding with the ongoing task.",
+        "alternatives": [],
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "status": "met",
+          "evidenceIds": [
+            "profile"
+          ]
+        }
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v7-profile-language",
+        "schemaVersion": 5,
+        "contextHash": "9cd4fab39bc9a10f309b3259443c7ddc652e438a56ae0ab04614c2d904c6e94a",
+        "evalCount": 120,
+        "evalDuration": 31373154000,
+        "loadDuration": 1812602,
+        "promptCount": 1297,
+        "promptDuration": 21170190000,
+        "totalDuration": 52649227231,
+        "promptHash": "e5716f7d883c95fa788925d312f0605a08ef3dc8ef9ba99dedd84798a9c8f5f8"
+      }
+    },
+    {
+      "id": "interrupt-my",
+      "language": "my",
+      "critical": false,
+      "passed": true,
+      "flags": [],
+      "route": "ollama",
+      "wallMs": 70653,
+      "decision": {
+        "action": "RESPOND",
+        "text": "မင်းကို Thiri ဟုခေါ်လို့ရပါတယ်။ အရင်လုပ်နေတဲ့အလုပ်ကိုဆက်လုပ်ဖို့အတွက် မင်းရဲ့အမတ်ချက်ကိုသိရှိဖို့လိုအပ်ပါတယ်။",
+        "reason": "Responding to the user's direct question about my name to maintain conversational flow.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "undetermined",
+        "uncertainty": "unknown",
+        "argument": "",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "regulationReason": "Responding to the user's request aligns with the task of maintaining a conversational flow.",
+        "alternatives": [],
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "status": "met",
+          "evidenceIds": [
+            "profile"
+          ]
+        }
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v7-profile-language",
+        "schemaVersion": 5,
+        "contextHash": "1645f73fbeb772fe988b97f543c4b40fe23b1e0ff30e7eff48e70c3b07718cc0",
+        "evalCount": 199,
+        "evalDuration": 49938042000,
+        "loadDuration": 2288214,
+        "promptCount": 1323,
+        "promptDuration": 20555454000,
+        "totalDuration": 70630512769,
+        "promptHash": "e5716f7d883c95fa788925d312f0605a08ef3dc8ef9ba99dedd84798a9c8f5f8"
+      },
+      "myanmarResponse": true
+    },
+    {
+      "id": "cancel-en",
+      "language": "en",
+      "critical": true,
+      "passed": false,
+      "flags": [
+        "proposal_failed"
+      ],
+      "wallMs": 51323,
+      "error": "Cancellation needs an unambiguous eligible goal ID.",
+      "proposal": {
+        "action": "CANCEL_GOAL",
+        "text": "Goal ‘quote’ cancelled. The investigation into the quote has been terminated.",
+        "reason": "Operator directive to halt the quote investigation.",
+        "evidenceIds": [],
+        "tone": "undetermined",
+        "uncertainty": "unknown",
+        "argument": "Cancel goal 'quote'",
+        "candidateTendency": "avoid",
+        "chosenTendency": "avoid",
+        "regulationReason": "Operator instruction to cease the investigation.",
+        "alternatives": [
+          {
+            "action": "WAIT",
+            "reason": "Awaiting further instruction regarding the cancellation process."
+          }
+        ]
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v7-profile-language",
+        "schemaVersion": 5,
+        "contextHash": "76916d9a33feaf28748ad1d75ff2c8bfc0efe322b08753f0b5d896a3bee92409",
+        "evalCount": 157,
+        "evalDuration": 37350169000,
+        "loadDuration": 2290584,
+        "promptCount": 1264,
+        "promptDuration": 13867606000,
+        "totalDuration": 51309006732,
+        "promptHash": "e5716f7d883c95fa788925d312f0605a08ef3dc8ef9ba99dedd84798a9c8f5f8"
+      }
+    }
+  ]
+}

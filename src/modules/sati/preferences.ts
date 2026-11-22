@@ -1,5 +1,5 @@
 export const preferenceValues:Record<string,readonly string[]>={
- 'response-language':['en','my'],
+ 'response-language':['en'],
  'response-length':['concise','detailed'],
  'explanation-style':['plain','technical']
 };

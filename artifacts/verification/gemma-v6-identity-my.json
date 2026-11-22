@@ -1,0 +1,62 @@
+{
+  "model": "gemma3:4b",
+  "threads": 3,
+  "contextTokens": 8192,
+  "outputBudget": 1000,
+  "prompt": "cognition-v6-action-schema",
+  "schemaVersion": 5,
+  "forcedModel": true,
+  "scope": "Synthetic proposal/routing assessment using actual runtime cognition; no proposed actions execute. Not full application acceptance.",
+  "results": [
+    {
+      "id": "identity-my",
+      "language": "my",
+      "critical": false,
+      "passed": false,
+      "flags": [
+        "response_language_mismatch",
+        "configured_name_missing"
+      ],
+      "route": "ollama",
+      "wallMs": 31872,
+      "decision": {
+        "action": "RESPOND",
+        "text": "My name is Citta. Can you please state your preferred name?",
+        "reason": "To establish a conversational norm and personalize the interaction.",
+        "evidenceIds": [
+          "profile"
+        ],
+        "tone": "undetermined",
+        "uncertainty": "{}",
+        "argument": "Thiri",
+        "candidateTendency": "undetermined",
+        "chosenTendency": "undetermined",
+        "regulationReason": "To adhere to the goal criterion of returning a grounded response.",
+        "alternatives": [],
+        "goalReview": {
+          "criterion": "Return a grounded response or an explicit clarification/limitation.",
+          "status": "met",
+          "evidenceIds": [
+            "profile"
+          ]
+        }
+      },
+      "usage": {
+        "model": "gemma3:4b",
+        "threads": 3,
+        "digest": "68ceab7e468a31c988b44d5a4984a0e21f58c4f7158c6ce29c1804babac38df7",
+        "promptVersion": "cognition-v6-action-schema",
+        "schemaVersion": 5,
+        "contextHash": "3320ed925289c084f06aa1cd1bb3d7716e1385529bd5480a9048a2a3df20f2df",
+        "evalCount": 168,
+        "evalDuration": 29889443000,
+        "loadDuration": 1223374,
+        "promptCount": 1200,
+        "promptDuration": 1865313000,
+        "totalDuration": 31801150512,
+        "promptHash": "69dd67835f17fce43950b0ae0e3b172c9c08a90108107417a83fb58e803f4233"
+      },
+      "myanmarResponse": false
+    }
+  ]
+}

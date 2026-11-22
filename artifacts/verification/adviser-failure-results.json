@@ -1,0 +1,6 @@
+{
+  "checks": [
+    "definitely unavailable CLI is a visible failed attempt, not success or uncertain remote execution"
+  ],
+  "scope": "Actual nonexistent executable failure; no external provider request was made."
+}
