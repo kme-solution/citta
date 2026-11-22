@@ -37,7 +37,7 @@ async function recordDecision(tx: Tx, ctx: Context, d: Decision, operationKey: s
 }
 async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argument: string) {
   authorize(kind,ctx,argument,config.adviserEnabled);
-  if(kind==='INFER'&&!config.cognitionEnabled)throw Error('Local cognition is not enabled. Evaluate the configured model, then set CITTA_COGNITION_ENABLED=true. No external fallback was used.');
+  if(kind==='INFER'&&!config.cognitionEnabled)throw Error('Cognition is not enabled. Set CITTA_COGNITION_ENABLED=true after selecting and evaluating the configured provider. No provider fallback was used.');
   const {rows:[goal]} = await tx.query('SELECT * FROM citta.goals WHERE id=$1 AND agent_id=$2',[ctx.goalId,config.agentId]);
   if (!goal || ['cancelled','completed','exhausted'].includes(goal.state)) throw Error('Goal is not eligible.');
   if (goal.cycles >= goal.budget_cycles || (kind === 'CONSULT_AI' && goal.adviser_calls >= goal.budget_adviser)) throw Error('Goal work budget exhausted.');
@@ -202,7 +202,8 @@ async function newGoal(tx: Tx, observation: Row,ctx:Context,transient:boolean) {
   return id;
 }
 async function internalObservation(tx: Tx, agent: Row, files: string[]) {
-  if (!config.cognitionEnabled || agent.work_used >= Math.max(1,Math.floor(config.hourlyWorkLimit/2)) || new Date(agent.next_internal_at).getTime()>Date.now()) return null;
+  const continuous=config.internalIntervalMs<=1000;
+  if (!config.cognitionEnabled || agent.work_used >= Math.max(1,Math.floor(config.hourlyWorkLimit/2)) || (!continuous&&new Date(agent.next_internal_at).getTime()>Date.now())) return null;
   const {rows:[pending]}=await tx.query("SELECT id FROM citta.observations WHERE agent_id=$1 AND state='pending' AND kind='mental' AND NOT(payload ? 'recallGoalId') LIMIT 1",[config.agentId]);
   if(pending)return null;
   const {rows:[thinking]}=await tx.query("SELECT id FROM citta.actions WHERE agent_id=$1 AND kind='INFER' AND state IN ('queued','running') LIMIT 1",[config.agentId]);
@@ -212,12 +213,12 @@ async function internalObservation(tx: Tx, agent: Row, files: string[]) {
     conversation = {id:randomUUID()};
     await tx.query("INSERT INTO citta.conversations(id,agent_id,title) VALUES($1,$2,'Local inbox')",[conversation.id,config.agentId]);
   }
-  const {rows:[motive]} = await tx.query('SELECT m.*,c.last_topic AS scoped_last_topic,c.last_context_signature,COALESCE(c.unchanged_turns,0) AS unchanged_turns FROM citta.motives m LEFT JOIN citta.motive_contexts c ON c.agent_id=m.agent_id AND c.motive_id=m.id AND c.conversation_id=$2 WHERE m.agent_id=$1 AND (m.conversation_id=$2 OR m.conversation_id IS NULL) AND m.enabled AND COALESCE(c.next_eligible_at,now())<=now() ORDER BY COALESCE(c.turns,0),m.turns,m.created_at,m.id LIMIT 1',[config.agentId,conversation.id]);
+  const {rows:[motive]} = await tx.query('SELECT m.*,c.last_topic AS scoped_last_topic,c.last_context_signature,COALESCE(c.unchanged_turns,0) AS unchanged_turns FROM citta.motives m LEFT JOIN citta.motive_contexts c ON c.agent_id=m.agent_id AND c.motive_id=m.id AND c.conversation_id=$2 WHERE m.agent_id=$1 AND (m.conversation_id=$2 OR m.conversation_id IS NULL) AND m.enabled AND ($3::boolean OR COALESCE(c.next_eligible_at,now())<=now()) ORDER BY COALESCE(c.turns,0),m.turns,m.created_at,m.id LIMIT 1',[config.agentId,conversation.id,continuous]);
   if (!motive) return null;
   const {rows:grounded}=await tx.query("SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND (conversation_id=$2 OR conversation_id IS NULL) AND valid AND kind IN ('configured','reported','observed','commitment') ORDER BY created_at DESC LIMIT 20",[config.agentId,conversation.id]);
   const groundedHashes=[...new Set(grounded.map(m=>createHash('sha256').update(m.kind+'\n'+m.content).digest('hex')))].sort();
   const signature=createHash('sha256').update(JSON.stringify({profile:agent.profile_id,motive:{name:motive.name,description:motive.description,origin:motive.origin},grounded:groundedHashes,files:[...files].sort()})).digest('hex');
-  const eligibility=nextMotiveEligibility({sameContext:signature===motive.last_context_signature,unchangedTurns:motive.unchanged_turns,intervalMs:config.internalIntervalMs,now:new Date().toISOString()});
+  const eligibility=nextMotiveEligibility({sameContext:signature===motive.last_context_signature,unchangedTurns:motive.unchanged_turns,intervalMs:config.internalIntervalMs,continuous,now:new Date().toISOString()});
   const motiveSnapshot={id:motive.id,name:motive.name,origin:motive.origin,description:motive.description,version:motive.version,contextSignature:signature,nextEligibleAt:eligibility.nextEligibleAt,unchangedTurns:eligibility.unchangedTurns,memoryIds:grounded.map(m=>m.id)};
   const id = randomUUID();
   const text = `Internal opportunity ${agent.internal_count+1}. Motive: ${motive.description}. Previous topic: ${motive.scoped_last_topic||'none'}. Choose a fresh bounded topic, not a pending task. Available source names: ${files.join(', ')||'none'}. Quiet contact: ${agent.quiet}. Your interest can lead to reflection without speaking. Do not invent experiences.`;

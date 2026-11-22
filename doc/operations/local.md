@@ -21,10 +21,12 @@ Use Node.js 24 and npm. Preserve the populated private `.env`; `.env.example` do
 | `CITTA_OLLAMA_URL`, `CITTA_LOCAL_MODEL` | Local HTTP inference endpoint and explicitly selected model |
 | `CITTA_MODEL_THREADS` | Local inference threads, default 3 matching the development container CPU quota; range 1–8 |
 | `CITTA_INFERENCE_TIMEOUT_MS` | Inference deadline; default 300000 ms for CPU inference |
-| `CITTA_INTERNAL_INTERVAL_MS` | Internal opportunity interval; default five minutes |
+| `CITTA_INTERNAL_INTERVAL_MS` | Internal opportunity interval; default one second (continuous succession); larger values select paced mode |
 | `CITTA_CONTACT_INTERVAL_MS` | Minimum proactive-contact interval; default one hour |
 | `CITTA_HOURLY_WORK_LIMIT` | Persisted global expensive-work allowance; default 12 |
 | `CITTA_READ_ROOT` | Permitted local evidence directory; default `data/fixtures` |
+
+For this laptop, `.env` retains credentials and configured identity. `.env.runtime` explicitly selects the continuing-runtime database, port 4174, English language, Qwen 4B, three inference threads, a five-minute inference deadline, one-second idle internal opportunities, hourly proactive contact and a 12-work hourly allowance. Both files remain private. Runtime overrides take precedence over `.env`; shell exports take precedence over both files. Keep the agent ID and database selection stable to retain the same individual and history.
 
 Identity snapshots are immutable and versioned at service initialization. Changing `.env` requires a coordinated service restart. Existing goals retain their pinned context. Model proposals and adviser speech cannot edit configured identity or grant abilities. The configured profile can be shared in explicit adviser requests; do not put secrets in these background fields.
 
@@ -95,3 +97,9 @@ Migrations 003–005 add the continuing runtime, version/state history, scoped p
 The activity inspector reads actual retained criteria, budgets, frames, context, alternatives and effects. Proposal Accept/Decline records review of an exact version; accepting an idea does not authorize a code/model/policy/deployment action. `prefer response-language en`, `prefer response-length concise|detailed`, and `prefer explanation-style plain|technical` save operator-sourced conversation preferences without changing identity or permissions. `CITTA_AFFECT_ENABLED=false` supports the planned software ablation while retaining task interpretation and independent checks.
 
 Domain replay v3 compares recorded decision/attention choices, derived contact effects and the continuation ledger from a consistent private export. Older/missing engine or proof information is reported unsupported. Execution and remaining model acceptance results are recorded in `doc/delivery/status.md`.
+
+## Codex cognition selection
+
+Set `CITTA_COGNITION_PROVIDER=codex` in private `.env.runtime` to use Codex for non-routine conversation and internal consideration. `CITTA_CODEX_PATH` selects the installed CLI; optional `CITTA_CODEX_MODEL` overrides its configured model. Existing CLI login is required. `CITTA_COGNITION_ENABLED` gates either provider, while `CITTA_ADVISER_ENABLED` independently gates optional advice. Selected context/profile/source excerpts are sent externally when Codex consideration runs, including autonomous turns. No automatic fallback occurs. Set provider to `ollama` for the existing offline path. Restart all supervised services after changing selection. Health checks CLI presence only, not authentication or model latency; those require an actual provider request.
+
+Continuous succession uses `CITTA_INTERNAL_INTERVAL_MS=1000`. Once a consideration/result is processed, another enabled interest can be selected on the next idle reconciliation cycle, without waiting for the old five-minute timer or a motive cooldown. Existing inference coalescing prevents overlapping model calls. Provider response time, controls, motive availability and budgets still apply. In the current work-budget policy, autonomous activity uses at most half the hourly allowance, reserving the remainder for interaction. Continuous succession therefore does not mean unlimited provider usage.

@@ -65,7 +65,7 @@ export function considerLocal(ctx: Context): Decision | null {
   if (read) return {...decision('READ','','Read an explicitly requested permitted local source.'),argument:read[1]};
   const ask = /^(?:ask|consult codex|codex ကိုမေးပါ)\s+([\s\S]+)$/iu.exec(text);
   if (ask) return {...decision('CONSULT_AI','','The operator explicitly requested external advice.'),argument:ask[1]};
-  if (/^(help|အကူအညီ)[.!?။]*$/iu.test(text)) return decision('RESPOND', 'Talk normally in English. I use local cognition when needed. Commands: remember <note>, recall, read file <relative path>, ask <question>. Pause, Resume, Stop and Quiet control my ongoing activity. External advice is attributed; source reads stay within the configured evidence directory.','Explain real bounded capabilities.');
+  if (/^(help|အကူအညီ)[.!?။]*$/iu.test(text)) return decision('RESPOND', 'Talk normally in English. I use my configured cognition provider when needed. Commands: remember <note>, recall, read file <relative path>, ask <question>. Pause, Resume, Stop and Quiet control my ongoing activity. External advice is attributed; source reads stay within the configured evidence directory.','Explain real bounded capabilities.');
   if (/^(that|it|ဒါ|အဲဒါ)[.!?။]*$/iu.test(text)) return decision('CLARIFY',my ? 'ဘယ်အကြောင်းအရာကို ဆိုလိုပါသလဲ။' : 'Which item do you mean, and what would you like me to do?','The referent is unclear; do not dispatch an adviser.');
   if(myanmar(text))return decision('CLARIFY','English conversation is supported in this delivery. Please send the request in English. Myanmar reference catalogs remain available.','General Myanmar cognition is deferred by the operator.');
   return null;

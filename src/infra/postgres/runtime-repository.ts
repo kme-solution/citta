@@ -1,3 +1,4 @@
+import {activitySteps} from '../../modules/paccavekkhana/activity-steps.ts';
 import { randomUUID, createHash } from 'node:crypto';
 import { config } from '../../app/config.ts';
 import { pool, transaction, lockAgent, event, type Tx } from './database.ts';
@@ -124,7 +125,7 @@ export async function getState(conversationId?: string) {
   const agentId = config.agentId;
   return transaction(async tx=> {
   await tx.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
-  const [{rows:[agent]}, {rows:conversations}, {rows:messages}, {rows:goals}, {rows:motives}, {rows:appraisals}, {rows:proposals}, {rows:events}, {rows:actions}, {rows:memories}] = await Promise.all([
+  const [{rows:[agent]}, {rows:conversations}, {rows:messages}, {rows:goals}, {rows:motives}, {rows:appraisals}, {rows:proposals}, {rows:events}, {rows:actions}, {rows:memories}, {rows:thoughts}] = await Promise.all([
     tx.query('SELECT id,profile_id,control,control_version,quiet,domain_version,heartbeat_at,next_internal_at,work_used FROM citta.agents WHERE id=$1',[agentId]),
     tx.query('SELECT id,title,created_at FROM citta.conversations WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 50',[agentId]),
     tx.query('SELECT * FROM (SELECT id,ordinal,role,text,source,goal_id,observation_id,initiative,contact_state,contact_id,created_at FROM citta.messages WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2) ORDER BY ordinal DESC LIMIT 200) m ORDER BY ordinal',[agentId,conversationId||null]),
@@ -134,10 +135,11 @@ export async function getState(conversationId?: string) {
     tx.query('SELECT id,description,evidence_ids,benefit,scope,criteria,risks,state,version,created_at FROM citta.proposals WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 20',[agentId]),
     tx.query('SELECT ordinal,kind,body,created_at FROM citta.events WHERE agent_id=$1 ORDER BY ordinal DESC LIMIT 60',[agentId]),
     tx.query("SELECT id,goal_id,kind,state,started_at,finished_at FROM citta.actions WHERE agent_id=$1 AND (state IN ('queued','running','unknown') OR finished_at>now()-interval '5 minutes') ORDER BY created_at DESC LIMIT 30",[agentId]),
-    tx.query('SELECT id,kind,content,source_id,supersedes,valid,created_at FROM citta.memories WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2 OR conversation_id IS NULL) ORDER BY created_at DESC LIMIT 60',[agentId,conversationId||null])
+    tx.query('SELECT id,kind,content,source_id,supersedes,valid,created_at FROM citta.memories WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2 OR conversation_id IS NULL) ORDER BY created_at DESC LIMIT 60',[agentId,conversationId||null]),
+    tx.query("SELECT id,goal_id,snapshot->>'conversationId' AS conversation_id,decision->>'action' AS action,decision->>'text' AS text,created_at FROM citta.decisions WHERE agent_id=$1 AND snapshot->>'kind'='mental' AND decision->>'action'<>'INFER' ORDER BY created_at DESC LIMIT 10",[agentId])
   ]);
   if (!agent) throw new Missing('Agent has not been initialized.');
-  return {agent,profile:{name:config.profile.name},conversations,messages,goals,motives,appraisals,proposals,memories,events:events.reverse(),actions};
+  return {agent,profile:{name:config.profile.name},conversations,messages,goals,motives,appraisals,proposals,memories,thoughts,events:events.reverse(),actions};
   });
 }
 export async function eventsAfter(after: string) {
@@ -189,11 +191,11 @@ export async function goalDetail(id:string) {
     if(!goal)throw new Missing('Goal not found.');
     const [{rows:[frame]},{rows:versions},{rows:transitions},{rows:decisions},{rows:actions}]=await Promise.all([
       tx.query('SELECT state,version,checkpoint,parent_goal_id,continuation_depth,updated_at FROM citta.frames WHERE goal_id=$1 AND agent_id=$2',[id,config.agentId]),
-      tx.query('SELECT version,snapshot,created_at FROM citta.goal_versions WHERE goal_id=$1 AND agent_id=$2 ORDER BY version DESC LIMIT 20',[id,config.agentId]),
-      tx.query('SELECT ordinal,version,previous_state,state,reason,created_at FROM citta.goal_transitions WHERE goal_id=$1 AND agent_id=$2 ORDER BY ordinal DESC LIMIT 40',[id,config.agentId]),
-      tx.query('SELECT id,sequence,engine,policy,snapshot,decision,created_at FROM citta.decisions WHERE goal_id=$1 AND agent_id=$2 ORDER BY sequence DESC NULLS LAST,created_at DESC LIMIT 12',[id,config.agentId]),
-      tx.query('SELECT id,kind,goal_version,state,result,reviewed,attempts,yields,created_at,started_at,finished_at FROM citta.actions WHERE goal_id=$1 AND agent_id=$2 ORDER BY created_at DESC LIMIT 12',[id,config.agentId])
+      tx.query('SELECT version,snapshot,created_at FROM citta.goal_versions WHERE goal_id=$1 AND agent_id=$2 ORDER BY version DESC',[id,config.agentId]),
+      tx.query('SELECT ordinal,version,previous_state,state,reason,created_at FROM citta.goal_transitions WHERE goal_id=$1 AND agent_id=$2 ORDER BY ordinal DESC',[id,config.agentId]),
+      tx.query('SELECT id,sequence,engine,policy,snapshot,decision,created_at FROM citta.decisions WHERE goal_id=$1 AND agent_id=$2 ORDER BY sequence DESC NULLS LAST,created_at DESC',[id,config.agentId]),
+      tx.query('SELECT id,kind,goal_version,state,result,reviewed,attempts,yields,created_at,started_at,finished_at FROM citta.actions WHERE goal_id=$1 AND agent_id=$2 ORDER BY created_at DESC',[id,config.agentId])
     ]);
-    return {goal,frame,versions,transitions,decisions,actions};
+    return {goal,frame,versions,transitions,decisions,actions,steps:activitySteps(decisions,actions)};
   });
 }

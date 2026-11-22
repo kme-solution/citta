@@ -1,3 +1,6 @@
+import {existsSync} from 'node:fs';
+import {delimiter,join} from 'node:path';
+import {codexExecutable} from '../modules/cetana/vaca-codex.ts';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'node:url';
@@ -36,8 +39,9 @@ app.get('/api/health',async()=> {
   await pool.query('SELECT 1');
   const {rows:[a]} = await pool.query('SELECT heartbeat_at,control FROM citta.agents WHERE id=$1',[config.agentId]);
   let cognition=config.cognitionEnabled?'unavailable':'disabled pending evaluation';
-  try { const r=await fetch(config.ollamaUrl+'/api/tags',{signal:AbortSignal.timeout(1500)}); const data=await r.json() as {models?:{name:string}[]}; if (r.ok&&config.cognitionEnabled) cognition=data.models?.some(m=>m.name===config.model)?'ready':'model missing'; } catch {}
-  return {database:'ready',runner:a?.heartbeat_at && Date.now()-new Date(a.heartbeat_at).getTime()<15000?'ready':'unavailable',cognition,model:config.model,control:a?.control};
+  if(config.cognitionProvider==='codex'&&config.cognitionEnabled){const file=codexExecutable();const available=existsSync(file)||(process.env.PATH||'').split(delimiter).some(dir=>existsSync(join(dir,file)));cognition=available?'configured; authentication not checked':'CLI missing';}
+  if(config.cognitionProvider==='ollama')try { const r=await fetch(config.ollamaUrl+'/api/tags',{signal:AbortSignal.timeout(1500)}); const data=await r.json() as {models?:{name:string}[]}; if (r.ok&&config.cognitionEnabled) cognition=data.models?.some(m=>m.name===config.model)?'ready':'model missing'; } catch {}
+  return {database:'ready',runner:a?.heartbeat_at && Date.now()-new Date(a.heartbeat_at).getTime()<15000?'ready':'unavailable',cognition,cognitionProvider:config.cognitionProvider,model:config.cognitionProvider==='codex'?(config.codexModel||'cli-configured'):config.model,control:a?.control};
 });
 app.get<{Querystring:{conversationId?:string}}>('/api/state',{schema:{querystring:conversationQuery}},async(request,reply)=>{reply.header('Cache-Control','no-store');return getState(request.query.conversationId);});
 app.get<{Querystring:{conversationId:string;before:string}}>('/api/history',{schema:{querystring:{type:'object',additionalProperties:false,required:['conversationId','before'],properties:{conversationId:uuid,before:{type:'string',pattern:'^[0-9]{1,18}$'}}}}},async(request,reply)=>{reply.header('Cache-Control','no-store');return messageHistory(request.query.conversationId,request.query.before);});
@@ -56,7 +60,7 @@ app.get('/api/catalog',async()=> {
   const [citta,cetasikas,functions] = await Promise.all(['citta-types','cetasikas','functions'].map(name=>readFile(new URL('../../data/catalog/v1/'+name+'.json',import.meta.url),'utf8').then(text=>JSON.parse(text))));
   return {citta,cetasikas,functions,myanmarReview:'pending'};
 });
-app.get('/api/capabilities',async()=>({abilities:capabilities,cognitionEnabled:config.cognitionEnabled,adviserEnabled:config.adviserEnabled}));
+app.get('/api/capabilities',async()=>({abilities:capabilities,cognitionEnabled:config.cognitionEnabled,cognitionProvider:config.cognitionProvider,adviserEnabled:config.adviserEnabled}));
 app.get<{Querystring:{after?:string}}>('/api/events',{schema:{querystring:{type:'object',additionalProperties:false,properties:{after:{type:'string',pattern:'^[0-9]{1,18}$'}}}}},async(request,reply)=> {
   const header = request.headers['last-event-id'];
   let after = typeof header==='string' && /^\d{1,18}$/.test(header)?header:request.query.after;

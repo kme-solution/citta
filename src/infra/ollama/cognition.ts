@@ -1,5 +1,6 @@
 import { Ajv } from 'ajv';
 import {hasRevisionInstruction,hasCancellationInstruction} from '../../modules/cetana/consider.ts';
+import {askCodex} from '../../modules/cetana/vaca-codex.ts';
 import {chatJson} from './http.ts';
 import type { Context, Proposal, Outcome } from '../../contracts/runtime.ts';
 import { config } from '../../app/config.ts';
@@ -23,10 +24,10 @@ export const proposalSchema = {
     goalReview:{type:'object',additionalProperties:false,properties:{criterion:{type:'string',minLength:1,maxLength:1000},status:{enum:['met','not_met','unknown']},evidenceIds:{type:'array',maxItems:20,items:{type:'string'}}},required:['criterion','status','evidenceIds']}
   },required:['action','text','reason','evidenceIds','tone','uncertainty','argument','candidateTendency','chosenTendency','regulationReason','alternatives']
 } as const;
-export function proposalOutputSchema(criterion?:string,evidenceIds?:readonly string[],goalIds?:readonly string[],sources?:readonly string[],allowRevision?:boolean,allowCancellation?:boolean) {
+export function proposalOutputSchema(criterion?:string,evidenceIds?:readonly string[],goalIds?:readonly string[],sources?:readonly string[],allowRevision?:boolean,allowCancellation?:boolean,allowInitiation=true) {
   const {goalReview,improvement,...common}=proposalSchema.properties;
   const references=evidenceIds?.length?{...common.evidenceIds,items:{type:'string',enum:evidenceIds}}:common.evidenceIds;
-  return {oneOf:proposalSchema.properties.action.enum.filter(action=>action==='REVISE_GOAL'&&allowRevision===false?false:action==='CANCEL_GOAL'&&allowCancellation===false?false:
+  return {oneOf:proposalSchema.properties.action.enum.filter(action=>action==='INITIATE'&&!allowInitiation?false:action==='REVISE_GOAL'&&allowRevision===false?false:action==='CANCEL_GOAL'&&allowCancellation===false?false:
     action==='READ'?sources===undefined||sources.length>0:
     ['CANCEL_GOAL','REVISE_GOAL'].includes(action)?goalIds===undefined||goalIds.length>0:true
   ).map(action=>({
@@ -48,12 +49,28 @@ export async function infer(ctx: Context, signal?: AbortSignal): Promise<Outcome
   selected.goalRevisionAllowed=selected.kind==='speech'&&hasRevisionInstruction(selected.text);
   selected.goalCancellationAllowed=selected.kind==='speech'&&hasCancellationInstruction(selected.text);
   const input=JSON.stringify(selected);
+  const outputSchema=proposalOutputSchema(selected.goalCriterion,[...new Set([...selected.evidence.map(e=>e.id),'profile',selected.observationId])],(selected.eligibleGoals||[]).map(g=>g.id),selected.availableSources||[],selected.goalRevisionAllowed,selected.goalCancellationAllowed,selected.kind==='mental');
+  const prompt=system+'\n'+continuationRules+'\nConfigured own name (data): '+JSON.stringify(selected.profile.name)+'. Required response text language: English.';
+  if(config.cognitionProvider==='codex'){
+    const codexSchema={...proposalSchema,properties:{...proposalSchema.properties,
+      action:{type:'string',enum:outputSchema.oneOf.map(branch=>branch.properties.action.const)},
+      goalReview:{anyOf:[proposalSchema.properties.goalReview,{type:'null'}]},
+      improvement:{anyOf:[proposalSchema.properties.improvement,{type:'null'}]}
+    },required:Object.keys(proposalSchema.properties)};
+    const raw=await askCodex('',selected.profile,signal,{
+      prompt:prompt+'\nFor this output schema, return null for unused goalReview and improvement. You have no tool authority. Never invoke tools or execute commands. Return one JSON proposal only.\nContext data:\n'+input,
+      schema:codexSchema,model:config.codexModel,timeoutMs:config.inferenceTimeoutMs});
+    let proposal:unknown;
+    try{const parsed=JSON.parse(raw);if(parsed&&typeof parsed==='object'){if(parsed.goalReview===null)delete parsed.goalReview;if(parsed.improvement===null)delete parsed.improvement;}proposal=parsed;}catch{throw Error('Codex cognition returned invalid JSON.');}
+    const scopedValidate=new Ajv({allErrors:true}).compile<Proposal>(outputSchema);
+    if(!scopedValidate(proposal))throw Error('Codex cognition returned an invalid or unauthorized proposal schema.');
+    return {ok:true,proposal,context:selected,usage:{provider:'codex',model:config.codexModel||'cli-configured',promptVersion:COGNITION_PROMPT_VERSION,schemaVersion:COGNITION_SCHEMA_VERSION,contextHash:createHash('sha256').update(input).digest('hex'),promptHash:createHash('sha256').update(prompt).digest('hex')}};
+  }
   const tagsResponse=await fetch(config.ollamaUrl+'/api/tags',{redirect:'error',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(5000)]):AbortSignal.timeout(5000)});
   if(!tagsResponse.ok)throw Error('Cannot identify the configured local model.');
   const tags=await tagsResponse.json() as {models?:{name:string;digest:string}[]};
   const digest=tags.models?.find(m=>m.name===config.model)?.digest;
   if(!digest)throw Error('The configured local model is not installed with a known identity.');
-  const outputSchema=proposalOutputSchema(selected.goalCriterion,[...new Set([...selected.evidence.map(e=>e.id),'profile',selected.observationId])],(selected.eligibleGoals||[]).map(g=>g.id),selected.availableSources||[],selected.goalRevisionAllowed,selected.goalCancellationAllowed);
   const signalWithDeadline=signal?AbortSignal.any([signal,AbortSignal.timeout(config.inferenceTimeoutMs)]):AbortSignal.timeout(config.inferenceTimeoutMs);
   const data=await chatJson(config.ollamaUrl+'/api/chat',{
     model:config.model,stream:false,think:false,keep_alive:'5m',format:outputSchema,
@@ -63,6 +80,6 @@ export async function infer(ctx: Context, signal?: AbortSignal): Promise<Outcome
   if (data.done_reason === 'length') throw Error('Local cognition reached its output budget.');
   let proposal: unknown;
   try { proposal = JSON.parse(data.message?.content || ''); } catch { throw Error('Local cognition returned invalid JSON.'); }
-  if (!validate(proposal)) throw Error('Local cognition returned an invalid proposal schema.');
-  return {ok:true,proposal,context:selected,usage:{thinkingRequested:false,thinkingReturned:!!data.message?.thinking,model:config.model,threads:config.modelThreads,digest,promptVersion:COGNITION_PROMPT_VERSION,schemaVersion:COGNITION_SCHEMA_VERSION,contextHash:createHash('sha256').update(input).digest('hex'),evalCount:data.eval_count,evalDuration:data.eval_duration,loadDuration:data.load_duration,promptCount:data.prompt_eval_count,promptDuration:data.prompt_eval_duration,totalDuration:data.total_duration,promptHash:createHash('sha256').update(system+'\n'+continuationRules).digest('hex')}};
+  if (!validate(proposal)||!new Ajv({allErrors:true}).compile<Proposal>(outputSchema)(proposal)) throw Error('Local cognition returned an invalid proposal schema.');
+  return {ok:true,proposal,context:selected,usage:{provider:'ollama',thinkingRequested:false,thinkingReturned:!!data.message?.thinking,model:config.model,threads:config.modelThreads,digest,promptVersion:COGNITION_PROMPT_VERSION,schemaVersion:COGNITION_SCHEMA_VERSION,contextHash:createHash('sha256').update(input).digest('hex'),evalCount:data.eval_count,evalDuration:data.eval_duration,loadDuration:data.load_duration,promptCount:data.prompt_eval_count,promptDuration:data.prompt_eval_duration,totalDuration:data.total_duration,promptHash:createHash('sha256').update(system+'\n'+continuationRules).digest('hex')}};
 }

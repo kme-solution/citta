@@ -3,6 +3,7 @@ export interface Goal {id:string;conversation_id:string;description:string;crite
 export interface RuntimeState {
  agent:{id:string;control:string;control_version:number;quiet:boolean;heartbeat_at:string;next_internal_at:string;work_used:number};
  profile:{name:string};conversations:{id:string;title:string;created_at:string}[];messages:Message[];goals:Goal[];
+ thoughts?:{id:string;goal_id:string;conversation_id:string;action:string;text:string;created_at:string}[];
  motives:{id:string;name:string;origin:string;description:string;last_topic?:string;turns:number;enabled:boolean}[];
  appraisals:{tone:string;cause:string;uncertainty:string;tendency:string;created_at:string}[];
  proposals:{id:string;description:string;benefit:string;scope:string;criteria:string;risks:string;state:string;version:number}[];

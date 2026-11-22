@@ -12,7 +12,10 @@ if (!/^[a-zA-Z0-9_-]{1,64}$/.test(agentId)) throw Error('Invalid CITTA_AGENT_ID'
 const ollamaUrl = process.env.CITTA_OLLAMA_URL || 'http://127.0.0.1:11434';
 const url = new URL(ollamaUrl);
 if (!['127.0.0.1','localhost','[::1]'].includes(url.hostname) || url.protocol !== 'http:') throw Error('Ollama must be a local HTTP service');
+const cognitionProvider=process.env.CITTA_COGNITION_PROVIDER || 'ollama';
+if(!['ollama','codex'].includes(cognitionProvider))throw Error('CITTA_COGNITION_PROVIDER must be ollama or codex');
 export const config = {
+  cognitionProvider, codexModel:process.env.CITTA_CODEX_MODEL || undefined,
   agentId, databaseUrl: process.env.CITTA_DATABASE_URL || process.env.DATABASE_URL,
   profile: loadIdentity(process.env), port: integer('CITTA_PORT', 4173, 1024, 65535),
   temporalAddress: process.env.CITTA_TEMPORAL_ADDRESS || '127.0.0.1:7233',
@@ -22,7 +25,7 @@ export const config = {
   cognitionEnabled: process.env.CITTA_COGNITION_ENABLED === 'true',
   affectEnabled: process.env.CITTA_AFFECT_ENABLED !== 'false',
   inferenceTimeoutMs: integer('CITTA_INFERENCE_TIMEOUT_MS', 300000, 1000, 600000),
-  internalIntervalMs: integer('CITTA_INTERNAL_INTERVAL_MS', 300000, 10000, 86400000),
+  internalIntervalMs: integer('CITTA_INTERNAL_INTERVAL_MS', 1000, 1000, 86400000),
   contactIntervalMs: integer('CITTA_CONTACT_INTERVAL_MS', 3600000, 60000, 86400000),
   hourlyWorkLimit: integer('CITTA_HOURLY_WORK_LIMIT', 12, 1, 120),
   readRoot: resolve(process.env.CITTA_READ_ROOT || 'data/fixtures'),
