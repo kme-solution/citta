@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react';
 import {api} from './api.ts';
 interface Connection {
- transport:string;available:boolean;connected:boolean;activeProvider?:string;accountType?:string;plan?:string;
+ providerIssue?:string;retryAt?:string;transport:string;available:boolean;connected:boolean;activeProvider?:string;accountType?:string;plan?:string;
  pendingLogin?:{loginId:string;authUrl:string};loginError?:string;lastSuccessfulTurnAt?:string;error?:string;
 }
 function authorizationLink(value:string){
@@ -51,6 +51,7 @@ export function ConnectionsPage(){
    {connection?.connected?<>
     <p>{connection.accountType==='chatgpt'?'Signed in with ChatGPT':connection.accountType==='apiKey'?'Connected with an API key':'Provider connection configured'}{connection.plan?' · '+connection.plan:''}</p>
     <p>{connection.lastSuccessfulTurnAt?'Last completed consideration: '+new Date(connection.lastSuccessfulTurnAt).toLocaleString():'Signed in. A completed consideration will verify model access.'}</p>
+    {connection.providerIssue&&<p role="status">{connection.providerIssue}{connection.retryAt?' Next retry eligible: '+new Date(connection.retryAt).toLocaleTimeString():''}</p>}
     <button disabled={busy} onClick={()=>void changeConnection('logout')}>Disconnect Codex</button>
     <details><summary>Working memory</summary><p>Citta uses its own Codex working threads for consideration. Durable experiences, goals and lessons stay in its local database. Starting fresh clears the provider working-context references and interrupts active considerations; it keeps Citta’s saved memory.</p><button disabled={busy} onClick={()=>void changeConnection('reset-context')}>Start fresh working context</button></details>
     <p className="muted">Disconnecting keeps Citta’s memories and history. This connection is separate from your personal Codex CLI login.</p>

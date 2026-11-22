@@ -1,3 +1,5 @@
+import {codexAvailability} from '../codex/portal-client.ts';
+import {mindStatus} from '../../modules/vithi/mind-status.ts';
 import {activitySteps} from '../../modules/paccavekkhana/activity-steps.ts';
 import { randomUUID, createHash } from 'node:crypto';
 import { config } from '../../app/config.ts';
@@ -28,24 +30,51 @@ export async function initialize() {
   });
 }
 async function wake(tx: Tx) { await tx.query('INSERT INTO citta.outbox(id,agent_id) VALUES($1,$2)',[randomUUID(),config.agentId]); }
-export async function ingest(conversationId: string, messageId: string, text: string, replyToContactId?:string) {
+export async function ingest(conversationId: string, messageId: string, text: string, replyToContactId?:string,continuation?:{goalId:string;version:number},replyToMessageId?:string) {
   return transaction(async tx=> {
     const agent=await lockAgent(tx);
     const {rows:[old]} = await tx.query('SELECT * FROM citta.observations WHERE agent_id=$1 AND source_key=$2',[config.agentId,'operator:'+messageId]);
+    const requestHash=createHash('sha256').update(JSON.stringify({conversationId,text,replyToContactId:replyToContactId||null,continuation:continuation?{goalId:continuation.goalId,version:continuation.version}:null,replyToMessageId:replyToMessageId||null})).digest('hex');
     if (old) {
-      if (old.text !== text || old.conversation_id !== conversationId || old.payload.replyToContactId!==replyToContactId) throw new Conflict('Message key already belongs to different input.');
+      const same=old.payload.requestHash?old.payload.requestHash===requestHash:
+        old.text===text&&old.conversation_id===conversationId&&old.payload.replyToContactId===replyToContactId&&old.payload.continuationGoalId===continuation?.goalId&&old.payload.continuationVersion===continuation?.version&&old.payload.replyToMessageId===replyToMessageId;
+      if(!same)throw new Conflict('Message key already belongs to different input.');
       return {observationId:old.id,state:old.state,duplicate:true};
     }
+    if(replyToMessageId&&(replyToContactId||continuation))throw new Conflict('Choose one reply target.');
     const {rows:[conversation]} = await tx.query('SELECT agent_id FROM citta.conversations WHERE id=$1',[conversationId]);
     if (conversation && conversation.agent_id !== config.agentId) throw new Missing('Conversation not found.');
     await tx.query('INSERT INTO citta.conversations(id,agent_id,title) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[conversationId,config.agentId,text.slice(0,70)]);
+    const payload:Record<string,unknown>={requestHash,...(replyToContactId?{replyToContactId}:{})};
+    let parentMessageId=replyToMessageId;
+    if(replyToMessageId){
+      const {rows:[parent]}=await tx.query("SELECT m.id,m.role,m.text,m.goal_id,m.contact_id,m.initiative,g.version,g.state,g.wait_reason,NOT EXISTS(SELECT 1 FROM citta.messages n WHERE n.agent_id=m.agent_id AND n.conversation_id=m.conversation_id AND n.goal_id=m.goal_id AND n.role='citta' AND n.ordinal>m.ordinal) AS latest_question FROM citta.messages m LEFT JOIN citta.goals g ON g.id=m.goal_id AND g.agent_id=m.agent_id WHERE m.id=$1 AND m.agent_id=$2 AND m.conversation_id=$3",[replyToMessageId,config.agentId,conversationId]);
+      if(!parent)throw new Missing('Reply message not found in this conversation.');
+      payload.replyToMessageId=parent.id;
+      payload.replyToMessage={id:parent.id,role:parent.role,text:parent.text.slice(0,2000)};
+      if(parent.initiative&&parent.contact_id)replyToContactId=parent.contact_id;
+      if(parent.role==='citta'&&parent.latest_question&&parent.state==='waiting'&&['operator_input','evidence_or_operator_input'].includes(parent.wait_reason))continuation={goalId:parent.goal_id,version:parent.version};
+    }
+    if(continuation){
+      const {rows:[goal]}=await tx.query('SELECT id,conversation_id,version,state,wait_reason,description FROM citta.goals WHERE id=$1 AND agent_id=$2',[continuation.goalId,config.agentId]);
+      if(!goal||goal.conversation_id!==conversationId)throw new Missing('Activity not found in this conversation.');
+      if(goal.version!==continuation.version||goal.state!=='waiting'||!['operator_input','evidence_or_operator_input'].includes(goal.wait_reason))throw new Conflict('This activity no longer expects that reply. Refresh its current state.');
+      const {rows:[pending]}=await tx.query("SELECT id FROM citta.observations WHERE agent_id=$1 AND state='pending' AND payload->>'continuationGoalId'=$2 LIMIT 1",[config.agentId,goal.id]);
+      if(pending)throw new Conflict('A reply for this activity is already waiting to be processed.');
+      Object.assign(payload,{continuationGoalId:goal.id,continuationVersion:goal.version,originalTask:goal.description});
+      if(!parentMessageId){
+        const {rows:[question]}=await tx.query("SELECT id,role,text,initiative,contact_id FROM citta.messages WHERE agent_id=$1 AND conversation_id=$2 AND goal_id=$3 AND role='citta' ORDER BY ordinal DESC LIMIT 1",[config.agentId,conversationId,goal.id]);
+        if(question){parentMessageId=question.id;payload.replyToMessage={id:question.id,role:question.role,text:question.text.slice(0,2000)};if(question.initiative&&question.contact_id)replyToContactId=question.contact_id;}
+      }
+    }
     const id = randomUUID();
+    if(replyToContactId)payload.replyToContactId=replyToContactId;
     if(replyToContactId) {
       const {rows:[contact]}=await tx.query('SELECT id FROM citta.contacts WHERE id=$1 AND agent_id=$2 AND conversation_id=$3',[replyToContactId,config.agentId,conversationId]);
       if(!contact)throw new Missing('The referenced contact is outside this conversation.');
     }
-    await tx.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,payload) VALUES($1,$2,$3,$4,'speech',$5,$6)",[id,config.agentId,conversationId,'operator:'+messageId,text,JSON.stringify(replyToContactId?{replyToContactId}:{})]);
-    await tx.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,observation_id,source) VALUES($1,$2,$3,'operator',$4,$5,'operator')",[randomUUID(),config.agentId,conversationId,text,id]);
+    await tx.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,payload) VALUES($1,$2,$3,$4,'speech',$5,$6)",[id,config.agentId,conversationId,'operator:'+messageId,text,JSON.stringify(payload)]);
+    await tx.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,observation_id,source,reply_to_message_id,goal_id) VALUES($1,$2,$3,'operator',$4,$5,'operator',$6,$7)",[randomUUID(),config.agentId,conversationId,text,id,parentMessageId||null,continuation?.goalId||null]);
     if(replyToContactId) {
       await tx.query("UPDATE citta.messages SET contact_state='answered' WHERE agent_id=$1 AND contact_id=$2 AND initiative AND contact_state IN ('created','delivered','seen')",[config.agentId,replyToContactId]);
       await tx.query("UPDATE citta.contacts SET state='answered' WHERE agent_id=$1 AND id=$2 AND state IN ('delivered','seen')",[config.agentId,replyToContactId]);
@@ -121,25 +150,35 @@ export async function control(request: ControlRequest) {
     await event(tx,'control',result); await wake(tx); return result;
   });
 }
+const conversationMessageFields=`m.id,m.ordinal,m.role,m.text,m.source,m.goal_id,m.observation_id,m.initiative,m.contact_state,m.contact_id,m.created_at,m.reply_to_message_id,
+ CASE WHEN p.id IS NOT NULL THEN jsonb_build_object('id',p.id,'role',p.role,'text',left(p.text,400)) ELSE NULL END AS reply_to,
+ (m.role='citta' AND g.state='waiting' AND g.wait_reason IN ('operator_input','evidence_or_operator_input') AND NOT EXISTS(SELECT 1 FROM citta.messages n WHERE n.agent_id=m.agent_id AND n.conversation_id=m.conversation_id AND n.goal_id=m.goal_id AND n.role='citta' AND n.ordinal>m.ordinal)) AS needs_reply`;
+const conversationMessageJoins=`LEFT JOIN citta.messages p ON p.id=m.reply_to_message_id AND p.agent_id=m.agent_id AND p.conversation_id=m.conversation_id LEFT JOIN citta.goals g ON g.id=m.goal_id AND g.agent_id=m.agent_id`;
 export async function getState(conversationId?: string) {
+  const provider=await codexAvailability();
   const agentId = config.agentId;
   return transaction(async tx=> {
   await tx.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
-  const [{rows:[agent]}, {rows:conversations}, {rows:messages}, {rows:goals}, {rows:motives}, {rows:appraisals}, {rows:proposals}, {rows:events}, {rows:actions}, {rows:memories}, {rows:thoughts}] = await Promise.all([
-    tx.query('SELECT id,profile_id,control,control_version,quiet,domain_version,heartbeat_at,next_internal_at,work_used FROM citta.agents WHERE id=$1',[agentId]),
+  const [{rows:[agent]}, {rows:conversations}, {rows:messages}, {rows:goals}, {rows:motives}, {rows:appraisals}, {rows:proposals}, {rows:events}, {rows:actions}, {rows:memories}, {rows:thoughts}, {rows:[pending]}, {rows:[focus]}] = await Promise.all([
+    tx.query("SELECT id,profile_id,control,control_version,quiet,domain_version,heartbeat_at,next_internal_at,work_used,budget_hour,now() AS observed_at,date_trunc('hour',now()) AS current_budget_hour FROM citta.agents WHERE id=$1",[agentId]),
     tx.query('SELECT id,title,created_at FROM citta.conversations WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 50',[agentId]),
-    tx.query('SELECT * FROM (SELECT id,ordinal,role,text,source,goal_id,observation_id,initiative,contact_state,contact_id,created_at FROM citta.messages WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2) ORDER BY ordinal DESC LIMIT 200) m ORDER BY ordinal',[agentId,conversationId||null]),
-    tx.query('SELECT id,conversation_id,description,criterion,state,version,cycles,summary,created_at FROM citta.goals WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 50',[agentId]),
+    tx.query(`SELECT ${conversationMessageFields} FROM (SELECT * FROM citta.messages WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2) ORDER BY ordinal DESC LIMIT 200) m ${conversationMessageJoins} ORDER BY m.ordinal`,[agentId,conversationId||null]),
+    tx.query("SELECT * FROM ((SELECT id,conversation_id,description,criterion,state,version,cycles,summary,wait_reason,due_at,created_at FROM citta.goals WHERE agent_id=$1 AND state NOT IN ('completed','cancelled','exhausted') ORDER BY created_at DESC LIMIT 50) UNION ALL (SELECT id,conversation_id,description,criterion,state,version,cycles,summary,wait_reason,due_at,created_at FROM citta.goals WHERE agent_id=$1 AND state IN ('completed','cancelled','exhausted') ORDER BY created_at DESC LIMIT 50)) g ORDER BY created_at DESC",[agentId]),
     tx.query('SELECT m.id,m.name,m.origin,m.description,c.last_topic,m.turns,m.enabled,m.conversation_id,m.source_observation_id,m.evidence_ids,c.next_eligible_at FROM citta.motives m LEFT JOIN citta.motive_contexts c ON c.agent_id=m.agent_id AND c.motive_id=m.id AND c.conversation_id=$2 WHERE m.agent_id=$1 AND ($2::uuid IS NULL OR m.conversation_id=$2 OR m.conversation_id IS NULL) ORDER BY m.name',[agentId,conversationId||null]),
     tx.query('SELECT tone,cause,uncertainty,tendency,candidate,regulation,created_at FROM citta.appraisals WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 10',[agentId]),
     tx.query('SELECT id,description,evidence_ids,benefit,scope,criteria,risks,state,version,created_at FROM citta.proposals WHERE agent_id=$1 ORDER BY created_at DESC LIMIT 20',[agentId]),
     tx.query('SELECT ordinal,kind,body,created_at FROM citta.events WHERE agent_id=$1 ORDER BY ordinal DESC LIMIT 60',[agentId]),
-    tx.query("SELECT id,goal_id,kind,state,started_at,finished_at FROM citta.actions WHERE agent_id=$1 AND (state IN ('queued','running','unknown') OR finished_at>now()-interval '5 minutes') ORDER BY created_at DESC LIMIT 30",[agentId]),
+    tx.query("SELECT id,goal_id,kind,state,started_at,finished_at,context->'motiveSnapshot'->>'name' AS motive FROM citta.actions WHERE agent_id=$1 AND (state IN ('queued','running','unknown') OR finished_at>now()-interval '5 minutes') ORDER BY created_at DESC LIMIT 30",[agentId]),
     tx.query('SELECT id,kind,content,source_id,supersedes,valid,created_at FROM citta.memories WHERE agent_id=$1 AND ($2::uuid IS NULL OR conversation_id=$2 OR conversation_id IS NULL) ORDER BY created_at DESC LIMIT 60',[agentId,conversationId||null]),
-    tx.query("SELECT id,goal_id,snapshot->>'conversationId' AS conversation_id,decision->>'action' AS action,decision->>'text' AS text,created_at FROM citta.decisions WHERE agent_id=$1 AND snapshot->>'kind'='mental' AND decision->>'action'<>'INFER' ORDER BY created_at DESC LIMIT 10",[agentId])
+    tx.query("SELECT id,goal_id,snapshot->>'conversationId' AS conversation_id,decision->>'action' AS action,decision->>'text' AS text,created_at FROM citta.decisions WHERE agent_id=$1 AND snapshot->>'kind'='mental' AND decision->>'action'<>'INFER' ORDER BY created_at DESC LIMIT 10",[agentId]),
+    tx.query("SELECT count(*)::int AS count FROM citta.observations WHERE agent_id=$1 AND state='pending' AND not_before<=now()",[agentId]),
+    tx.query("SELECT id,topic,state,turns,last_outcome,next_step,reason,source_goal_id,source_memory_id,source_observation_id,conversation_id,updated_at FROM citta.focuses WHERE agent_id=$1 ORDER BY (state='active') DESC,updated_at DESC,id LIMIT 1",[agentId])
   ]);
   if (!agent) throw new Missing('Agent has not been initialized.');
-  return {agent,profile:{name:config.profile.name},conversations,messages,goals,motives,appraisals,proposals,memories,thoughts,events:events.reverse(),actions};
+  const observedAt=new Date(agent.observed_at).toISOString();
+  const used=new Date(agent.budget_hour).getTime()<new Date(agent.current_budget_hour).getTime()?0:Number(agent.work_used);
+  const mind=mindStatus({control:agent.control,enabled:config.cognitionEnabled,providerReady:provider.ready,providerReason:provider.reason,providerProgress:provider.activeTurns,runnerReady:!!agent.heartbeat_at&&Date.parse(observedAt)-new Date(agent.heartbeat_at).getTime()<15000,workUsed:used,hourlyLimit:config.hourlyWorkLimit,actions,pendingInputs:pending.count,enabledMotives:motives.filter(m=>m.enabled).length,now:observedAt});
+  return {agent,mind,focus:focus||null,profile:{name:config.profile.name},conversations,messages,goals,motives,appraisals,proposals,memories,thoughts,events:events.reverse(),actions};
   });
 }
 export async function eventsAfter(after: string) {
@@ -158,11 +197,13 @@ export async function declineContact(id:string) {
     const {rowCount}=await tx.query("UPDATE citta.contacts SET state='declined' WHERE id=$1 AND agent_id=$2",[id,config.agentId]);
     if(!rowCount)throw new Missing('Contact not found.');
     await tx.query("UPDATE citta.messages SET contact_state='declined' WHERE contact_id=$1 AND agent_id=$2",[id,config.agentId]);
+    const {rows:questions}=await tx.query("UPDATE citta.goals g SET state='cancelled',version=version+1,summary='The operator declined this question.',updated_at=now() FROM citta.contacts c,citta.observations o WHERE c.id=$1 AND c.agent_id=$2 AND g.id=c.goal_id AND g.agent_id=c.agent_id AND o.id=g.observation_id AND o.agent_id=g.agent_id AND o.kind='mental' AND g.state='waiting' AND g.wait_reason IN ('contact_delivery','operator_input') RETURNING g.id",[id,config.agentId]);
+    for(const goal of questions)await tx.query("UPDATE citta.frames SET state='closed',version=version+1 WHERE goal_id=$1 AND agent_id=$2",[goal.id,config.agentId]);
     await event(tx,'contact_declined',{contactId:id});return {ok:true};
   });
 }
 export async function messageHistory(conversationId:string,before:string) {
-  const {rows}=await pool.query('SELECT * FROM (SELECT id,ordinal,role,text,source,goal_id,observation_id,initiative,contact_state,contact_id,created_at FROM citta.messages WHERE agent_id=$1 AND conversation_id=$2 AND ordinal<$3::bigint ORDER BY ordinal DESC LIMIT 100) m ORDER BY ordinal',[config.agentId,conversationId,before]);
+  const {rows}=await pool.query(`SELECT ${conversationMessageFields} FROM (SELECT * FROM citta.messages WHERE agent_id=$1 AND conversation_id=$2 AND ordinal<$3::bigint ORDER BY ordinal DESC LIMIT 100) m ${conversationMessageJoins} ORDER BY m.ordinal`,[config.agentId,conversationId,before]);
   return {messages:rows};
 }
 export interface ProposalReviewRequest {requestId:string;proposalId:string;expectedVersion:number;decision:'accepted'|'declined'}
@@ -183,6 +224,11 @@ export async function reviewProposal(request:ProposalReviewRequest) {
     await tx.query('UPDATE citta.agents SET domain_version=domain_version+1 WHERE id=$1',[config.agentId]);
     await event(tx,'proposal_reviewed',result);return result;
   });
+}
+export async function replyToGoal(goalId:string,version:number,messageId:string,text:string){
+ const {rows:[goal]}=await pool.query('SELECT conversation_id FROM citta.goals WHERE id=$1 AND agent_id=$2',[goalId,config.agentId]);
+ if(!goal)throw new Missing('Activity not found.');
+ return ingest(goal.conversation_id,messageId,text,undefined,{goalId,version});
 }
 export async function goalDetail(id:string) {
   return transaction(async tx=> {

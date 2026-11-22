@@ -26,7 +26,7 @@ test('app-server protocol handles final completion, cancellation and isolated cr
   else if(m.method==='turn/start'){
    const id='turn-'+next;turns.set(p.threadId,id);
    send({method:'turn/started',params:{threadId:p.threadId,turn:{id,status:'inProgress'}}});
-   if(p.input[0].text!=='wait-for-cancellation'){
+   if(!['wait-for-cancellation','hang-no-progress'].includes(p.input[0].text)){
     const status=p.input[0].text==='fail'?'failed':'completed';
     send({method:'item/completed',params:{threadId:p.threadId,item:{id:'answer',type:'agentMessage',phase:'final_answer',text:'final-result'}}});
     send({method:'turn/completed',params:{threadId:p.threadId,turn:{id,status,error:status==='failed'?{message:'simulated failure'}:null}}});
@@ -39,6 +39,7 @@ test('app-server protocol handles final completion, cancellation and isolated cr
  `,{mode:0o600});
  process.env.CITTA_AGENT_ID='protocol_'+process.pid;
  process.env.CITTA_CODEX_PATH=file;
+ process.env.CITTA_CODEX_PROGRESS_TIMEOUT_MS='10000';
  process.env.CITTA_DATABASE_URL='postgresql://127.0.0.1:1/protocol_unit_no_connection';
  process.env.OPENAI_API_KEY='unit-only-not-a-real-key';
  const {codexAppServer,trustedAuthUrl}=await import('../src/infra/codex/app-server.ts');
@@ -59,5 +60,8 @@ test('app-server protocol handles final completion, cancellation and isolated cr
   const abort=new AbortController();const waiting=codexAppServer.generate({prompt:'wait-for-cancellation',timeoutMs:3000},abort.signal);
   setTimeout(()=>abort.abort(),100);await assert.rejects(waiting,/cancelled|interrupted/);
   assert.equal((await codexAppServer.generate({prompt:'after-cancellation',timeoutMs:3000})).output,'final-result');
+  await assert.rejects(codexAppServer.generate({prompt:'hang-no-progress',timeoutMs:20000}),/stopped making progress/);
+  const cooling=await codexAppServer.status();assert.equal(cooling.connected,true);assert.equal(cooling.canConsider,false);assert.ok(cooling.providerIssue);
+  await assert.rejects(codexAppServer.generate({prompt:'must-not-dispatch-during-cooldown',timeoutMs:3000}),/stopped making progress/);
  }finally{await codexAppServer.close();await pool.end();await rm(temporary,{recursive:true,force:true});await rm(dirname(config.codexHome),{recursive:true,force:true});}
 });

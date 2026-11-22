@@ -13,7 +13,9 @@ export function replayDecision(record: RecordedDecision) {
     if(selected?.selectedId!==ctx.attention.selectedId)return {id:record.id,state:'diverged',reason:'Recorded attention choice differs from the pinned policy.'};
   }
   let actual:Decision;
-  if(ctx.invalidatedEvidenceIds?.length) {
+  if(ctx.focusInvalidation){
+    actual={action:'REFOCUS',text:'',reason:ctx.focusInvalidation,tone:'undetermined',evidenceIds:[]};
+  } else if(ctx.invalidatedEvidenceIds?.length) {
     actual={action:'RECONSIDER',text:'',reason:'Saved context changed while local cognition was pending; reconsider against current scoped evidence.',tone:'undetermined',evidenceIds:ctx.invalidatedEvidenceIds};
   } else if(ctx.reviewedOutcome) {
     const {kind,outcome,observationId}=ctx.reviewedOutcome;
@@ -24,9 +26,9 @@ export function replayDecision(record: RecordedDecision) {
     try {actual=validateProposal(ctx.proposal,ctx);if(ctx.kind==='mental'&&!['REFLECT','READ','COMPUTER','WAIT','ADOPT_INTEREST','INITIATE','PROPOSE_IMPROVEMENT','CLARIFY'].includes(actual.action))throw Error('Internal turn proposed an ineligible action.');}
     catch(error){const reason=error instanceof Error?error.message:'Invalid local proposal';actual={action:'CLARIFY',reason,tone:'undetermined',text:reason,evidenceIds:[]};}
   } else {
-    actual=(ctx.kind==='speech'?considerLocal(ctx):null)||{action:'INFER',text:'',reason:ctx.kind==='mental'?'A fresh internal topic needs contextual local cognition.':'Input is beyond sufficient local routines; seek a local cognitive proposal.',tone:'undetermined',evidenceIds:[],argument:ctx.text};
+    actual=(ctx.kind==='speech'&&!ctx.continuationTask?considerLocal(ctx):null)||{action:'INFER',text:'',reason:ctx.kind==='mental'?(ctx.focus?'The retained focus needs contextual consideration.':'A fresh internal topic needs contextual local cognition.'):'Input is beyond sufficient local routines; seek a local cognitive proposal.',tone:'undetermined',evidenceIds:[],argument:ctx.text};
   }
-  const keys=['action','text','reason','tone','argument','uncertainty','evidenceIds','candidateTendency','chosenTendency','regulationReason','alternatives','improvement','goalReview'] as const;
+  const keys=['action','text','reason','tone','argument','uncertainty','evidenceIds','candidateTendency','chosenTendency','regulationReason','alternatives','improvement','goalReview','focusReview'] as const;
   const mismatches=keys.filter(key=>JSON.stringify(actual[key])!==JSON.stringify(record.decision[key]));
   return {id:record.id,state:mismatches.length?'diverged':'matched',mismatches};
 }

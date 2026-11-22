@@ -6,7 +6,10 @@ export type Ability = 'INFER' | 'CONSULT_AI' | 'READ' | 'COMPUTER';
 export interface ImprovementDetails {benefit:string;criteria:string;risks:string;scope:'knowledge'|'runtime-code'|'model'|'dependencies'|'policy';requiresPrivilegeExpansion:boolean}
 export interface GoalReview {criterion:string;status:'met'|'not_met'|'unknown';evidenceIds:string[]}
 export interface Evidence { id: string; kind: 'configured' | 'reported' | 'observed' | 'inferred'; content: string;origin?:'memory'|'observation'|'ability' }
+export interface FocusReview {status:'continue'|'settled'|'blocked'|'defer';nextStep:string;reason:string}
+export interface ContinuingFocus {id:string;version:number;topic:string;turns:number;lastOutcome:string;nextStep:string;reason:string;sourceGoalId?:string;sourceMemoryId?:string;sourceObservationId?:string;sourceConversationId:string}
 export interface Proposal {
+  focusReview?:FocusReview;
   action: 'RESPOND' | 'CLARIFY' | 'RECALL' | 'REMEMBER' | 'CORRECT_MEMORY' | 'SET_PREFERENCE' | 'CANCEL_GOAL' | 'REVISE_GOAL' | 'WAIT' | 'READ' | 'COMPUTER' | 'CONSULT_AI' | 'REFLECT' | 'ADOPT_INTEREST' | 'INITIATE' | 'PROPOSE_IMPROVEMENT';
   text: string;
   reason: string;
@@ -24,7 +27,9 @@ export interface Proposal {
 export type ComputerCommand={action:'observe'}|{action:'click';x:number;y:number;button?:'left'|'right'|'middle'}|{action:'type';text:string}|{action:'key';keys:string[]}|{action:'scroll';steps:number};
 export interface ComputerScreen {frameId:string;width:number;height:number;sha256:string;capturedAt:string}
 export interface Context {
-  workingMemory?:boolean;cognitionAvailable?:boolean;computerAvailable?:boolean;computerScreen?:ComputerScreen;
+  contextSelection?:{policy:string;originalBytes:number;selectedBytes:number;omittedGoals:number;omittedEvidence:number;omittedRecent:number;omittedAppraisals:number;excerptedFields:string[]};
+  focus?:ContinuingFocus;focusInvalidation?:string;
+  computerAccess?:{enabled:boolean;connected:boolean;allowed:boolean;reason?:string};replyToMessage?:{id:string;role:string;text:string};openQuestions?:number;continuationTask?:{description:string;criterion:string};workingMemory?:boolean;cognitionAvailable?:boolean;cognitionUnavailableReason?:string;computerAvailable?:boolean;computerScreen?:ComputerScreen;
   observationId: string; conversationId: string; text: string; kind: string;
   profile: Identity; profileVersion: string; controlVersion: number; goalId: string; goalCriterion?:string; responseLanguage?:'en'|'my'; goalRevisionAllowed?:boolean; goalCancellationAllowed?:boolean;
   evidence: Evidence[]; recent: {role: string; text: string}[]; motive?: string;
@@ -51,7 +56,7 @@ export interface Context {
 export interface Work { id: string; kind: Ability; argument: string; context: Context; goalId: string; goalVersion: number }
 export interface Outcome { ok: boolean; text?: string; proposal?: Proposal; context?:Context; error?: string; unknown?: boolean; usage?: unknown; computerScreen?:ComputerScreen }
 export interface Tick { work: Work[]; waiting: boolean }
-export interface Decision { action: string; reason: string; text: string; evidenceIds: string[]; tone: Proposal['tone']; uncertainty?: string; argument?: string;candidateTendency?:Proposal['candidateTendency'];chosenTendency?:Proposal['chosenTendency'];regulationReason?:string;alternatives?:Proposal['alternatives'];improvement?:ImprovementDetails;goalReview?:GoalReview }
+export interface Decision { focusReview?:FocusReview;action: string; reason: string; text: string; evidenceIds: string[]; tone: Proposal['tone']; uncertainty?: string; argument?: string;candidateTendency?:Proposal['candidateTendency'];chosenTendency?:Proposal['chosenTendency'];regulationReason?:string;alternatives?:Proposal['alternatives'];improvement?:ImprovementDetails;goalReview?:GoalReview }
 export const ENGINE_VERSION = 'citta-runtime-v3';
 export const POLICY_VERSION = 'local-bounded-v3';
 export const TASK_QUEUE = 'citta-vithi';

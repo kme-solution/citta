@@ -23,10 +23,10 @@ Use Node.js 24 and npm. Preserve the populated private `.env`; `.env.example` do
 | `CITTA_INFERENCE_TIMEOUT_MS` | Inference deadline; default 300000 ms for CPU inference |
 | `CITTA_INTERNAL_INTERVAL_MS` | Internal opportunity interval; default one second (continuous succession); larger values select paced mode |
 | `CITTA_CONTACT_INTERVAL_MS` | Minimum proactive-contact interval; default one hour |
-| `CITTA_HOURLY_WORK_LIMIT` | Persisted global expensive-work allowance; default 12 |
+| `CITTA_HOURLY_WORK_LIMIT` | Persisted global expensive-work allowance; 0 means no app hourly cutoff; default 12 |
 | `CITTA_READ_ROOT` | Permitted local evidence directory; default `data/fixtures` |
 
-For this laptop, `.env` retains credentials and configured identity. `.env.runtime` explicitly selects the continuing-runtime database, port 4174, English language, Qwen 4B, three inference threads, a five-minute inference deadline, one-second idle internal opportunities, hourly proactive contact and a 12-work hourly allowance. Both files remain private. Runtime overrides take precedence over `.env`; shell exports take precedence over both files. Keep the agent ID and database selection stable to retain the same individual and history.
+For this laptop, `.env` retains credentials and configured identity. `.env.runtime` explicitly selects the continuing-runtime database, port 4174, English language, Codex App Server reasoning, a five-minute inference deadline, one-second idle internal opportunities, hourly proactive contact and no app hourly cutoff (work limit 0). The optional Ollama path retains its separately configured model/thread settings. Both files remain private. Runtime overrides take precedence over `.env`; shell exports take precedence over both files. Keep the agent ID and database selection stable to retain the same individual and history.
 
 Identity snapshots are immutable and versioned at service initialization. Changing `.env` requires a coordinated service restart. Existing goals retain their pinned context. Model proposals and adviser speech cannot edit configured identity or grant abilities. The configured profile can be shared in explicit adviser requests; do not put secrets in these background fields.
 
@@ -102,7 +102,7 @@ Domain replay v3 compares recorded decision/attention choices, derived contact e
 
 Set `CITTA_COGNITION_PROVIDER=codex` in private `.env.runtime` to use Codex for non-routine conversation and internal consideration. `CITTA_CODEX_PATH` selects the installed CLI; optional `CITTA_CODEX_MODEL` overrides its configured model. Existing CLI login is required. `CITTA_COGNITION_ENABLED` gates either provider, while `CITTA_ADVISER_ENABLED` independently gates optional advice. Selected context/profile/source excerpts are sent externally when Codex consideration runs, including autonomous turns. No automatic fallback occurs. Set provider to `ollama` for the existing offline path. Restart all supervised services after changing selection. Health checks CLI presence only, not authentication or model latency; those require an actual provider request.
 
-Continuous succession uses `CITTA_INTERNAL_INTERVAL_MS=1000`. Once a consideration/result is processed, another enabled interest can be selected on the next idle reconciliation cycle, without waiting for the old five-minute timer or a motive cooldown. Existing inference coalescing prevents overlapping model calls. Provider response time, controls, motive availability and budgets still apply. In the current work-budget policy, autonomous activity uses at most half the hourly allowance, reserving the remainder for interaction. Continuous succession therefore does not mean unlimited provider usage.
+Continuous succession uses `CITTA_INTERNAL_INTERVAL_MS=1000`. Once a consideration/result is processed, another enabled interest can be selected on the next idle reconciliation cycle, without waiting for the old five-minute timer or a motive cooldown. Existing inference coalescing prevents overlapping model calls. Provider response time, controls, motive availability and budgets still apply. Autonomous and operator work use the same explicit allowance; there is no hidden half-budget stop. Set `CITTA_HOURLY_WORK_LIMIT=0` for continuous operation without an app hourly cutoff. Per-goal limits, provider account limits, availability and operator controls still apply. Mind displays an actual blocking reason if progress cannot continue. Waiting activities expose their question and a Reply & continue form that resumes the same commitment. No heartbeat is logged as a fictitious thought.
 
 ## Real laptop desktop use (source implemented; not yet verified)
 
@@ -129,3 +129,33 @@ Citta’s account cache lives under private `.local/state/codex/<agent>/home`, s
 Live Citta considerations reuse dedicated working threads scoped by agent, conversation, profile, prompt/schema version and memory-correction epoch; restart resumes them. External advice and synthetic proposal evaluation remain ephemeral. The current selected Citta context overrides old provider context. Corrected notes invalidate the working-context key. If provider history is unavailable, **Start fresh working context** resets those references and interrupts in-flight considerations without deleting Citta memory. Provider compaction is not durable memory consolidation; reliable automatic reusable-skill learning is still a separate unfinished capability.
 
 Until sign-in is complete, autonomous model dispatch is suppressed; deterministic local replies and controls remain usable. An interrupted/failed turn is never reported successful merely because a request was accepted. The initial source-only integration was later activated at Kyaw’s explicit restart request; delivery status owns the exact verification results and remaining login/desktop-consent gates. No real API key or account login was completed during verification. The earlier CLI smoke/failure checks specifically exercised exec mode; use `CITTA_CODEX_TRANSPORT=exec` to repeat those legacy checks, and verify the app-server path separately.
+
+## Continuing mind and waiting activities
+
+Mind shows confirmed consideration/ability/review activity, readiness or a specific block. Only actual internal decision summaries enter history; scheduler text and heartbeat ticks are not invented thoughts. The latest ten summaries remain visible while another consideration runs. Activity retains waiting commitments with Needs your reply / Needs evidence labels; open one and use Reply & continue to supply input for the same goal. Closed exhausted attempts are history, not ongoing work.
+
+`CITTA_CODEX_PROGRESS_TIMEOUT_MS` defaults to 60000 ms without provider progress. A stalled turn is interrupted and a 30-second provider cooldown prevents repeated immediate failures. Provider event metadata may indicate awaiting output, reasoning, responding or retrying; raw reasoning text is not exposed. During provider/OS/account unavailability, retain context and show the reason rather than fabricating thought content. Work limit 0 removes only the app hourly cutoff, not provider or per-goal limits.
+
+## Replying to conversation messages (source extension)
+
+After migration 008 and a portal rebuild/restart, each message has Reply. The composer shows a quoted preview and Cancel reply. Enter/Shift+Enter/IME and retry IDs retain their existing behavior; confirmed history stores the parent message and a scoped quote, including after refresh or loading older messages. A reply to the current unanswered question resumes that activity; other replies provide context for a new turn. Activity’s Reply & continue remains available.
+
+Questions that need the operator’s answer belong in conversation. Self-originated questions use proactive delivery and may show Question queued while Quiet/contact constraints apply. Private reflection can continue while a question waits. Only one internally generated operator question is outstanding at a time. An expired or declined question is not treated as successfully answered.
+
+Computer capability and an approved session are separate. When enabled but disconnected, Citta should explain that browser/terminal control needs **Mind → Share this desktop** and the GNOME permission dialog, rather than claim browser support is missing. The model receives explicit configured/connected/allowed state. The local HTTP status observed during this source change was enabled=true, connected=false. This extension has not been built, migrated, restarted or runtime-verified.
+
+## Milestone reports
+
+Migration 009 adds durable milestone reports. Substantial operator tasks (at least three decisions plus a non-inference action) produce reports when completed, exhausted or waiting for evidence/input. Recorded improvement proposals also produce a report. Routine replies and idle reflections do not. Each report shows recorded work/outcome, evidence categories, open issues and next step with a View activity details link in conversation. A completed task is not independent proof that its claims are correct.
+
+Quiet/paused mode defers automatic reports. They share the contact interval with conversation openings but do not require an acknowledgement. Old-version/cancelled pending reports are suppressed. Historical ideas are retained; this change does not backfill prior milestones or solve topic-selection feedback loops.
+
+## Continuing-focus and navigation correction (source only)
+
+Migration 010 adds one active focus per agent plus retained focus history. It is not applied by source editing. After an authorized migration/build/restart, Mind displays the retained concern, actual recorded step, next step, source activity and reason. Ordinary communication/new conversation does not reset that concern. Free exploration may defer it and later return. This slice supplies a selected concern and its bounded sourced notes across conversation boundaries; complete agent-wide conversational memory retrieval remains separate work.
+
+Portal view navigation writes the current view into the URL hash. Refresh restores that view, including Activity detail IDs. Existing conversation IDs remain in local storage; changing a view does not create a new conversation.
+
+## Inference context-budget errors
+
+The selector bounds complete context to 10,000 UTF-8 bytes, rather than a token count. It excludes exhausted/closed targets, excerpts optional descriptions, reduces background goals before evidence, protects current request/criterion/focus sources and records omitted/excerpted context metadata. The original stored memories/tasks are not deleted. “Undetermined” on an infrastructure error means no modeled tone was assigned; it is not evidence of a human feeling. An irreducible request/focus/policy overflow is reported as an application context limit before a provider call, not as a request to use cloud fallback when Codex is already configured.

@@ -35,7 +35,9 @@ async function call(path:string,body:unknown,signal?:AbortSignal):Promise<any> {
 export async function desktopSession(operation:'status'|'connect'|'disconnect') {
  if(!config.computerEnabled)return {enabled:false,connected:false};
  const data=await call(operation,{});
- return {enabled:true,connected:operation==='connect'?true:!!data.connected,driver:'xdg-desktop-portal'};
+ const permission=data.permissions;
+ const permissions=permission&&typeof permission.keyboard==='boolean'&&typeof permission.pointer==='boolean'&&Number.isInteger(permission.screenCount)&&permission.screenCount>=0?{keyboard:permission.keyboard,pointer:permission.pointer,screenCount:permission.screenCount}:undefined;
+ return {enabled:true,connected:operation==='connect'?true:!!data.connected,driver:'xdg-desktop-portal',...(typeof data.error==='string'?{error:data.error}:{}),...(permissions?{permissions}:{})};
 }
 export async function computerImage(screen:ComputerScreen):Promise<string> {
  if(!/^[a-f0-9]{32}$/.test(screen.frameId))throw new ComputerFailure('Invalid retained screen identity.',false);

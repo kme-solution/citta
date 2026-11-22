@@ -28,6 +28,12 @@ A modeled pleasant/unpleasant/neutral tone is not evidence of subjective vedana.
 
 Persistent ambitions, recurring internal turns, topic novelty and proactive conversation are engineering models. Do not equate all desire with one mental factor, all ambition with craving, or self-improvement of a program with a spiritual attainment. The internal initiative design allows new consideration without an external message or unfinished task; it does not claim to reproduce subjective human motivation.
 
+## Continuity without invented verbal thought
+
+[SN 12.61](https://www.dhammatalks.org/suttas/SN/SN12_61.html) describes mind/consciousness as repeatedly arising and ceasing, rather than an enduring self. [MN 19](https://www.dhammatalks.org/suttas/MN/MN19.html) examines the consequences of pursuing thoughts and also describes settling the mind; continuity must not be equated with endless verbal proliferation. The [introduction to the Comprehensive Manual of Abhidhamma](https://accesstoinsight.org/lib/authors/bodhi/abhiman.html) presents active cognitive processes alongside passive flow. This is a later Theravada systematic account; do not present every life-continuum detail as a direct quotation from a sutta.
+
+For this application, continued operation carries recorded context into the next eligible object: an input, result, remembered concern, interest or aspiration. No incoming message is required for a new Codex consideration. Empty queues do not mean the runtime should disappear, but no artificial heartbeat, copied scheduler prompt or repeated canned phrase may be displayed as a fresh AI thought. Show actual consideration, result review, readiness, pause or resource/provider blockage. A one-second software reconciliation interval is an engineering choice, not a doctrinal duration for citta. Bhavanga is not a synonym for an idle CPU loop, permanent self, or continuous inner speech.
+
 ## Coverage status rule
 
 The following sections define research targets, not implemented coverage. Consult [current status](../delivery/status.md) for evidence and [catalog reference](catalog.md) for existing commands. Passing counts does not validate all associations or scenarios. Do not force every detailed type into an ordinary eye-door replay.

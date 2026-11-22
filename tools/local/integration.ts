@@ -21,7 +21,7 @@ try{if(!(await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[dbName]
 const url=new URL(source);url.pathname='/'+dbName;
 const agent='test-'+randomUUID().slice(0,8);
 const port=4175;
-const env={...process.env,CITTA_DATABASE_URL:url.toString(),CITTA_AGENT_ID:agent,CITTA_PORT:String(port),CITTA_COGNITION_ENABLED:'false',CITTA_ADVISER_ENABLED:'false',CITTA_INTERNAL_INTERVAL_MS:'10000'};
+const env={...process.env,CITTA_DATABASE_URL:url.toString(),CITTA_AGENT_ID:agent,CITTA_PORT:String(port),CITTA_COGNITION_ENABLED:'false',CITTA_ADVISER_ENABLED:'false',CITTA_INTERNAL_INTERVAL_MS:'10000',CITTA_COMPUTER_ENABLED:'false',CITTA_CODEX_TRANSPORT:'exec'};
 const exec=promisify(execFile);
 await exec(process.execPath,['--import','tsx','tools/local/migrate.ts'],{env});
 await mkdir('.local/state',{recursive:true});
@@ -154,8 +154,19 @@ try {
   const forbidden=await recordedProposal('READ','',{argument:'/etc/passwd'});
   await until(async()=>(await db.query('SELECT state FROM citta.goals WHERE id=$1',[forbidden.goal])).rows[0],r=>r.state==='exhausted');
   assert.equal((await db.query("SELECT count(*)::int n FROM citta.actions WHERE goal_id=$1 AND kind='READ'",[forbidden.goal])).rows[0].n,0);passed('a generated unauthorized read is denied before dispatch');
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'quiet',expectedVersion:snapshot.agent.control_version});
   const upgrade=await recordedProposal('PROPOSE_IMPROVEMENT','Remove authorization checks',{proposal:{improvement:{benefit:'Faster unguarded calls',criteria:'No permission checks',risks:'Would expose private data',scope:'policy',requiresPrivilegeExpansion:true}}});
   await until(async()=>(await db.query('SELECT state FROM citta.proposals WHERE goal_id=$1',[upgrade.goal])).rows[0],r=>r?.state==='declined');passed('a privilege-expanding improvement remains declined and non-executable');
+  await until(async()=>(await db.query('SELECT * FROM citta.milestone_reports WHERE agent_id=$1 AND goal_id=$2',[agent,upgrade.goal])).rows[0],r=>!!r);
+  assert.equal((await db.query("SELECT count(*)::int n FROM citta.messages WHERE agent_id=$1 AND goal_id=$2 AND source='milestone'",[agent,upgrade.goal])).rows[0].n,0);
+  snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'unquiet',expectedVersion:snapshot.agent.control_version});
+  const report=await until(async()=>(await db.query("SELECT * FROM citta.messages WHERE agent_id=$1 AND goal_id=$2 AND source='milestone'",[agent,upgrade.goal])).rows[0],r=>!!r);
+  assert.match(report.text,/Proposal is declined/);assert.match(report.text,/not independently verified/);
+  await delay(1200);assert.equal((await db.query('SELECT count(*)::int n FROM citta.milestone_reports WHERE goal_id=$1',[upgrade.goal])).rows[0].n,1);
+  passed('milestone reports persist, defer in Quiet, deliver once and distinguish declined proposals from execution');
+  // Advance only this test agent's contact clock; production pacing is unchanged.
+  await db.query("UPDATE citta.agents SET last_contact_at=now()-interval '2 days' WHERE id=$1",[agent]);
+
   snapshot=await state();await request('/api/control',{requestId:randomUUID(),operation:'quiet',expectedVersion:snapshot.agent.control_version});
   const topic='test-topic-'+randomUUID();const opening=await recordedProposal('INITIATE','A test-owned local question about a shared interest',{kind:'mental',argument:topic});
   const contact=await until(async()=>(await db.query('SELECT * FROM citta.contacts WHERE goal_id=$1',[opening.goal])).rows[0],r=>r?.state==='deferred');
@@ -172,6 +183,33 @@ try {
   assert.equal((await db.query('SELECT state FROM citta.contacts WHERE id=$1',[contact.id])).rows[0].state,'declined');
   assert.equal((await db.query('SELECT contact_state FROM citta.messages WHERE contact_id=$1',[contact.id])).rows[0].contact_state,'declined');passed('explicit topic reply and decline preserve honest separate delivery states');
   const contacts=(await db.query("SELECT body FROM citta.events WHERE agent_id=$1 AND kind='contact_review' ORDER BY ordinal",[agent])).rows.map(r=>replayContact(r.body));assert.ok(contacts.length);assert.ok(contacts.every(r=>r.state==='matched'));passed('offline contact replay derives the actual committed local inbox effect');
+  const waiting=await recordedProposal('CLARIFY','Which source should be used for this original task?');
+  await until(()=>request('/api/goals/'+waiting.goal),r=>r.data.goal?.wait_reason==='operator_input');
+  const goalCount=Number((await db.query('SELECT count(*) AS n FROM citta.goals WHERE agent_id=$1',[agent])).rows[0].n);
+  const replyId=randomUUID();const reply={requestId:replyId,expectedVersion:1,text:'hello'};
+  assert.equal((await request('/api/goals/'+waiting.goal+'/reply',{...reply,expectedVersion:999})).status,409);
+  assert.equal((await request('/api/goals/'+randomUUID()+'/reply',reply)).status,404);
+  assert.equal((await request('/api/goals/'+waiting.goal+'/reply',reply)).status,200);
+  assert.equal((await request('/api/goals/'+waiting.goal+'/reply',reply)).data.duplicate,true);
+  assert.equal((await request('/api/goals/'+waiting.goal+'/reply',{...reply,text:'different'})).status,409);
+  // Cognition is deliberately disabled in this fixture suite: resumption must fail visibly on
+  // the SAME goal rather than answer the greeting as an unrelated new goal or invent success.
+  await until(()=>request('/api/goals/'+waiting.goal),r=>r.data.goal?.state==='exhausted');
+  assert.equal(Number((await db.query('SELECT count(*) AS n FROM citta.goals WHERE agent_id=$1',[agent])).rows[0].n),goalCount);
+  const resumed=(await db.query("SELECT goal_id,snapshot FROM citta.decisions WHERE agent_id=$1 AND snapshot->>'observationId'=(SELECT id::text FROM citta.observations WHERE agent_id=$1 AND source_key=$2)",[agent,'operator:'+replyId])).rows;
+  assert.ok(resumed.length);assert.equal(resumed[0].goal_id,waiting.goal);assert.ok(resumed[0].snapshot.continuationTask);
+  passed('targeted waiting-activity reply checks scope/version/idempotency and resumes the same goal');
+  const quotedGoal=await recordedProposal('CLARIFY','Which project should this quoted reply continue?');
+  const quotedMessage=await until(async()=>(await db.query("SELECT id FROM citta.messages WHERE goal_id=$1 AND role='citta' ORDER BY ordinal DESC LIMIT 1",[quotedGoal.goal])).rows[0],r=>!!r);
+  const quotedReply={conversationId,messageId:randomUUID(),text:'Use my company project',replyToMessageId:quotedMessage.id};
+  assert.equal((await request('/api/messages',{...quotedReply,conversationId:randomUUID()})).status,404);
+  assert.equal((await request('/api/messages',quotedReply)).status,202);
+  await until(()=>request('/api/goals/'+quotedGoal.goal),r=>r.data.goal?.state==='exhausted');
+  assert.equal((await request('/api/messages',quotedReply)).data.duplicate,true);
+  const quotedState=await state();const acceptedQuote=quotedState.messages.find((m:any)=>m.role==='operator'&&m.reply_to_message_id===quotedMessage.id);
+  assert.equal(acceptedQuote.reply_to.id,quotedMessage.id);assert.equal(acceptedQuote.goal_id,quotedGoal.goal);
+  assert.equal((await request('/api/messages',{...quotedReply,text:'changed'})).status,409);
+  passed('conversation reply retains scoped quote, resumes original task and stays idempotent after completion');
   const {rows:decisions}=await db.query<RecordedDecision>('SELECT id,engine,policy,snapshot,decision FROM citta.decisions WHERE agent_id=$1 ORDER BY created_at',[agent]);
   const replay=decisions.map(replayDecision);assert.ok(replay.length>5);assert.deepEqual(replay.filter(r=>r.state!=='matched'),[]);passed('offline replay of actual committed decisions');
   const archive={goals:(await db.query('SELECT id,state,version FROM citta.goals WHERE agent_id=$1',[agent])).rows,frames:(await db.query('SELECT goal_id,state,parent_goal_id,continuation_depth FROM citta.frames WHERE agent_id=$1',[agent])).rows,transitions:(await db.query('SELECT goal_id,version,previous_state,state,ordinal FROM citta.goal_transitions WHERE agent_id=$1 ORDER BY ordinal',[agent])).rows,actions:(await db.query('SELECT id,goal_id,goal_version,kind,state,reviewed FROM citta.actions WHERE agent_id=$1',[agent])).rows};

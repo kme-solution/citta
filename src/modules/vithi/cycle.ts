@@ -1,4 +1,7 @@
-import {codexConnectionReady} from '../../infra/codex/portal-client.ts';
+import {continuingFocus,advanceFocus,currentFocus} from '../chanda/focus.ts';
+import {retainMilestone,deliverMilestone} from './milestone.ts';
+import {workBudgetAvailable} from './work-budget.ts';
+import {codexAvailability} from '../../infra/codex/portal-client.ts';
 import {desktopSession} from '../../infra/computer/desktop.ts';
 import { randomUUID, createHash } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
@@ -23,6 +26,10 @@ async function message(tx: Tx, conversationId: string, text: string, goalId: str
 async function closeGoal(tx: Tx, goalId: string, state='completed', summary='') {
   await tx.query('UPDATE citta.goals SET state=$2,summary=$3,updated_at=now() WHERE id=$1 AND agent_id=$4',[goalId,state,summary.slice(0,2000),config.agentId]);
   await tx.query("UPDATE citta.frames SET state='closed',version=version+1,updated_at=now() WHERE goal_id=$1 AND agent_id=$2",[goalId,config.agentId]);
+  if(state==='exhausted')await tx.query(`UPDATE citta.focuses f SET state='blocked',version=f.version+1,reason=$3,updated_at=now()
+    FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id
+    WHERE g.id=$1 AND g.agent_id=$2 AND f.agent_id=g.agent_id AND f.id::text=o.payload->'focus'->>'id' AND f.state='active'`,[goalId,config.agentId,summary.slice(0,1000)]);
+  await retainMilestone(tx,goalId);
 }
 async function recordDecision(tx: Tx, ctx: Context, d: Decision, operationKey: string) {
   const id = randomUUID();
@@ -40,14 +47,14 @@ async function recordDecision(tx: Tx, ctx: Context, d: Decision, operationKey: s
 async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argument: string) {
   authorize(kind,ctx,argument,config.adviserEnabled);
   if(kind==='INFER'&&!config.cognitionEnabled)throw Error('Cognition is not enabled. Set CITTA_COGNITION_ENABLED=true after selecting and evaluating the configured provider. No provider fallback was used.');
-  if(kind==='INFER'&&config.cognitionProvider==='codex'&&config.codexTransport==='app-server'&&ctx.cognitionAvailable===false)throw Error('Connect Codex from the Connections page before continuing.');
+  if(kind==='INFER'&&config.cognitionProvider==='codex'&&config.codexTransport==='app-server'&&ctx.cognitionAvailable===false)throw Error(ctx.cognitionUnavailableReason||'Connect Codex from the Connections page before continuing.');
   const {rows:[goal]} = await tx.query('SELECT * FROM citta.goals WHERE id=$1 AND agent_id=$2',[ctx.goalId,config.agentId]);
   if (!goal || ['cancelled','completed','exhausted'].includes(goal.state)) throw Error('Goal is not eligible.');
   if (goal.cycles >= goal.budget_cycles || (kind === 'CONSULT_AI' && goal.adviser_calls >= goal.budget_adviser)) throw Error('Goal work budget exhausted.');
   if (Number(goal.work_ms)>=Number(goal.budget_ms)) throw Error('Goal elapsed-work budget exhausted.');
   const {rows:[uncertain]}=await tx.query("SELECT id FROM citta.actions WHERE goal_id=$1 AND state='unknown' LIMIT 1",[ctx.goalId]);
   if(uncertain)throw Error('This goal has an unknown effect. Reconcile it before dispatching more work.');
-  if (agent.work_used >= config.hourlyWorkLimit) throw Error('Global work budget is exhausted for this hour.');
+  if (!workBudgetAvailable(agent.work_used,config.hourlyWorkLimit)) throw Error('Global work budget is exhausted for this hour.');
   ctx.goalCriterion=goal.criterion;
   const id = randomUUID();
   await tx.query('INSERT INTO citta.actions(id,agent_id,goal_id,goal_version,kind,argument,context,generation,control_version) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',
@@ -60,6 +67,7 @@ async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argum
 }
 async function applyDecision(tx: Tx, agent: Row, ctx: Context, d: Decision, key: string) {
   await recordDecision(tx,ctx,d,key);
+  if(ctx.kind==='mental'&&ctx.proposal?.focusReview)await advanceFocus(tx,ctx,d);
   if(d.goalReview||(ctx.kind==='mental'&&ctx.proposal))await tx.query('UPDATE citta.goals SET criterion=COALESCE($2,criterion),description=COALESCE($3,description) WHERE id=$1',[ctx.goalId,d.goalReview?.criterion||null,ctx.kind==='mental'&&ctx.proposal?(d.text||d.reason).slice(0,1000):null]);
   if (['READ','CONSULT_AI','INFER','COMPUTER'].includes(d.action)) {
     try { await queue(tx,agent,ctx,d.action as Work['kind'],d.argument||ctx.text); }
@@ -136,12 +144,18 @@ async function applyDecision(tx: Tx, agent: Row, ctx: Context, d: Decision, key:
   } else if (d.action === 'REFLECT') {
     await tx.query("INSERT INTO citta.memories(id,agent_id,conversation_id,kind,content,source_id) VALUES($1,$2,$3,'inferred',$4,$5)",[randomUUID(),config.agentId,ctx.conversationId,d.text,ctx.observationId]);
     await event(tx,'reflection',{goalId:ctx.goalId,text:d.text,evidenceIds:d.evidenceIds});
-  } else if (d.action === 'INITIATE') {
+  } else if (d.action === 'INITIATE'||(ctx.kind==='mental'&&d.action==='CLARIFY')) {
     const topic=createHash('sha256').update((d.argument||d.text).normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim()).digest('hex');
     const speech=renderSpeech(d,ctx);
     const contentKey=createHash('sha256').update(speech.normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim()).digest('hex');
-    await tx.query("INSERT INTO citta.contacts(id,agent_id,conversation_id,goal_id,observation_id,topic_key,text,reason,state,expires_at,topic_label,content_key) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'created',now()+interval '24 hours',$9,$10) ON CONFLICT DO NOTHING",[randomUUID(),config.agentId,ctx.conversationId,ctx.goalId,ctx.observationId,topic,speech,d.reason,(d.argument||d.text).slice(0,300),contentKey]);
+    const {rows:[createdContact]}=await tx.query("INSERT INTO citta.contacts(id,agent_id,conversation_id,goal_id,observation_id,topic_key,text,reason,state,expires_at,topic_label,content_key) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'created',now()+interval '24 hours',$9,$10) ON CONFLICT DO NOTHING RETURNING id",[randomUUID(),config.agentId,ctx.conversationId,ctx.goalId,ctx.observationId,topic,speech,d.reason,(d.argument||d.text).slice(0,300),contentKey]);
+    if(d.action==='CLARIFY'){
+      if(!createdContact){await closeGoal(tx,ctx.goalId,'completed','This question already has a retained contact; no duplicate was published.');return;}
+      await tx.query("UPDATE citta.goals SET state='waiting',wait_reason='contact_delivery',summary=$2,updated_at=now() WHERE id=$1",[ctx.goalId,d.text]);
+      await tx.query("UPDATE citta.frames SET state='waiting',checkpoint=$2,version=version+1 WHERE goal_id=$1",[ctx.goalId,JSON.stringify({trigger:'contact_delivery',clarification:d.text})]);
+    }
     await deliverContact(tx,agent);
+    if(d.action==='CLARIFY')return;
   } else {
     if(ctx.kind==='mental')await event(tx,'private_consideration',{goalId:ctx.goalId,text:d.text,reason:d.reason});
     else await message(tx,ctx.conversationId,renderSpeech(d,ctx),ctx.goalId,ctx.observationId,d.action==='RECALL'?'memory':ctx.proposal?'local-cognition':'local');
@@ -149,12 +163,17 @@ async function applyDecision(tx: Tx, agent: Row, ctx: Context, d: Decision, key:
   if((d.action==='CLARIFY'||(d.action==='RESPOND'&&d.goalReview&&d.goalReview.status!=='met'))&&ctx.kind!=='mental') {
     await tx.query("UPDATE citta.goals SET state='waiting',wait_reason=$3,summary=$2,updated_at=now() WHERE id=$1",[ctx.goalId,d.text,d.action==='CLARIFY'?'operator_input':'evidence_or_operator_input']);
     await tx.query("UPDATE citta.frames SET state='waiting',checkpoint=$2,version=version+1 WHERE goal_id=$1",[ctx.goalId,JSON.stringify({trigger:d.action==='CLARIFY'?'operator_input':'evidence_or_operator_input',clarification:d.text,review:d.goalReview})]);
+    await retainMilestone(tx,ctx.goalId);
     return;
   }
   await closeGoal(tx,ctx.goalId,'completed',d.text);
 }
 async function deliverContact(tx:Tx,agent:Row) {
-  await tx.query("UPDATE citta.contacts SET state='expired' WHERE agent_id=$1 AND state IN ('created','deferred') AND expires_at<=now()",[config.agentId]);
+  const {rows:expired}=await tx.query("UPDATE citta.contacts SET state='expired' WHERE agent_id=$1 AND state IN ('created','deferred','delivered','seen') AND expires_at<=now() RETURNING goal_id",[config.agentId]);
+  for(const c of expired){
+    const {rows:[question]}=await tx.query("SELECT g.id FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id WHERE g.id=$1 AND g.agent_id=$2 AND g.state='waiting' AND g.wait_reason IN ('contact_delivery','operator_input') AND o.kind='mental'",[c.goal_id,config.agentId]);
+    if(question)await closeGoal(tx,question.id,'exhausted','The operator question expired without an answer; no completion was assumed.');
+  }
   const {rows:[candidate]}=await tx.query("SELECT * FROM citta.contacts WHERE agent_id=$1 AND state IN ('created','deferred') AND expires_at>now() ORDER BY created_at LIMIT 1",[config.agentId]);
   if(!candidate)return;
   const {rows:[pending]}=await tx.query("SELECT id FROM citta.messages WHERE agent_id=$1 AND initiative AND contact_state IN ('created','delivered','seen') AND created_at>now()-interval '24 hours' LIMIT 1",[config.agentId]);
@@ -166,26 +185,45 @@ async function deliverContact(tx:Tx,agent:Row) {
   }
   await tx.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,goal_id,observation_id,source,initiative,contact_state,contact_id) VALUES($1,$2,$3,'citta',$4,$5,$6,'local-cognition',true,'created',$7)",[randomUUID(),config.agentId,candidate.conversation_id,candidate.text,candidate.goal_id,candidate.observation_id,candidate.id]);
   await tx.query("UPDATE citta.contacts SET state='delivered' WHERE id=$1",[candidate.id]);
+  const {rowCount:waitingQuestion}=await tx.query("UPDATE citta.goals SET wait_reason='operator_input',updated_at=now() WHERE id=$1 AND agent_id=$2 AND state='waiting' AND wait_reason='contact_delivery'",[candidate.goal_id,config.agentId]);
+  if(waitingQuestion)await tx.query("UPDATE citta.frames SET checkpoint=$2,version=version+1 WHERE goal_id=$1 AND agent_id=$3",[candidate.goal_id,JSON.stringify({trigger:'operator_input',clarification:candidate.text}),config.agentId]);
   await tx.query('UPDATE citta.agents SET last_contact_at=now() WHERE id=$1',[config.agentId]);agent.last_contact_at=new Date();
   await event(tx,'message',{conversationId:candidate.conversation_id,goalId:candidate.goal_id,contactId:candidate.id,initiative:true});
   await event(tx,'contact_review',{contactId:candidate.id,snapshot,choice,effect:{kind:'local_inbox',conversationId:candidate.conversation_id,text:candidate.text}});
 }
 async function context(tx: Tx, observation: Row, goalId: string, agent: Row): Promise<Context> {
   const {rows:[profile]} = await tx.query('SELECT body FROM citta.profiles WHERE id=$1 AND agent_id=$2',[agent.profile_id,config.agentId]);
-  const {rows:memories} = await tx.query('SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND valid AND (conversation_id=$2 OR conversation_id IS NULL) ORDER BY created_at DESC LIMIT 12',[config.agentId,observation.conversation_id]);
+  const {rows:memories} = await tx.query("SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND valid AND (conversation_id=$2 OR conversation_id=$3 OR conversation_id IS NULL) ORDER BY CASE WHEN $3::uuid IS NOT NULL AND kind='inferred' THEN 1 ELSE 0 END,created_at DESC LIMIT 12",[config.agentId,observation.conversation_id,observation.payload?.focus?.sourceConversationId||null]);
   const {rows:recent} = await tx.query('SELECT role,text FROM citta.messages WHERE agent_id=$1 AND conversation_id=$2 ORDER BY created_at DESC LIMIT 8',[config.agentId,observation.conversation_id]);
-  const {rows:eligibleGoals}=await tx.query("SELECT id,description,state,version,criterion FROM citta.goals WHERE agent_id=$1 AND conversation_id=$2 AND id<>$3 AND state NOT IN ('completed','cancelled') ORDER BY created_at DESC LIMIT 10",[config.agentId,observation.conversation_id,goalId]);
+  const {rows:eligibleGoals}=await tx.query("SELECT id,description,state,version,criterion FROM citta.goals WHERE agent_id=$1 AND conversation_id=$2 AND id<>$3 AND state NOT IN ('completed','cancelled','exhausted') ORDER BY created_at DESC LIMIT 10",[config.agentId,observation.conversation_id,goalId]);
   const {rows:appraisals}=await tx.query('SELECT a.tone,a.cause,a.tendency,a.uncertainty FROM citta.appraisals a JOIN citta.decisions d ON d.id=a.decision_id JOIN citta.goals g ON g.id=d.goal_id WHERE a.agent_id=$1 AND g.conversation_id=$2 ORDER BY a.created_at DESC LIMIT 3',[config.agentId,observation.conversation_id]);
   const {rows:declinedTopics}=await tx.query("SELECT topic_label AS topic,text FROM citta.contacts WHERE agent_id=$1 AND state='declined' ORDER BY created_at DESC LIMIT 12",[config.agentId]);
   const {rows:preferences}=await tx.query('SELECT key,value,version,memory_id AS "memoryId",source_id AS "sourceId" FROM citta.preferences WHERE agent_id=$1 AND conversation_id=$2 ORDER BY key',[config.agentId,observation.conversation_id]);
+  const {rows:[questions]}=await tx.query("SELECT count(*)::int AS count FROM citta.contacts c JOIN citta.goals g ON g.id=c.goal_id AND g.agent_id=c.agent_id WHERE c.agent_id=$1 AND c.state IN ('created','deferred','delivered','seen') AND c.expires_at>now() AND g.state='waiting' AND g.wait_reason IN ('contact_delivery','operator_input')",[config.agentId]);
   const evidence:Evidence[] = memories.map(m=>({id:m.id,kind:m.kind,content:m.content.slice(0,1000),origin:'memory'}));
   const requestedCorrection=/^correct saved note ([0-9a-f-]{36}):/i.exec(observation.text);
   if(requestedCorrection&&!evidence.some(e=>e.id===requestedCorrection[1])) {
     const {rows:[note]}=await tx.query("SELECT id,kind,content FROM citta.memories WHERE id=$1 AND agent_id=$2 AND conversation_id=$3 AND valid AND kind='reported'",[requestedCorrection[1],config.agentId,observation.conversation_id]);
     if(note)evidence.push({id:note.id,kind:note.kind,content:note.content.slice(0,1000),origin:'memory'});
   }
+  const focus=observation.payload?.focus;
+  if(focus?.sourceObservationId){
+    const {rows:[source]}=await tx.query('SELECT id,kind,text FROM citta.observations WHERE id=$1 AND agent_id=$2',[focus.sourceObservationId,config.agentId]);
+    if(source)evidence.push({id:source.id,kind:source.kind==='speech'?'reported':'inferred',origin:'observation',content:'Source of the continuing concern (not proof of its outcome): '+source.text.slice(0,1400)});
+  }
+  if(focus?.sourceMemoryId&&!evidence.some(e=>e.id===focus.sourceMemoryId)){
+    const {rows:[note]}=await tx.query('SELECT id,kind,content FROM citta.memories WHERE id=$1 AND agent_id=$2 AND valid',[focus.sourceMemoryId,config.agentId]);
+    if(note)evidence.push({id:note.id,kind:note.kind,origin:'memory',content:note.content.slice(0,1000)});
+  }
+  const focusMemoryIds=observation.payload?.focusMemoryIds;
+  if(focusMemoryIds?.length){
+    const {rows:notes}=await tx.query('SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND valid AND id=ANY($2::uuid[])',[config.agentId,focusMemoryIds]);
+    for(const note of notes)if(!evidence.some(e=>e.id===note.id))evidence.push({id:note.id,kind:note.kind,origin:'memory',content:note.content.slice(0,900)});
+  }
+  const quoted=observation.payload?.replyToMessage;
+  if(quoted)evidence.push({id:'message:'+quoted.id,kind:quoted.role==='operator'||quoted.role==='adviser'?'reported':'inferred',origin:quoted.role==='adviser'?'ability':'observation',content:'Quoted '+quoted.role+' speech (not independent proof): '+quoted.text});
   evidence.push({id:observation.id,kind:observation.kind==='speech'?'reported':'inferred',content:observation.text.slice(0,2000),origin:'observation'});
-  return {workingMemory:true,observationId:observation.id,conversationId:observation.conversation_id,text:observation.text,kind:observation.kind,
+  return {focus:observation.payload?.focus,replyToMessage:quoted,openQuestions:questions.count,workingMemory:true,observationId:observation.id,conversationId:observation.conversation_id,text:observation.text,kind:observation.kind,
     profile:profile.body,profileVersion:agent.profile_id,controlVersion:agent.control_version,goalId,evidence,recent:recent.reverse().map(m=>({role:m.role,text:m.text.slice(0,1200)})),eligibleGoals,appraisals:config.affectEnabled?appraisals:[],declinedTopics,preferences,modeledAffectEnabled:config.affectEnabled,motive:observation.payload?.motive,
     recordedAt:new Date().toISOString(),motiveSnapshot:observation.payload?.motiveSnapshot,versions:{generation:String(agent.generation),domainVersion:String(agent.domain_version),policy:POLICY_VERSION,engine:ENGINE_VERSION,catalog:'not-used'}};
 }
@@ -204,9 +242,9 @@ async function newGoal(tx: Tx, observation: Row,ctx:Context,transient:boolean) {
   await tx.query("INSERT INTO citta.frames(goal_id,agent_id,state,parent_goal_id,continuation_depth,checkpoint) VALUES($1,$2,'foreground',$3,$4,$5)",[id,config.agentId,transient?null:parent?.goal_id||null,depth,JSON.stringify({interruption:ctx.interruption})]);
   return id;
 }
-async function internalObservation(tx: Tx, agent: Row, files: string[],cognitionReady=true) {
+async function internalObservation(tx: Tx, agent: Row, files: string[],cognitionReady=true,desktopConnected=false) {
   const continuous=config.internalIntervalMs<=1000;
-  if (!cognitionReady || !config.cognitionEnabled || agent.work_used >= Math.max(1,Math.floor(config.hourlyWorkLimit/2)) || (!continuous&&new Date(agent.next_internal_at).getTime()>Date.now())) return null;
+  if (!cognitionReady || !config.cognitionEnabled || !workBudgetAvailable(agent.work_used,config.hourlyWorkLimit) || (!continuous&&new Date(agent.next_internal_at).getTime()>Date.now())) return null;
   const {rows:[pending]}=await tx.query("SELECT id FROM citta.observations WHERE agent_id=$1 AND state='pending' AND kind='mental' AND NOT(payload ? 'recallGoalId') LIMIT 1",[config.agentId]);
   if(pending)return null;
   const {rows:[thinking]}=await tx.query("SELECT id FROM citta.actions WHERE agent_id=$1 AND kind='INFER' AND state IN ('queued','running') LIMIT 1",[config.agentId]);
@@ -216,16 +254,19 @@ async function internalObservation(tx: Tx, agent: Row, files: string[],cognition
     conversation = {id:randomUUID()};
     await tx.query("INSERT INTO citta.conversations(id,agent_id,title) VALUES($1,$2,'Local inbox')",[conversation.id,config.agentId]);
   }
-  const {rows:[motive]} = await tx.query('SELECT m.*,c.last_topic AS scoped_last_topic,c.last_context_signature,COALESCE(c.unchanged_turns,0) AS unchanged_turns FROM citta.motives m LEFT JOIN citta.motive_contexts c ON c.agent_id=m.agent_id AND c.motive_id=m.id AND c.conversation_id=$2 WHERE m.agent_id=$1 AND (m.conversation_id=$2 OR m.conversation_id IS NULL) AND m.enabled AND ($3::boolean OR COALESCE(c.next_eligible_at,now())<=now()) ORDER BY COALESCE(c.turns,0),m.turns,m.created_at,m.id LIMIT 1',[config.agentId,conversation.id,continuous]);
-  if (!motive) return null;
-  const {rows:grounded}=await tx.query("SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND (conversation_id=$2 OR conversation_id IS NULL) AND valid AND kind IN ('configured','reported','observed','commitment') ORDER BY created_at DESC LIMIT 20",[config.agentId,conversation.id]);
+  const retained=await continuingFocus(tx,conversation.id,agent.profile_id,desktopConnected);
+  if(!retained)return null;
+  const {focus,motive}=retained;
+  const {rows:[prior]}=await tx.query('SELECT last_topic FROM citta.motive_contexts WHERE agent_id=$1 AND motive_id=$2 AND conversation_id=$3',[config.agentId,motive.id,conversation.id]);
+  motive.scoped_last_topic=focus.last_outcome||prior?.last_topic;
+  const {rows:grounded}=await tx.query("SELECT id,kind,content FROM citta.memories WHERE agent_id=$1 AND (conversation_id=$2 OR conversation_id=$3 OR conversation_id IS NULL) AND valid AND kind IN ('configured','reported','observed','commitment') ORDER BY created_at DESC LIMIT 12",[config.agentId,conversation.id,focus.conversation_id]);
   const groundedHashes=[...new Set(grounded.map(m=>createHash('sha256').update(m.kind+'\n'+m.content).digest('hex')))].sort();
   const signature=createHash('sha256').update(JSON.stringify({profile:agent.profile_id,motive:{name:motive.name,description:motive.description,origin:motive.origin},grounded:groundedHashes,files:[...files].sort()})).digest('hex');
   const eligibility=nextMotiveEligibility({sameContext:signature===motive.last_context_signature,unchangedTurns:motive.unchanged_turns,intervalMs:config.internalIntervalMs,continuous,now:new Date().toISOString()});
   const motiveSnapshot={id:motive.id,name:motive.name,origin:motive.origin,description:motive.description,version:motive.version,contextSignature:signature,nextEligibleAt:eligibility.nextEligibleAt,unchangedTurns:eligibility.unchangedTurns,memoryIds:grounded.map(m=>m.id)};
   const id = randomUUID();
-  const text = `Internal opportunity ${agent.internal_count+1}. Motive: ${motive.description}. Previous topic: ${motive.scoped_last_topic||'none'}. Choose a fresh bounded topic, not a pending task. Available source names: ${files.join(', ')||'none'}. Quiet contact: ${agent.quiet}. Your interest can lead to reflection without speaking. Do not invent experiences.`;
-  const payload={motive:motive.name,motiveId:motive.id,previousTopic:motive.scoped_last_topic,motiveSnapshot};
+  const text = `Internal opportunity ${agent.internal_count+1}. Continuing focus: ${focus.topic}. Last recorded outcome: ${focus.last_outcome||'none'}. Next step: ${focus.next_step||'Identify a concrete useful question within this concern.'}. Continue this concern; do not substitute an unrelated fresh topic or rotate interests. Review progress, remaining uncertainty and the next useful step. A source task may still await evidence or input: reflection does not complete or authorize resuming it. Available source names: ${files.join(', ')||'none'}. Quiet contact: ${agent.quiet}. Do not invent experiences or verified findings.`;
+  const payload={motive:motive.name,motiveId:motive.id,previousTopic:motive.scoped_last_topic,motiveSnapshot,focus:{id:focus.id,version:focus.version,topic:focus.topic,turns:focus.turns,lastOutcome:focus.last_outcome,nextStep:focus.next_step,reason:focus.reason,sourceGoalId:focus.source_goal_id,sourceMemoryId:focus.source_memory_id,sourceObservationId:focus.source_observation_id,sourceConversationId:focus.conversation_id},focusMemoryIds:grounded.map(m=>m.id)};
   const {rows:[stored]}=await tx.query("INSERT INTO citta.observations(id,agent_id,conversation_id,source_key,kind,text,payload) VALUES($1,$2,$3,$4,'mental',$5,$6) RETURNING created_at",[id,config.agentId,conversation.id,'internal:'+agent.internal_count,text,JSON.stringify(payload)]);
   await tx.query('UPDATE citta.agents SET internal_count=internal_count+1,next_internal_at=now()+$2::double precision*interval \'1 millisecond\' WHERE id=$1',[config.agentId,config.internalIntervalMs]);
   await tx.query('UPDATE citta.motives SET turns=turns+1,version=version+1 WHERE id=$1 AND agent_id=$2',[motive.id,config.agentId]);
@@ -236,8 +277,9 @@ async function internalObservation(tx: Tx, agent: Row, files: string[],cognition
 export async function cycle(operationId: string, generation: string) {
   let files: string[] = [];
   try { files = (await readdir(config.readRoot,{withFileTypes:true})).filter(f=>f.isFile()).map(f=>f.name).slice(0,30); } catch { /* Missing evidence directory is not fabricated evidence. READ reports actual errors. */ }
-  const cognitionReady=config.cognitionEnabled?await codexConnectionReady():false;
-  const computerReady=config.computerEnabled&&config.cognitionProvider==='codex'?await desktopSession('status').then(s=>s.connected).catch(()=>false):false;
+  const availability=config.cognitionEnabled?await codexAvailability():{ready:false,reason:'Cognition is disabled.'};
+  const cognitionReady=availability.ready;
+  const desktop:{enabled:boolean;connected:boolean;error?:string}=config.computerEnabled?await desktopSession('status').catch(()=>({enabled:true,connected:false,error:'The desktop driver is unavailable. Ask the operator to restart services.'})):{enabled:false,connected:false};
   return transaction(async tx=> {
     const agent = await lockAgent(tx);
     if(String(agent.generation)!==generation)return {work:[],waiting:true,fenced:true};
@@ -256,6 +298,7 @@ export async function cycle(operationId: string, generation: string) {
       await resultObservation(tx,a.id,a.goal_id);
     }
     if (agent.control === 'running') {
+      await deliverMilestone(tx,agent);
       await deliverContact(tx,agent);
       const {rows:due}=await tx.query("SELECT g.*,o.kind AS origin_kind FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id WHERE g.agent_id=$1 AND g.state='waiting' AND g.due_at<=now() ORDER BY g.due_at LIMIT 10",[config.agentId]);
       for(const g of due) {
@@ -265,38 +308,48 @@ export async function cycle(operationId: string, generation: string) {
       // Include bounded heads of each class so a speech backlog cannot hide eligible continuations.
       const {rows:candidates}=await tx.query("SELECT candidate.* FROM (VALUES ('speech'),('result'),('recall'),('mental')) AS class(kind) CROSS JOIN LATERAL (SELECT * FROM citta.observations WHERE agent_id=$1 AND state='pending' AND not_before<=now() AND (CASE WHEN kind='speech' THEN 'speech' WHEN kind='result' THEN 'result' WHEN payload ? 'recallGoalId' THEN 'recall' ELSE 'mental' END)=class.kind ORDER BY created_at,id LIMIT 8) candidate",[config.agentId]);
       if(!candidates.length||agent.consecutive_user_turns>=3) {
-        const internal=await internalObservation(tx,agent,files,cognitionReady);
+        const internal=await internalObservation(tx,agent,files,cognitionReady,desktop.connected);
         if(internal)candidates.push(internal);
       }
-      const attention=selectAttention(candidates.map(o=>({id:o.id,kind:o.kind,createdAt:new Date(o.created_at).toISOString(),dueAt:o.payload?.dueAt,continuation:o.kind==='result'||!!o.payload?.recallGoalId})),agent.consecutive_user_turns,new Date().toISOString());
+      const attention=selectAttention(candidates.map(o=>({id:o.id,kind:o.kind,createdAt:new Date(o.created_at).toISOString(),dueAt:o.payload?.dueAt,continuation:o.kind==='result'||!!(o.payload?.recallGoalId||o.payload?.continuationGoalId)})),agent.consecutive_user_turns,new Date().toISOString());
       const selected=attention?candidates.find(o=>o.id===attention.selectedId):undefined;
       if (selected) {
         await event(tx,'attention',attention);
         if (selected.kind === 'result') await reviewResult(tx,agent,selected,attention||undefined);
         else {
           let goalId=randomUUID();
-          if(selected.payload?.recallGoalId) {
-            const {rows:[eligible]}=await tx.query("SELECT id FROM citta.goals WHERE id=$1 AND agent_id=$2 AND version=$3 AND state='waiting'",[selected.payload.recallGoalId,config.agentId,selected.payload.version]);
+          const continuationId=selected.payload?.recallGoalId||selected.payload?.continuationGoalId;
+          let continuedTask:{description:string;criterion:string}|undefined;
+          if(continuationId) {
+            const {rows:[eligible]}=await tx.query("SELECT id,description,criterion FROM citta.goals WHERE id=$1 AND agent_id=$2 AND version=$3 AND state='waiting'",[continuationId,config.agentId,selected.payload.continuationGoalId?selected.payload.continuationVersion:selected.payload.version]);
             if(!eligible) {
               await tx.query("UPDATE citta.observations SET state='consumed',consumed_at=now() WHERE id=$1",[selected.id]);
+              if(selected.payload.continuationGoalId)await message(tx,selected.conversation_id,'This activity changed before the reply could be applied. Open its latest details before continuing.',continuationId,selected.id);
               await event(tx,'recall_noop',{observationId:selected.id,reason:'Commitment no longer eligible.'});
               await tx.query('INSERT INTO citta.operations(id,agent_id,result) VALUES($1,$2,$3)',[operationId,config.agentId,JSON.stringify({work:[],waiting:true})]);
               return {work:[],waiting:true};
             }
             goalId=eligible.id;
+            if(selected.payload.continuationGoalId)continuedTask={description:eligible.description,criterion:eligible.criterion};
             await tx.query("UPDATE citta.goals SET state='active',wait_reason=NULL WHERE id=$1",[goalId]);
             await tx.query("UPDATE citta.frames SET state='suspended',version=version+1 WHERE agent_id=$1 AND state='foreground'",[config.agentId]);
             await tx.query("UPDATE citta.frames SET state='foreground',version=version+1 WHERE goal_id=$1",[goalId]);
           }
           const ctx = await context(tx,selected,goalId,agent);
-          ctx.cognitionAvailable=cognitionReady;
-          ctx.computerAvailable=computerReady&&(ctx.kind!=='mental'||config.computerAutonomous);
+          ctx.continuationTask=continuedTask;
+          if(continuedTask)ctx.evidence.push({id:'goal:'+goalId,kind:'configured',origin:'observation',content:JSON.stringify(continuedTask)});
+          ctx.cognitionAvailable=cognitionReady;ctx.cognitionUnavailableReason=availability.reason;
+
           ctx.attention=attention||undefined;
           if(selected.payload?.recallGoalId)ctx.kind=selected.payload.originKind;
           if(selected.payload?.reminder)ctx.recallReason=selected.payload.reminder;
+          const computerAllowed=config.computerEnabled&&desktop.connected&&config.cognitionProvider==='codex'&&(ctx.kind!=='mental'||config.computerAutonomous);
+          ctx.computerAvailable=computerAllowed;
+          const desktopError=desktop.error;
+          ctx.computerAccess={enabled:config.computerEnabled,connected:desktop.connected,allowed:computerAllowed,reason:!config.computerEnabled?'Computer capability is disabled in configuration.':desktopError||(!desktop.connected?'Computer capability is enabled, but the desktop session is not connected. Ask the operator to open Mind, choose Share this desktop, and approve the GNOME screen/keyboard/mouse dialog. The browser, editor and terminal are then operated through this session.':config.cognitionProvider!=='codex'?'Computer vision requires the Codex reasoning provider.':!computerAllowed?'Autonomous computer use is disabled; an operator task can use the connected desktop.':undefined)};
           ctx.availableSources=files;
-          const local = ctx.kind === 'speech' ? considerLocal(ctx) : null;
-          if(!selected.payload?.recallGoalId) {
+          const local = ctx.kind === 'speech'&&!ctx.continuationTask ? considerLocal(ctx) : null;
+          if(!continuationId) {
             const transient=!!local&&!['READ','CONSULT_AI','COMPUTER','WAIT','CLARIFY'].includes(local.action);
             const adopted=await newGoal(tx,selected,ctx,transient);
             if(!adopted) {
@@ -304,8 +357,7 @@ export async function cycle(operationId: string, generation: string) {
               return {work:[],waiting:true};
             }
           }
-          await applyDecision(tx,agent,ctx,local||{action:'INFER',text:'',reason:ctx.kind==='mental'?'A fresh internal topic needs contextual local cognition.':'Input is beyond sufficient local routines; seek a local cognitive proposal.',tone:'undetermined',evidenceIds:[],argument:ctx.text},'observation:'+selected.id);
-          if (selected.payload?.motiveId) await tx.query('UPDATE citta.motive_contexts SET last_topic=$4 WHERE agent_id=$1 AND motive_id=$2 AND conversation_id=$3',[config.agentId,selected.payload.motiveId,selected.conversation_id,selected.text.slice(0,500)]);
+          await applyDecision(tx,agent,ctx,local||{action:'INFER',text:'',reason:ctx.kind==='mental'?(ctx.focus?'The retained focus needs contextual consideration.':'A fresh internal topic needs contextual local cognition.'):'Input is beyond sufficient local routines; seek a local cognitive proposal.',tone:'undetermined',evidenceIds:[],argument:ctx.text},'observation:'+selected.id);
         }
         await tx.query("UPDATE citta.observations SET state='consumed',consumed_at=now() WHERE id=$1 AND agent_id=$2",[selected.id,config.agentId]);
         await tx.query('UPDATE citta.agents SET domain_version=domain_version+1,consecutive_user_turns=$2 WHERE id=$1',[config.agentId,selected.kind==='speech'?agent.consecutive_user_turns+1:0]);
@@ -337,19 +389,24 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row,attention?:Atte
   await tx.query("UPDATE citta.frames SET state='suspended',version=version+1 WHERE agent_id=$1 AND state='foreground'",[config.agentId]);
   await tx.query("UPDATE citta.frames SET state='foreground',version=version+1 WHERE goal_id=$1",[action.goal_id]);
   await tx.query("UPDATE citta.goals SET state='active',wait_reason=NULL,updated_at=now() WHERE id=$1",[action.goal_id]);
+  if(ctx.focus&&!await currentFocus(tx,ctx.focus)){
+    ctx.focusInvalidation='The retained focus changed or its source task is no longer eligible; ignore this stale proposal.';
+    await recordDecision(tx,ctx,{action:'REFOCUS',text:'',reason:ctx.focusInvalidation,tone:'undetermined',evidenceIds:[]},'result:'+action.id);
+    await closeGoal(tx,ctx.goalId,'completed',ctx.focusInvalidation);return;
+  }
   if (action.kind==='INFER' && outcome.ok && outcome.proposal) {
     ctx.proposal=outcome.proposal;
     const memoryIds=[...new Set([...ctx.evidence.filter(e=>e.origin==='memory').map(e=>e.id),...(ctx.preferences||[]).map(p=>p.memoryId)])];
     if(memoryIds.length) {
-      const {rows:valid}=await tx.query('SELECT id FROM citta.memories WHERE agent_id=$1 AND (conversation_id=$2 OR conversation_id IS NULL) AND valid AND id=ANY($3::uuid[])',[config.agentId,ctx.conversationId,memoryIds]);
+      const {rows:valid}=await tx.query('SELECT id FROM citta.memories WHERE agent_id=$1 AND (conversation_id=$2 OR conversation_id=$4 OR conversation_id IS NULL) AND valid AND id=ANY($3::uuid[])',[config.agentId,ctx.conversationId,memoryIds,ctx.focus?.sourceConversationId||ctx.conversationId]);
       const current=new Set(valid.map(m=>m.id));
       const invalid=memoryIds.filter(id=>!current.has(id)).sort();
       if(invalid.length) {
         ctx.invalidatedEvidenceIds=invalid;
         const reason='Saved context changed while local cognition was pending; reconsider against current scoped evidence.';
         await recordDecision(tx,ctx,{action:'RECONSIDER',text:'',reason,tone:'undetermined',evidenceIds:invalid},'result:'+action.id);
-        const fresh=await context(tx,{id:ctx.observationId,conversation_id:ctx.conversationId,text:ctx.text,kind:ctx.kind,payload:{motive:ctx.motive,motiveSnapshot:ctx.motiveSnapshot}},ctx.goalId,agent);
-        fresh.profile=ctx.profile;fresh.profileVersion=ctx.profileVersion;fresh.attention=attention;fresh.availableSources=ctx.availableSources;fresh.cognitionAvailable=ctx.cognitionAvailable;fresh.computerAvailable=ctx.computerAvailable;fresh.computerScreen=ctx.computerScreen;
+        const fresh=await context(tx,{id:ctx.observationId,conversation_id:ctx.conversationId,text:ctx.text,kind:ctx.kind,payload:{motive:ctx.motive,motiveSnapshot:ctx.motiveSnapshot,focus:ctx.focus}},ctx.goalId,agent);
+        fresh.profile=ctx.profile;fresh.profileVersion=ctx.profileVersion;fresh.attention=attention;fresh.availableSources=ctx.availableSources;fresh.cognitionAvailable=ctx.cognitionAvailable;fresh.computerAccess=ctx.computerAccess;fresh.computerAvailable=ctx.computerAvailable;fresh.computerScreen=ctx.computerScreen;
         fresh.selectedObservationId=observation.id;
         fresh.evidence=[...new Map([...fresh.evidence,...ctx.evidence.filter(e=>e.origin==='ability')].map(e=>[e.id,e])).values()];
         try{await queue(tx,agent,fresh,'INFER',fresh.text);}catch(error){const failure=error instanceof Error?error.message:'Reconsideration could not continue.';if(ctx.kind!=='mental')await message(tx,ctx.conversationId,failure,ctx.goalId,ctx.observationId);await closeGoal(tx,ctx.goalId,'exhausted',failure);}

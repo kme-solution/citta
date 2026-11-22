@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {GoalInspector} from './GoalInspector.tsx';
 import type {RuntimeState} from './types.ts';
-const finished=(state:string)=>['completed','cancelled'].includes(state);
+const finished=(state:string)=>['completed','cancelled','exhausted'].includes(state);
 const labels:Record<string,string>={active:'In progress',waiting:'Waiting',suspended:'On hold',exhausted:'Needs attention',completed:'Done',cancelled:'Cancelled'};
 const stateLabel=(state:string)=>labels[state]||state.replaceAll('_',' ');
 function route(){return location.hash.startsWith('#/activity/')?location.hash.slice('#/activity/'.length):'';}
@@ -31,7 +31,7 @@ export function ActivityPage({state,busy,onControl}:{state:RuntimeState|null;bus
       <div className="activity-heading"><div><h2 ref={heading} tabIndex={-1} className="activity-title">Ongoing activity</h2><p className="muted">{active.length} ongoing</p></div><label className="activity-toggle"><input type="checkbox" checked={showFinished} onChange={e=>setShowFinished(e.target.checked)}/> Show finished</label></div>
       <p className="muted">Latest 10 matching activities.</p>
       <details className="activity-tools"><summary>Search & history</summary><div className="activity-toolbar"><label className="activity-search"><span className="sr-only">Search activities</span><input type="search" placeholder="Search activities…" value={search} onChange={e=>setSearch(e.target.value)}/></label><button onClick={()=>open('events')}>Event history →</button></div></details>
-      {!state?<p role="status">Loading activity…</p>:!visible.length?<div className="empty">{search?'No activities match your search.':!showFinished?'Nothing ongoing. Turn on Show finished to see past activity.':'No activity yet.'}</div>:<ul className="activity-rows">{visible.slice(0,10).map(g=><li key={g.id}><button className="activity-row" onClick={()=>open(g.id)}><span className={'tag '+g.state}>{stateLabel(g.state)}</span><span className="activity-row-copy"><strong>{g.description}</strong></span><span aria-hidden="true">→</span></button></li>)}</ul>}
+      {!state?<p role="status">Loading activity…</p>:!visible.length?<div className="empty">{search?'No activities match your search.':!showFinished?'Nothing ongoing. Turn on Show finished to see past activity.':'No activity yet.'}</div>:<ul className="activity-rows">{visible.slice(0,10).map(g=><li key={g.id}><button className="activity-row" onClick={()=>open(g.id)}><span className={'tag '+g.state}>{g.state==='waiting'&&g.wait_reason==='contact_delivery'?'Question queued':g.state==='waiting'&&g.wait_reason==='operator_input'?'Needs your reply':g.state==='waiting'&&g.wait_reason==='evidence_or_operator_input'?'Needs evidence':stateLabel(g.state)}</span><span className="activity-row-copy"><strong>{g.description}</strong></span><span aria-hidden="true">→</span></button></li>)}</ul>}
 
     </>}
   </section>;

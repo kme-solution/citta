@@ -73,7 +73,10 @@ export function considerLocal(ctx: Context): Decision | null {
 }
 export function validateProposal(proposal: Proposal, ctx: Context): Decision {
   if(ctx.responseLanguage==='my'&&['RESPOND','CLARIFY','INITIATE','REFLECT','PROPOSE_IMPROVEMENT'].includes(proposal.action)&&!/[\u1000-\u109f]/u.test(proposal.text))throw Error('The local proposal did not use the selected Myanmar response language.');
-  if(proposal.action==='RESPOND'&&ctx.eligibleGoals?.some(g=>!['completed','cancelled'].includes(g.state))&&/(?:^|[.!?]\s+)(?:I|we)(?:['’]ve| have)?\s+(?:already\s+)?(?:completed|finished|resolved)\s+(?:(?:your|the|our|my)\s+)?(?:earlier|previous|prior|pending)\s+(?:task|work|investigation|request)\b/i.test(proposal.text))throw Error('A generated reply cannot claim known unfinished commitments are complete.');
+  if(proposal.action==='RESPOND'&&(ctx.eligibleGoals?.some(g=>!['completed','cancelled'].includes(g.state))||(ctx.contextSelection?.omittedGoals||0)>0)&&/(?:^|[.!?]\s+)(?:I|we)(?:['’]ve| have)?\s+(?:already\s+)?(?:completed|finished|resolved)\s+(?:(?:your|the|our|my)\s+)?(?:earlier|previous|prior|pending)\s+(?:task|work|investigation|request)\b/i.test(proposal.text))throw Error('A generated reply cannot claim known unfinished commitments are complete.');
+  if(ctx.kind==='mental'&&ctx.focus&&(!proposal.focusReview?.reason.trim()||!proposal.focusReview.nextStep.trim()))throw Error('A continuing focus needs a progress review and next step.');
+  if(proposal.focusReview&&(!ctx.focus||ctx.kind!=='mental'))throw Error('A focus review requires a selected internal focus.');
+  if(proposal.focusReview&&['READ','COMPUTER'].includes(proposal.action)&&proposal.focusReview.status!=='continue')throw Error('Review actual ability feedback before settling or replacing this focus.');
   const ids = new Set(ctx.evidence.map(e=>e.id)); ids.add('profile');ids.add(ctx.observationId);
   if (proposal.evidenceIds.some(id=>!ids.has(id))) throw Error('Local proposal refers to evidence outside its context.');
   if(ctx.goalCriterion&&proposal.goalReview&&proposal.goalReview.criterion!==ctx.goalCriterion)throw Error('Goal review cannot replace the recorded completion criterion.');
@@ -81,6 +84,7 @@ export function validateProposal(proposal: Proposal, ctx: Context): Decision {
   if(proposal.goalReview?.evidenceIds.some(id=>!ids.has(id)))throw Error('Goal review refers to evidence outside its context.');
   if(proposal.action==='SET_PREFERENCE'&&(ctx.kind!=='speech'||!proposal.evidenceIds.includes(ctx.observationId)||!validPreference(proposal.argument,proposal.text)))throw Error('A scoped preference needs explicit operator provenance and a supported key/value.');
   if (proposal.action === 'CONSULT_AI' && (!proposal.argument.trim() || !proposal.uncertainty.trim())) throw Error('Advice requires a specific question and an explicit local knowledge gap.');
+  if(ctx.kind==='mental'&&proposal.action==='CLARIFY'&&(ctx.openQuestions||0)>0)throw Error('An operator question is already outstanding; continue independent reflection instead.');
   if(proposal.action==='COMPUTER'){
     if(!ctx.computerAvailable)throw Error('Computer session is not available for this consideration.');
     const command=parseComputerCommand(proposal.argument);

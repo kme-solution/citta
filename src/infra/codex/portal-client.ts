@@ -32,9 +32,14 @@ export async function requestCodex(request:CodexRequest,signal?:AbortSignal):Pro
   return data as CodexResult;
  }catch(error){if(error instanceof CodexTransportFailure)throw error;throw new CodexTransportFailure('Codex broker connection ended before confirmed output. Your context remains in Citta.',true);}
 }
-let connectionCache:{at:number;connected:boolean}|undefined;
-export async function codexConnectionReady():Promise<boolean>{
- if(config.cognitionProvider!=='codex'||config.codexTransport!=='app-server')return true;
- if(connectionCache&&Date.now()-connectionCache.at<3000)return connectionCache.connected;
- try{const r=await fetch(`http://127.0.0.1:${config.port}/api/codex`,{signal:AbortSignal.timeout(1500),redirect:'error'});const s=await r.json() as ConnectionState;const connected=r.ok&&s.available&&s.connected;connectionCache={at:Date.now(),connected};return connected;}catch{return false;}
+let connectionCache:{at:number;state:{ready:boolean;reason?:string;activeTurns?:ConnectionState['activeTurns']}}|undefined;
+export async function codexAvailability(){
+ if(config.cognitionProvider!=='codex'||config.codexTransport!=='app-server')return {ready:true};
+ if(connectionCache&&Date.now()-connectionCache.at<1000)return connectionCache.state;
+ try{
+  const r=await fetch(`http://127.0.0.1:${config.port}/api/codex`,{signal:AbortSignal.timeout(1500),redirect:'error'});const s=await r.json() as ConnectionState;
+  const ready=r.ok&&s.available&&s.connected&&s.canConsider!==false;
+  const state={ready,reason:s.providerIssue||s.error,activeTurns:s.activeTurns};connectionCache={at:Date.now(),state};return state;
+ }catch{return {ready:false,reason:'The local Codex connection is unavailable.'};}
 }
+export async function codexConnectionReady(){return (await codexAvailability()).ready;}

@@ -34,6 +34,8 @@ class Desktop:
         self.fd = None
         self.frame = None
         self.closed_subscription = None
+        self.last_error = None
+        self.permissions = None
         self.loop = GLib.MainLoop()
         threading.Thread(target=self.loop.run, daemon=True).start()
 
@@ -47,21 +49,24 @@ class Desktop:
         options['handle_token'] = GLib.Variant('s', token)
         path = ROOT + '/request/' + self.bus.get_unique_name()[1:].replace('.', '_') + '/' + token
         done = threading.Event()
-        result = []
+        responses = {}
         def response(connection, sender, object_path, iface, signal, parameters):
+            responses[object_path] = parameters.unpack()
             if object_path == path:
-                result.append(parameters.unpack())
                 done.set()
         subscription = self.bus.signal_subscribe(PORTAL, 'org.freedesktop.portal.Request',
                                                   'Response', None, None, Gio.DBusSignalFlags.NONE,
                                                   response)
         try:
-            self.call(interface, method, signature, tuple(values) + (options,))
+            reply = self.call(interface, method, signature, tuple(values) + (options,))
+            path = reply.unpack()[0]
+            if path in responses:
+                done.set()
             if not done.wait(120):
                 self.bus.call_sync(PORTAL, path, 'org.freedesktop.portal.Request', 'Close',
                                    None, None, Gio.DBusCallFlags.NONE, 2000, None)
                 raise ValueError('Desktop permission request timed out.')
-            code, data = result[0]
+            code, data = responses[path]
             if code != 0:
                 raise ValueError('Desktop permission was declined or cancelled.')
             return data
@@ -90,6 +95,8 @@ class Desktop:
 
     def connect(self):
         self.disconnect()
+        self.last_error = None
+        self.permissions = None
         try:
             result = self.request(REMOTE, 'CreateSession', '(a{sv})', (),
                                   {'session_handle_token': GLib.Variant('s', 'citta_' + secrets.token_hex(12))})
@@ -99,6 +106,7 @@ class Desktop:
                 if self.session == session:
                     self.session = None
                     self.frame = None
+                    self.last_error = 'Desktop sharing ended. Reconnect from Mind.'
             self.closed_subscription = self.bus.signal_subscribe(
                 PORTAL, 'org.freedesktop.portal.Session', 'Closed', session, None,
                 Gio.DBusSignalFlags.NONE, closed)
@@ -108,8 +116,25 @@ class Desktop:
                          {'types': GLib.Variant('u', 1), 'multiple': GLib.Variant('b', False),
                           'cursor_mode': GLib.Variant('u', 2)})
             result = self.request(REMOTE, 'Start', '(osa{sv})', (session, ''), {})
-            if result.get('devices', 0) & 3 != 3 or not result.get('streams'):
-                raise ValueError('Screen, pointer and keyboard permission are required.')
+            devices = result.get('devices', 0)
+            streams = result.get('streams', [])
+            if not isinstance(devices, int) or not isinstance(streams, (list, tuple)):
+                raise ValueError('GNOME returned an invalid desktop permission response.')
+            self.permissions = {'keyboard': bool(devices & 1), 'pointer': bool(devices & 2),
+                                'screenCount': len(streams)}
+            missing = []
+            if not devices & 1:
+                missing.append('keyboard')
+            if not devices & 2:
+                missing.append('mouse/pointer')
+            if missing:
+                screen = 'A screen was selected, but ' if streams else 'No screen was selected, and '
+                raise ValueError(screen + ' and '.join(missing) +
+                                 ' control was not granted. Reconnect and allow remote interaction if GNOME offers it. '
+                                 'If no control option appears, report the exact dialog title; root access is not required.')
+            if not streams:
+                raise ValueError('Keyboard and mouse control were granted, but no screen was selected. '
+                                 'Reconnect and select a monitor before confirming GNOME sharing.')
             self.node, props = result['streams'][0]
             self.logical_size = props.get('logical_size', props.get('size'))
             if not self.logical_size or min(self.logical_size) <= 0:
@@ -125,9 +150,15 @@ class Desktop:
             self.sink = self.pipeline.get_by_name('screen')
             self.pipeline.set_state(Gst.State.PLAYING)
             return self.capture('Desktop session connected.')
-        except Exception:
+        except Exception as error:
             self.disconnect()
+            self.last_error = str(error) if isinstance(error, ValueError) else 'Desktop portal or screen capture failed. Check the local driver log.'
             raise
+
+    def status(self):
+        return {'connected': bool(self.session and self.pipeline and self.frame),
+                'driver': 'xdg-desktop-portal', 'error': self.last_error,
+                'permissions': self.permissions}
 
     def capture(self, description):
         if not self.session or not self.pipeline:
@@ -274,7 +305,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('Expected an object.')
             desktop = self.server.desktop
             if self.path == '/status':
-                self.reply(200, {'connected': bool(desktop.session), 'driver': 'xdg-desktop-portal'})
+                self.reply(200, desktop.status())
                 return
             if self.path == '/disconnect':
                 desktop.disconnect()
@@ -282,7 +313,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             with desktop.lock:
                 if self.path == '/status':
-                    result = {'connected': bool(desktop.session), 'driver': 'xdg-desktop-portal'}
+                    result = desktop.status()
                 elif self.path == '/connect':
                     result = desktop.connect()
                 elif self.path == '/disconnect':

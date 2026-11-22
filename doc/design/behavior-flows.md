@@ -413,9 +413,12 @@ flowchart TD
     wake["Internal review opportunity or relevant context change"] --> control{"Agent paused, stopped or budget unavailable?"}
     control -->|"Yes"| quiet["Remain quiescent until permitted trigger"]
     control -->|"No"| context["Load bounded memories, commitments, aspirations and recent outcomes"]
-    context --> cues["Choose a thought topic from memory, interest, ambition or open exploration"]
-    cues --> novel{"Fresh topic, changed context or eligible motive?"}
-    novel -->|"No"| defer["Retain motive; choose another eligible topic or next bounded internal turn"]
+    context --> focus{"Existing focus still eligible?"}
+    focus -->|"Yes"| cues["Continue the retained concern and next step"]
+    focus -->|"No"| select["Record release reason; select a sourced concern or interest"]
+    select --> cues
+    cues --> novel{"Useful next step or changed evidence?"}
+    novel -->|"No"| defer["Retain focus or record why it is settled or blocked"]
     novel -->|"Yes"| observation["Persist one deduplicated internal observation with causal links"]
     observation --> attention["Compete for the same foreground attention: F02"]
     attention --> consider["Appraise, consider motive and choose intention: F08-F11"]
@@ -655,3 +658,5 @@ These are design/acceptance scenarios, not claims about what every human would f
 - Treat richer emotional/personality modeling as later empirical work. Do not infer human equivalence from a plausible conversation.
 
 Rendering and acceptance evidence are recorded in [status](../delivery/status.md); source drawings remain editable here.
+
+Sustained-focus refinement for F21/F22/F25: a new conversation or brief interruption does not reset the individual. Continue a concern across bounded turns, review progress before releasing it, and retain the reason for a switch. Freshness alone is not a reason to replace a useful focus. This correction precedes full shared-memory retrieval.

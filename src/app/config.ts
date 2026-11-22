@@ -17,6 +17,7 @@ if(!['ollama','codex'].includes(cognitionProvider))throw Error('CITTA_COGNITION_
 const codexTransport=process.env.CITTA_CODEX_TRANSPORT || 'app-server';
 if(!['app-server','exec'].includes(codexTransport))throw Error('CITTA_CODEX_TRANSPORT must be app-server or exec');
 export const config = {
+  codexProgressTimeoutMs:integer('CITTA_CODEX_PROGRESS_TIMEOUT_MS',60000,10000,600000),
   codexTransport,codexHome:resolve('.local/state/codex',agentId,'home'),
   codexWorkRoot:resolve('.local/state/codex',agentId,'work'),codexBrokerTokenFile:resolve('.local/state/codex',agentId,'broker.token'),
   computerEnabled:process.env.CITTA_COMPUTER_ENABLED==='true',
@@ -35,7 +36,7 @@ export const config = {
   inferenceTimeoutMs: integer('CITTA_INFERENCE_TIMEOUT_MS', 300000, 1000, 600000),
   internalIntervalMs: integer('CITTA_INTERNAL_INTERVAL_MS', 1000, 1000, 86400000),
   contactIntervalMs: integer('CITTA_CONTACT_INTERVAL_MS', 3600000, 60000, 86400000),
-  hourlyWorkLimit: integer('CITTA_HOURLY_WORK_LIMIT', 12, 1, 120),
+  hourlyWorkLimit: integer('CITTA_HOURLY_WORK_LIMIT', 12, 0, 120000),
   readRoot: resolve(process.env.CITTA_READ_ROOT || 'data/fixtures'),
   adviserEnabled: process.env.CITTA_ADVISER_ENABLED !== 'false'
 };

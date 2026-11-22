@@ -4,11 +4,11 @@ import {mkdir,mkdtemp,rm,chmod} from 'node:fs/promises';
 import {join} from 'node:path';
 import {config} from '../../app/config.ts';
 import {codexExecutable,codexEnvironment} from '../../modules/cetana/vaca-codex.ts';
-export interface CodexRequest {prompt:string;schema?:unknown;model?:string;imagePath?:string;timeoutMs:number;scope?:WorkingScope}
+export interface CodexRequest {prompt:string;schema?:unknown;model?:string;imagePath?:string;timeoutMs:number;scope?:WorkingScope;actionId?:string}
 export interface CodexResult {output:string;threadId:string;turnId:string}
 interface Waiter {resolve:(data:any)=>void;reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>}
-interface Turn {threadId:string;turnId?:string;text:string;resolve:(result:CodexResult)=>void;reject:(error:Error)=>void;aborted:boolean;finished:boolean;interrupting?:Promise<void>}
-export interface ConnectionState {transport:'app-server';available:boolean;connected:boolean;accountType?:string;plan?:string;pendingLogin?:{loginId:string;authUrl:string};loginError?:string;lastSuccessfulTurnAt?:string;error?:string}
+interface Turn {threadId:string;turnId?:string;text:string;resolve:(result:CodexResult)=>void;reject:(error:Error)=>void;aborted:boolean;finished:boolean;actionId?:string;phase:string;startedAt:number;updatedAt:number;interrupting?:Promise<void>}
+export interface ConnectionState {transport:'app-server';available:boolean;connected:boolean;accountType?:string;plan?:string;pendingLogin?:{loginId:string;authUrl:string};loginError?:string;lastSuccessfulTurnAt?:string;error?:string;canConsider?:boolean;providerIssue?:string;retryAt?:string;activeTurns?:{actionId?:string;phase:string;startedAt:string;updatedAt:string}[]}
 function safeError(message:unknown):Error {
  const text=typeof message==='string'?message:'';
  if(/unauthorized|authentication|not (?:logged|signed) in|\b401\b/i.test(text))return Error('Connect Codex from the Connections page.');
@@ -35,6 +35,8 @@ class CodexAppServer {
  private lastSuccess?:string;
  private statusCache?:{at:number;state:ConnectionState};
  private statusPending?:Promise<ConnectionState>;
+ private retryUntil=0;
+ private providerIssue?:string;
  private shuttingDown=false;
  private authEpoch=0;
  private changingConnection=false;
@@ -62,6 +64,16 @@ class CodexAppServer {
   if(message.method==='account/updated'){this.statusCache=undefined;this.authEpoch++;}
   if(['thread/closed','thread/archived'].includes(message.method))this.loadedThreads.delete(p.threadId);
   const turn=this.turns.get(p.threadId);if(!turn)return;
+  if(message.method==='error'){
+   this.providerIssue=safeError(p.error?.message).message;
+   if(p.willRetry)turn.phase='provider_retry';
+   else this.retryUntil=Date.now()+30000;
+   this.statusCache=undefined;
+  }else if(message.method.startsWith('item/')){
+   turn.updatedAt=Date.now();
+   if(message.method==='item/agentMessage/delta')turn.phase='responding';
+   else if(message.method.startsWith('item/reasoning/'))turn.phase='reasoning';
+  }
   if(message.method==='turn/started'){turn.turnId=p.turn?.id;if(turn.aborted&&turn.turnId)void this.stopTurn(turn);}
   if(message.method==='item/completed'&&p.item?.type==='agentMessage'&&typeof p.item.text==='string'){
    if(Buffer.byteLength(p.item.text)>1024*1024){turn.reject(Error('Codex final output exceeded its bound.'));return;}
@@ -103,11 +115,15 @@ class CodexAppServer {
   })();
   try{await this.starting;}finally{this.starting=undefined;}
  }
+ private connectionState(state:ConnectionState):ConnectionState{
+  const cooling=Date.now()<this.retryUntil;
+  return {...state,canConsider:state.connected&&!cooling&&!this.changingConnection,providerIssue:cooling?this.providerIssue:undefined,retryAt:cooling?new Date(this.retryUntil).toISOString():undefined,activeTurns:[...this.turns.values()].map(t=>({actionId:t.actionId,phase:t.phase,startedAt:new Date(t.startedAt).toISOString(),updatedAt:new Date(t.updatedAt).toISOString()}))};
+ }
  async status():Promise<ConnectionState>{
-  if(this.statusCache&&Date.now()-this.statusCache.at<3000)return this.statusCache.state;
-  if(this.statusPending)return this.statusPending;
+  if(this.statusCache&&Date.now()-this.statusCache.at<3000)return this.connectionState(this.statusCache.state);
+  if(this.statusPending)return this.connectionState(await this.statusPending);
   this.statusPending=(async():Promise<ConnectionState>=>{try{await this.start();const data=await this.rpc('account/read',{refreshToken:false},5000);const state:ConnectionState={transport:'app-server',available:true,connected:!this.changingConnection&&(!!data.account||data.requiresOpenaiAuth===false),accountType:data.account?.type,plan:data.account?.planType,pendingLogin:this.login,loginError:this.loginError,lastSuccessfulTurnAt:this.lastSuccess};this.statusCache={at:Date.now(),state};return state;}catch{return {transport:'app-server',available:false,connected:false,error:'Codex app-server unavailable. Check the configured CLI.'};}})();
-  try{return await this.statusPending;}finally{this.statusPending=undefined;}
+  try{return this.connectionState(await this.statusPending);}finally{this.statusPending=undefined;}
  }
  async loginWithChatGPT(){
   await this.start();await this.cancelLogin();this.loginError=undefined;
@@ -167,12 +183,14 @@ class CodexAppServer {
  private async run(request:CodexRequest,signal?:AbortSignal):Promise<CodexResult>{
   if(signal?.aborted)throw Error('Codex request cancelled before start.');
   const status=await this.status();if(!status.available||!status.connected)throw Error('Connect Codex from the Connections page before continuing.');
+  if(status.canConsider===false&&status.connected)throw Error(this.providerIssue||'Codex is waiting before retrying a stalled provider.');
   if(this.changingConnection)throw Error('Codex connection is changing.');
   const epoch=this.authEpoch;
   const cwd=request.scope?config.codexWorkRoot:await mkdtemp(join(config.codexWorkRoot,'turn-'));
   let completed=false;
-  let threadId:string|undefined;let state:Turn|undefined;let timer:ReturnType<typeof setTimeout>|undefined;
-  const interrupt=()=>{if(state){state.aborted=true;if(state.turnId)void this.stopTurn(state);state.reject(Error('Codex consideration was cancelled or timed out.'));}};
+  let threadId:string|undefined;let state:Turn|undefined;let timer:ReturnType<typeof setTimeout>|undefined;let progressTimer:ReturnType<typeof setInterval>|undefined;
+  let interruptionReason='Codex consideration was cancelled or timed out.';
+  const interrupt=()=>{if(state){state.aborted=true;if(state.turnId)void this.stopTurn(state);state.reject(Error(interruptionReason));}};
   try{
    const working=request.scope?await workingThread(request.scope,request.model):undefined;
    if(working?.threadId){
@@ -191,17 +209,23 @@ class CodexAppServer {
    if(this.changingConnection||epoch!==this.authEpoch)throw Error('Codex connection changed before consideration started.');
    let resolveTurn!:(result:CodexResult)=>void;let rejectTurn!:(error:Error)=>void;
    const completion=new Promise<CodexResult>((resolve,reject)=>{resolveTurn=resolve;rejectTurn=reject;});
-   state={threadId,text:'',resolve:resolveTurn,reject:rejectTurn,aborted:false,finished:false};this.turns.set(threadId,state);
+   state={threadId,text:'',resolve:resolveTurn,reject:rejectTurn,aborted:false,finished:false,actionId:request.actionId,phase:'awaiting_provider',startedAt:Date.now(),updatedAt:Date.now()};this.turns.set(threadId,state);
    // Register a handler before turn/start: fast completion can precede its response.
    void completion.catch(()=>{});
    signal?.addEventListener('abort',interrupt,{once:true});timer=setTimeout(interrupt,request.timeoutMs);
+   progressTimer=setInterval(()=>{
+    if(state&&!state.finished&&!state.aborted&&Date.now()-state.updatedAt>=config.codexProgressTimeoutMs){
+     interruptionReason='Codex provider stopped making progress. The consideration was interrupted; retained context is safe.';
+     this.providerIssue=interruptionReason;this.retryUntil=Date.now()+30000;this.statusCache=undefined;interrupt();
+    }
+   },1000);
    if(signal?.aborted){interrupt();throw Error('Codex consideration cancelled.');}
    const input:any[]=[{type:'text',text:request.prompt}];if(request.imagePath)input.push({type:'localImage',path:request.imagePath});
    const started=await this.rpc('turn/start',{threadId,input,effort:'low',approvalPolicy:'never',sandboxPolicy:{type:'readOnly'},...(request.schema?{outputSchema:request.schema}:{})});
    if(state)state.turnId=started.turn?.id;if(state?.aborted&&state.turnId)void this.stopTurn(state);
    const result=await completion;completed=true;return result;
   }finally{
-   if(timer)clearTimeout(timer);signal?.removeEventListener('abort',interrupt);
+   if(timer)clearTimeout(timer);if(progressTimer)clearInterval(progressTimer);signal?.removeEventListener('abort',interrupt);
    if(threadId){
     if(!completed&&state?.turnId&&!state.finished)await this.stopTurn(state);
     if(!completed&&state&&!state.finished&&!state.turnId){const child=this.child;this.fail(Error('Codex turn acknowledgement was lost; connection reset to stop untracked work.'));child?.kill('SIGTERM');}

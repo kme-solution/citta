@@ -50,3 +50,7 @@ Evaluate continuity, contextual response, remembered commitments, evidence-based
 ## Completion rule
 
 Every requirement needs implementation evidence and appropriate acceptance scenarios, recorded in [status](../delivery/status.md). Passing a few commands, a catalog count, a successful Codex reply or an attractive diagram does not establish completion. The [model reference](../reference/model.md) owns the separate full doctrinal coverage gate.
+
+## Kyaw2 continuing-focus clarification
+
+REQ-15/REQ-18 require freedom to originate thought, not a forced unrelated subject on every internal turn. Kyaw2 is one continuing individual: conversation provides immediate communication focus, rather than a separate persona. Retain the current concern, what changed, a next step and the reason for changing attention across ordinary interruptions and conversation navigation. Curiosity, imagination and memory associations may concern things absent from the immediate environment. Deliberate exploration retains a return point instead of erasing the displaced concern. Fix sustained focus first; complete agent-wide memory retrieval in the subsequent slice. REQ-12 also requires refresh to preserve the selected portal view and activity detail.

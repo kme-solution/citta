@@ -1,0 +1,21 @@
+{
+  "browser": "154.0.8037.57",
+  "checks": [
+    "Enter preserves composer focus after acceptance",
+    "browser \u2192 HTTP \u2192 Temporal \u2192 PostgreSQL \u2192 rendered durable reply",
+    "Shift+Enter newline and IME composition do not send prematurely",
+    "refresh restores real scoped conversation and memory",
+    "new conversation does not display previous private turns",
+    "pause and resume show actual durable processing state",
+    "89/121 citta, 52 cetasikas and 14 functions show actual English/Myanmar catalog data",
+    "activity inspector loads committed criteria, frames and history",
+    "conversation auto-scroll, reading-position protection and stationary composer/inbox",
+    "conversation Reply quotes the selected message and keeps the composer focused",
+    "milestone report is readable in conversation and opens its actual activity",
+    "desktop/mobile layouts keep navigation, conversation and composer within viewport",
+    "no browser console or uncaught page errors"
+  ],
+  "errors": [],
+  "limits": "Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.",
+  "revision": "working-tree (milestone reports)"
+}

@@ -32,7 +32,7 @@ export async function registerCodexRoutes(app:FastifyInstance){
    finally{authBusy=false;}
   });
  }
- app.post<{Body:CodexRequest}>('/internal/codex/generate',{bodyLimit:128*1024,schema:{body:{type:'object',additionalProperties:false,required:['prompt','timeoutMs'],properties:{prompt:{type:'string',minLength:1,maxLength:60000},schema:{type:'object',additionalProperties:true},model:{type:'string',minLength:1,maxLength:128},imagePath:{type:'string',maxLength:2048},timeoutMs:{type:'integer',minimum:1000,maximum:600000},scope:{type:'object',additionalProperties:false,required:['conversationId','profileVersion','contextKey'],properties:{conversationId:{type:'string',format:'uuid'},profileVersion:{type:'string',minLength:1,maxLength:128},contextKey:{type:'string',minLength:1,maxLength:200}}}}}}},async(request,reply)=>{
+ app.post<{Body:CodexRequest}>('/internal/codex/generate',{bodyLimit:128*1024,schema:{body:{type:'object',additionalProperties:false,required:['prompt','timeoutMs'],properties:{prompt:{type:'string',minLength:1,maxLength:60000},schema:{type:'object',additionalProperties:true},model:{type:'string',minLength:1,maxLength:128},imagePath:{type:'string',maxLength:2048},timeoutMs:{type:'integer',minimum:1000,maximum:600000},actionId:{type:'string',format:'uuid'},scope:{type:'object',additionalProperties:false,required:['conversationId','profileVersion','contextKey'],properties:{conversationId:{type:'string',format:'uuid'},profileVersion:{type:'string',minLength:1,maxLength:128},contextKey:{type:'string',minLength:1,maxLength:200}}}}}}},async(request,reply)=>{
   reply.header('Cache-Control','no-store');
   if(config.codexTransport!=='app-server'||!await validCodexBrokerToken(request.headers.authorization))return reply.code(403).send({error:'Invalid local Codex broker authorization.',effectUncertain:false});
   const abort=new AbortController();const cancel=()=>{if(!reply.raw.writableEnded)abort.abort();};
@@ -52,5 +52,5 @@ export async function registerCodexRoutes(app:FastifyInstance){
    return reply.code(503).send({error:message,effectUncertain:true});
   }finally{request.raw.removeListener('aborted',cancel);reply.raw.removeListener('close',cancel);}
  });
- app.addHook('onClose',async()=>{await codexAppServer.close();});
+ app.addHook('preClose',async()=>{await codexAppServer.close();});
 }

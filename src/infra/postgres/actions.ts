@@ -1,3 +1,4 @@
+import {workBudgetAvailable} from '../../modules/vithi/work-budget.ts';
 import { randomUUID } from 'node:crypto';
 import { config } from '../../app/config.ts';
 import type { Work, Outcome } from '../../contracts/runtime.ts';
@@ -49,7 +50,7 @@ export async function yieldAction(id:string,token:string) {
     if(!a || a.state!=='running' || a.claim_token!==token)return;
     await tx.query('UPDATE citta.goals SET work_ms=work_ms+GREATEST(0,EXTRACT(epoch FROM (now()-$2::timestamptz))*1000)::bigint WHERE id=$1',[a.goal_id,a.started_at]);
     await tx.query("UPDATE citta.attempts SET state='yielded',finished_at=now(),usage=$3 WHERE action_id=$1 AND claim_token=$2",[id,token,JSON.stringify({usageUnknown:true,reason:'Foreground input interrupted incomplete local generation.'})]);
-    if(agent.control!=='running' || a.goal_state==='cancelled' || agent.work_used>=config.hourlyWorkLimit) {
+    if(agent.control!=='running' || a.goal_state==='cancelled' || !workBudgetAvailable(agent.work_used,config.hourlyWorkLimit)) {
       await tx.query("UPDATE citta.actions SET state='failed',result=$2,finished_at=now() WHERE id=$1",[id,JSON.stringify({ok:false,error:'Interrupted generation could not resume within current controls/work budget.'})]);
       await resultObservation(tx,id,a.goal_id);return;
     }

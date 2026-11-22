@@ -194,7 +194,8 @@ flowchart TD
     aspirations["chanda: persistent interests, desires and ambitions"] --> cues
     outcomes["paccavekkhana: outcomes, discrepancies and capability gaps"] --> cues
     clock["vithi: recurring internal turns, review windows and policy triggers"] --> cues
-    cues --> dedup["Deduplicate causal cue and check global work budget"]
+    cues --> focus["Retain one agent focus; review next step and release reason"]
+    focus --> dedup["Deduplicate causal cue and check global work budget"]
     dedup --> queue["dvara: persist internal observation with source links"]
     queue --> attention["manasikara: shared attention queue"]
     attention --> consideration["cetana and modeled appraisal: examine motive and alternatives"]

@@ -6,7 +6,7 @@ export async function workingThread(scope:WorkingScope,model?:string){
  try{
   const {rows:[owner]}=await pool.query('SELECT 1 FROM citta.conversations c JOIN citta.profiles p ON p.agent_id=c.agent_id WHERE c.id=$1 AND c.agent_id=$2 AND p.id=$3',[scope.conversationId,config.agentId,scope.profileVersion]);
   if(!owner)throw Error('invalid-scope');
-  const {rows:[memory]}=await pool.query('SELECT count(*) AS invalidated FROM citta.memories WHERE agent_id=$1 AND NOT valid AND (conversation_id=$2 OR conversation_id IS NULL)',[config.agentId,scope.conversationId]);
+  const {rows:[memory]}=await pool.query('SELECT count(*) AS invalidated FROM citta.memories WHERE agent_id=$1 AND NOT valid',[config.agentId]);
   // A correction invalidates old provider working context without discarding Citta's durable memory.
   const key=createHash('sha256').update(JSON.stringify({context:scope.contextKey,model:model||'configured',invalidated:String(memory.invalidated)})).digest('hex');
   const {rows:[row]}=await pool.query('SELECT thread_id FROM citta.cognition_threads WHERE agent_id=$1 AND conversation_id=$2 AND profile_id=$3 AND context_key=$4',[config.agentId,scope.conversationId,scope.profileVersion,key]);

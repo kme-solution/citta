@@ -30,6 +30,7 @@ try {
   const editor=page.getByRole('textbox',{name:'Message Citta'});
   await editor.fill('remember browser persistence check');await editor.press('Enter');
   await expect(page.locator('.message.citta').filter({hasText:'Saved as your reported note'})).toHaveCount(1,{timeout:15000});
+  await expect(editor).toBeFocused();passed('Enter preserves composer focus after acceptance');
   passed('browser → HTTP → Temporal → PostgreSQL → rendered durable reply');
   await editor.fill('first line');await editor.press('Shift+Enter');await editor.type('second line');await expect(editor).toHaveValue('first line\nsecond line');
   await editor.dispatchEvent('keydown',{key:'Enter',code:'Enter',keyCode:229,isComposing:true,bubbles:true});await delay(300);assert.equal(await page.locator('.message.operator').count(),1);passed('Shift+Enter newline and IME composition do not send prematurely');
@@ -44,7 +45,7 @@ try {
   await page.getByRole('button',{name:'Resume',exact:true}).click();await expect(page.locator('.message.citta').filter({hasText:'Saved as your reported note'})).toHaveCount(2,{timeout:15000});passed('pause and resume show actual durable processing state');
   await page.getByRole('button',{name:/Catalog/}).click();await expect(page.locator('.catalog-grid .card')).toHaveCount(89);await page.getByLabel('View',{exact:true}).selectOption('detailed');await expect(page.locator('.catalog-grid .card')).toHaveCount(121);
   await page.getByLabel('Catalog',{exact:true}).selectOption('cetasikas');await expect(page.locator('.catalog-grid .card')).toHaveCount(52);await page.getByLabel('Catalog',{exact:true}).selectOption('functions');await expect(page.locator('.catalog-grid .card')).toHaveCount(14);assert.match(await page.locator('.catalog-grid').innerText(),/[\u1000-\u109f]/);passed('89/121 citta, 52 cetasikas and 14 functions show actual English/Myanmar catalog data');
-  await page.getByRole('button',{name:/Activity/}).click();await page.getByRole('button',{name:'Inspect continuity',exact:true}).first().click();await expect(page.getByRole('region',{name:'Commitment continuity inspector'}).getByText('Saved continuation')).toBeVisible();passed('activity inspector loads committed criteria, frames and history');
+  await page.getByRole('button',{name:/Activity/}).click();await page.getByRole('checkbox',{name:'Show finished'}).check();await page.locator('.activity-row').first().click();await expect(page.getByRole('region',{name:'Commitment continuity inspector'}).getByRole('heading',{name:'Processing steps'})).toBeVisible();passed('activity inspector loads committed criteria, frames and history');
   await page.getByRole('button',{name:/Inbox/}).click();
   for(let i=0;i<8;i++)await fetch(base+'/api/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({conversationId:conversation,messageId:randomUUID(),text:`remember overflow check ${i}: `+'A real saved test note. '.repeat(20)})});
   await expect(page.locator('.message.citta').filter({hasText:'Saved as your reported note'})).toHaveCount(10,{timeout:25000});
@@ -56,14 +57,26 @@ try {
   assert.equal((await page.locator('.composer').boundingBox())!.y,composer!.y);assert.equal((await page.locator('.rail').boundingBox())!.y,nav!.y);
   await page.getByRole('button',{name:'New messages ↓'}).click();await expect.poll(()=>thread.evaluate(el=>el.scrollHeight-el.scrollTop-el.clientHeight)).toBeLessThan(30);passed('conversation auto-scroll, reading-position protection and stationary composer/inbox');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.body.scrollHeight<=innerHeight+2));
-  await page.screenshot({path:'artifacts/verification/portal-desktop.png',fullPage:true});
+  await page.locator('.message.citta').last().getByRole('button',{name:'Reply',exact:true}).click();
+  await expect(page.locator('.reply-topic')).toBeVisible();await expect(editor).toBeFocused();
+  await editor.fill('Hello');await editor.press('Enter');
+  await expect(page.locator('.message.operator').last().locator('.message-quote')).toBeVisible();await expect(editor).toBeFocused();
+  passed('conversation Reply quotes the selected message and keeps the composer focused');
+  // Explicit browser-only report fixture; never inserted in the operator database.
+  const reportGoal=(await db.query('SELECT id,observation_id FROM citta.goals WHERE agent_id=$1 AND conversation_id=$2 ORDER BY created_at LIMIT 1',[agent,conversation])).rows[0];
+  await db.query("INSERT INTO citta.messages(id,agent_id,conversation_id,role,text,goal_id,observation_id,source) VALUES($1,$2,$3,'citta',$4,$5,$6,'milestone')",[randomUUID(),agent,conversation,'Milestone report · completed\n\nGoal: Browser verification fixture\n\nOutcome: A test-owned saved note was recorded.\n\nEvidence: Reported note; suggestions remain unverified.\n\nNext: Review the activity.',reportGoal.id,reportGoal.observation_id]);
+  await page.goto(base);await expect(page.getByRole('link',{name:'View activity details →'})).toBeVisible();
+  await page.getByRole('link',{name:'View activity details →'}).click();await expect(page.getByRole('heading',{name:'Processing steps'})).toBeVisible();
+  await page.getByRole('button',{name:/Inbox/}).click();await expect(page.locator('.message').last()).toContainText('Milestone report');
+  passed('milestone report is readable in conversation and opens its actual activity');
+  await page.screenshot({path:'artifacts/verification/milestone-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});await expect(page.locator('.mobile-conversations')).toBeVisible();await expect(editor).toBeVisible();
   await expect.poll(()=>thread.evaluate(el=>el.scrollHeight-el.scrollTop-el.clientHeight)).toBeLessThan(30);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.body.scrollHeight<=innerHeight+2));const mobileComposer=await page.locator('.composer').boundingBox();assert.ok(mobileComposer!.y+mobileComposer!.height<=844);
-  await page.screenshot({path:'artifacts/verification/portal-mobile.png',fullPage:true});passed('desktop/mobile layouts keep navigation, conversation and composer within viewport');
+  await page.screenshot({path:'artifacts/verification/milestone-mobile.png',fullPage:true});passed('desktop/mobile layouts keep navigation, conversation and composer within viewport');
   assert.deepEqual(errors,[]);passed('no browser console or uncaught page errors');
   await context.close();
-  await writeFile('artifacts/verification/browser-results.json',JSON.stringify({commit:'28971bc',browser:browser.version(),checks,errors,limits:'Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.'},null,2));
+  await writeFile('artifacts/verification/milestone-browser-results.json',JSON.stringify({revision:'working-tree (milestone reports)',browser:browser.version(),checks,errors,limits:'Synthetic fixtures are isolated in citta_agent_test. Local cognition and external advice are disabled in this browser suite.'},null,2));
 } finally {
   await browser?.close();try{await temporal.workflow.getHandle('citta/'+agent).terminate('Browser verification teardown');}catch{}
   for(const child of children)child.kill('SIGTERM');

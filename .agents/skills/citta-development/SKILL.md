@@ -13,7 +13,7 @@ Citta is an ongoing individual application with its own configured identity, mem
 
 The design follows the approved Buddha/Abhidhamma-inspired architecture and flows. Engineering cycles are not literal doctrinal mind moments. Preserve doctrinal catalogs separately, including English/Myanmar descriptions and explicit pending terminology review.
 
-Ordinary local understanding uses configured profile, scoped memory, deterministic sufficient routines or local Ollama cognition. Codex is optional external advice selected for a justified gap or explicit request, never an automatic fallback for every difficult message. Validate advice as attributable speech, not authoritative truth.
+Current approved reasoning uses sufficient local routines or Codex App Server, including internally initiated consideration. Citta owns durable PostgreSQL memory/goals and isolated per-conversation/profile Codex working threads; personal Codex/ChatGPT history is not Citta memory. Ollama remains an explicit offline alternative, with no automatic provider fallback. Optional external adviser speech remains attributable and unverified. Portal Connections owns supported ChatGPT sign-in or API-key setup; never collect OpenAI passwords in Citta.
 
 ## Sources of truth
 
@@ -32,7 +32,7 @@ Write product/architecture/operating changes in `doc/` before affected code. Upd
 
 ## Agreed implementation constraints
 
-Use TypeScript/Node, Fastify, React/Vite, Temporal, PostgreSQL, Ollama and optional existing Codex CLI integration. PostgreSQL owns domain truth; one stable Temporal workflow per agent owns deliberation. Activities perform SQL/network/model/ability work. Persist observations, source/version lineage, decisions, goals, continuations, appraisals, actions, results and contact/budget state. Use durable outbox, stable operation IDs, version/generation fencing and explicit unknown-effect handling. Keep controls responsive during inference/advice. No cloud fallback, arbitrary model-generated commands or executable self-upgrades.
+Use TypeScript/Node, Fastify, React/Vite, Temporal, PostgreSQL and Codex App Server as currently approved; Ollama remains optional. Human-style desktop use targets the actual GNOME Wayland laptop through an OS-approved Python GI/GStreamer screen/input driver, not service-specific search/Git APIs. PostgreSQL owns domain truth; one stable Temporal workflow per agent owns deliberation. Activities perform SQL/network/model/ability work. Persist observations, source/version lineage, decisions, goals, continuations, appraisals, actions, results and contact/budget state. Use durable outbox, stable operation IDs, version/generation fencing and explicit unknown-effect handling. Continue eligible internally motivated consideration when idle, without an artificial five-minute gap or hidden half-work-budget cutoff. Local continuous mode uses work limit 0; per-goal/provider limits and Pause/Stop still apply. Show actual current operation or blockage, retain real thought history, and never manufacture filler thoughts or equate a CPU tick with bhavanga. Keep controls responsive during inference/advice. No cloud fallback, arbitrary model-generated commands or executable self-upgrades.
 
 Preserve existing `.env`, identity attributes, notes/history, applied migrations and catalogs. Unknown profile fields remain unknown. Secrets never enter public configuration or prompts. Kyaw explicitly deferred Myanmar conversation on 2026-11-22 and accepted English models. The local model must handle evaluated English scenarios; Myanmar catalogs and literal commands remain, with general Myanmar cognition outside the current delivery gate. Valid JSON alone is insufficient. Retrieval uses bounded scoped evidence; enable pgvector only if justified by evaluation. Hardware is a 4-core/8-thread i7-8650U, about 32 GB RAM, Intel UHD620, CPU inference initially; do not assume a dedicated GPU or measured model quality.
 
@@ -53,3 +53,11 @@ Progress through coherent end-to-end packages; preserve completed work across se
 ### Explicit correction after premature verification
 
 Kyaw objected when verification began after a first source pass: “hmm, you are running tests”. Do **not** interpret a source milestone as permission to begin verification. Continue code-only until Kyaw explicitly requests execution. No tests, builds, type checks, migrations, service starts or model benchmarks. Source reading/writing and stopping agent-started processes are allowed. This historical correction was later superseded by Kyaw's explicit post-commit request to test and verify, recorded above.
+
+### Milestone communication
+
+Kyaw can miss individual suggestions in the thought stream. Deliver durable conversation summaries for substantial completed/blocked work and recorded improvement proposals, with outcome, evidence/uncertainty, open issues, next step and activity link. Preserve Quiet/contact pacing and distinguish self-generated suggestions from operator-approved priorities. Do not treat silence as approval or report each idle thought as a milestone.
+
+### Continuing focus and free thought
+
+Kyaw clarified that conversations are communication contexts for one continuing individual, not separate memories/personas. Fix scattered attention first, then complete shared-memory retrieval. Retain one concern, its outcome/next step and source across turns, interruptions and conversation changes. New ideas can be unrelated to the immediate environment: preserve curiosity, imagination and memory associations. A deliberate detour records its reason and return point; do not force work-only/KME-only attention or manufacture continuous filler. Portal refresh must preserve the selected view, not return to stale Activity.
