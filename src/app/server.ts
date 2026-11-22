@@ -1,3 +1,4 @@
+import {desktopSession} from '../infra/computer/desktop.ts';
 import {existsSync} from 'node:fs';
 import {delimiter,join} from 'node:path';
 import {codexExecutable} from '../modules/cetana/vaca-codex.ts';
@@ -60,7 +61,15 @@ app.get('/api/catalog',async()=> {
   const [citta,cetasikas,functions] = await Promise.all(['citta-types','cetasikas','functions'].map(name=>readFile(new URL('../../data/catalog/v1/'+name+'.json',import.meta.url),'utf8').then(text=>JSON.parse(text))));
   return {citta,cetasikas,functions,myanmarReview:'pending'};
 });
-app.get('/api/capabilities',async()=>({abilities:capabilities,cognitionEnabled:config.cognitionEnabled,cognitionProvider:config.cognitionProvider,adviserEnabled:config.adviserEnabled}));
+app.get('/api/computer',async()=>{
+  try{return await desktopSession('status');}catch{return {enabled:config.computerEnabled,connected:false,error:'Desktop driver unavailable.'};}
+});
+app.post<{Params:{operation:'connect'|'disconnect'}}>('/api/computer/:operation',{schema:{params:{type:'object',additionalProperties:false,required:['operation'],properties:{operation:{enum:['connect','disconnect']}}},body:{type:'object',additionalProperties:false}}},async(request,reply)=>{
+  const host=request.headers.host;
+  if(!['127.0.0.1','localhost','[::1]'].includes(request.hostname)||request.headers.origin&&request.headers.origin!==`http://${host}`)return reply.code(403).send({error:'Desktop controls require a local portal origin.'});
+  try{return await desktopSession(request.params.operation);}catch{return reply.code(503).send({error:'Desktop session unavailable or permission was declined. Check the OS dialog and the local driver.'});}
+});
+app.get('/api/capabilities',async()=>({abilities:capabilities,cognitionEnabled:config.cognitionEnabled,cognitionProvider:config.cognitionProvider,adviserEnabled:config.adviserEnabled,computerEnabled:config.computerEnabled,computerAutonomous:config.computerAutonomous}));
 app.get<{Querystring:{after?:string}}>('/api/events',{schema:{querystring:{type:'object',additionalProperties:false,properties:{after:{type:'string',pattern:'^[0-9]{1,18}$'}}}}},async(request,reply)=> {
   const header = request.headers['last-event-id'];
   let after = typeof header==='string' && /^\d{1,18}$/.test(header)?header:request.query.after;

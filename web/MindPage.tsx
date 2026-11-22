@@ -1,3 +1,4 @@
+import {ComputerControl} from './ComputerControl.tsx';
 import type {RuntimeState} from './types.ts';
 import {ProposalCards} from './ProposalCards.tsx';
 export function MindPage({state,onActivity,onReviewed}:{state:RuntimeState|null;onActivity:(id:string)=>void;onReviewed:()=>Promise<void>}) {
@@ -5,8 +6,8 @@ export function MindPage({state,onActivity,onReviewed}:{state:RuntimeState|null;
   const pending=state.actions.filter(a=>['queued','running','unknown'].includes(a.state));
   const thoughts=state.thoughts?.slice(0,10)||[];
   const topics=state.motives.filter(m=>m.last_topic);
-  const names:Record<string,string>={INFER:'Considering',CONSULT_AI:'External consultation',READ:'Reading a source'};
-  return <section className="workspace mind-workspace">
+  const names:Record<string,string>={INFER:'Considering',CONSULT_AI:'External consultation',READ:'Reading a source',COMPUTER:'Using this computer'};
+  return <section className="workspace mind-workspace"><ComputerControl/>
     <div className="note">Recorded application state, refreshed with runtime updates. Pending operations do not reveal a live inner monologue. Appraisals model feeling; they do not establish human experience.</div>
     <h2>{state.profile.name}’s current activity</h2>
     <div className="mind-status"><span className={'tag '+state.agent.control}>{state.agent.control}</span><span>{state.agent.quiet?'Proactive contact is quiet.':'Proactive contact is allowed, subject to timing and budget.'}</span><small>Runner heartbeat: {state.agent.heartbeat_at?new Date(state.agent.heartbeat_at).toLocaleString():'Not recorded'}</small></div>

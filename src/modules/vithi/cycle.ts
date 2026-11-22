@@ -1,3 +1,4 @@
+import {desktopSession} from '../../infra/computer/desktop.ts';
 import { randomUUID, createHash } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { config } from '../../app/config.ts';
@@ -58,7 +59,7 @@ async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argum
 async function applyDecision(tx: Tx, agent: Row, ctx: Context, d: Decision, key: string) {
   await recordDecision(tx,ctx,d,key);
   if(d.goalReview||(ctx.kind==='mental'&&ctx.proposal))await tx.query('UPDATE citta.goals SET criterion=COALESCE($2,criterion),description=COALESCE($3,description) WHERE id=$1',[ctx.goalId,d.goalReview?.criterion||null,ctx.kind==='mental'&&ctx.proposal?(d.text||d.reason).slice(0,1000):null]);
-  if (['READ','CONSULT_AI','INFER'].includes(d.action)) {
+  if (['READ','CONSULT_AI','INFER','COMPUTER'].includes(d.action)) {
     try { await queue(tx,agent,ctx,d.action as Work['kind'],d.argument||ctx.text); }
     catch (error) {
       const reason = error instanceof Error?error.message:'Action was denied.';
@@ -233,6 +234,7 @@ async function internalObservation(tx: Tx, agent: Row, files: string[]) {
 export async function cycle(operationId: string, generation: string) {
   let files: string[] = [];
   try { files = (await readdir(config.readRoot,{withFileTypes:true})).filter(f=>f.isFile()).map(f=>f.name).slice(0,30); } catch { /* Missing evidence directory is not fabricated evidence. READ reports actual errors. */ }
+  const computerReady=config.computerEnabled&&config.cognitionProvider==='codex'?await desktopSession('status').then(s=>s.connected).catch(()=>false):false;
   return transaction(async tx=> {
     const agent = await lockAgent(tx);
     if(String(agent.generation)!==generation)return {work:[],waiting:true,fenced:true};
@@ -244,7 +246,7 @@ export async function cycle(operationId: string, generation: string) {
     }
     await tx.query("UPDATE citta.messages SET contact_state='expired' WHERE agent_id=$1 AND initiative AND contact_state IN ('created','delivered','seen') AND created_at<now()-interval '24 hours'",[config.agentId]);
     // A lost unsafe external effect is never blindly redispatched. Repeat-safe reads/model attempts are also made explicit failures here.
-    const {rows:lost} = await tx.query("UPDATE citta.actions SET state=CASE WHEN kind='CONSULT_AI' THEN 'unknown' ELSE 'failed' END,result=jsonb_build_object('ok',false,'unknown',kind='CONSULT_AI','error','Worker heartbeat expired; a new explicit request is required.'),finished_at=now() WHERE agent_id=$1 AND state='running' AND heartbeat_at<now()-interval '45 seconds' RETURNING id,goal_id,claim_token,started_at,state",[config.agentId]);
+    const {rows:lost} = await tx.query("UPDATE citta.actions SET state=CASE WHEN kind IN ('CONSULT_AI','COMPUTER') THEN 'unknown' ELSE 'failed' END,result=jsonb_build_object('ok',false,'unknown',kind IN ('CONSULT_AI','COMPUTER'),'error','Worker heartbeat expired; a new explicit request is required.'),finished_at=now() WHERE agent_id=$1 AND state='running' AND heartbeat_at<now()-interval '45 seconds' RETURNING id,goal_id,claim_token,started_at,state",[config.agentId]);
     for (const a of lost) {
       await tx.query('UPDATE citta.goals SET work_ms=work_ms+GREATEST(0,EXTRACT(epoch FROM (now()-$2::timestamptz))*1000)::bigint WHERE id=$1',[a.goal_id,a.started_at]);
       await tx.query('UPDATE citta.attempts SET state=$3,finished_at=now(),usage=$4 WHERE action_id=$1 AND claim_token=$2',[a.id,a.claim_token,a.state,JSON.stringify({usageUnknown:true})]);
@@ -284,13 +286,14 @@ export async function cycle(operationId: string, generation: string) {
             await tx.query("UPDATE citta.frames SET state='foreground',version=version+1 WHERE goal_id=$1",[goalId]);
           }
           const ctx = await context(tx,selected,goalId,agent);
+          ctx.computerAvailable=computerReady&&(ctx.kind!=='mental'||config.computerAutonomous);
           ctx.attention=attention||undefined;
           if(selected.payload?.recallGoalId)ctx.kind=selected.payload.originKind;
           if(selected.payload?.reminder)ctx.recallReason=selected.payload.reminder;
           ctx.availableSources=files;
           const local = ctx.kind === 'speech' ? considerLocal(ctx) : null;
           if(!selected.payload?.recallGoalId) {
-            const transient=!!local&&!['READ','CONSULT_AI','WAIT','CLARIFY'].includes(local.action);
+            const transient=!!local&&!['READ','CONSULT_AI','COMPUTER','WAIT','CLARIFY'].includes(local.action);
             const adopted=await newGoal(tx,selected,ctx,transient);
             if(!adopted) {
               await tx.query('INSERT INTO citta.operations(id,agent_id,result) VALUES($1,$2,$3)',[operationId,config.agentId,JSON.stringify({work:[],waiting:true})]);
@@ -342,7 +345,7 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row,attention?:Atte
         const reason='Saved context changed while local cognition was pending; reconsider against current scoped evidence.';
         await recordDecision(tx,ctx,{action:'RECONSIDER',text:'',reason,tone:'undetermined',evidenceIds:invalid},'result:'+action.id);
         const fresh=await context(tx,{id:ctx.observationId,conversation_id:ctx.conversationId,text:ctx.text,kind:ctx.kind,payload:{motive:ctx.motive,motiveSnapshot:ctx.motiveSnapshot}},ctx.goalId,agent);
-        fresh.profile=ctx.profile;fresh.profileVersion=ctx.profileVersion;fresh.attention=attention;fresh.availableSources=ctx.availableSources;
+        fresh.profile=ctx.profile;fresh.profileVersion=ctx.profileVersion;fresh.attention=attention;fresh.availableSources=ctx.availableSources;fresh.computerAvailable=ctx.computerAvailable;fresh.computerScreen=ctx.computerScreen;
         fresh.selectedObservationId=observation.id;
         fresh.evidence=[...new Map([...fresh.evidence,...ctx.evidence.filter(e=>e.origin==='ability')].map(e=>[e.id,e])).values()];
         try{await queue(tx,agent,fresh,'INFER',fresh.text);}catch(error){const failure=error instanceof Error?error.message:'Reconsideration could not continue.';if(ctx.kind!=='mental')await message(tx,ctx.conversationId,failure,ctx.goalId,ctx.observationId);await closeGoal(tx,ctx.goalId,'exhausted',failure);}
@@ -352,7 +355,7 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row,attention?:Atte
     let d: Decision;
     try {
       d = validateProposal(outcome.proposal,ctx);
-      if (ctx.kind==='mental' && !['REFLECT','READ','WAIT','ADOPT_INTEREST','INITIATE','PROPOSE_IMPROVEMENT','CLARIFY'].includes(d.action)) throw Error('Internal turn proposed an ineligible action.');
+      if (ctx.kind==='mental' && !['REFLECT','READ','COMPUTER','WAIT','ADOPT_INTEREST','INITIATE','PROPOSE_IMPROVEMENT','CLARIFY'].includes(d.action)) throw Error('Internal turn proposed an ineligible action.');
     } catch (error) {
       const reason = error instanceof Error?error.message:'Invalid local proposal';
       await recordDecision(tx,ctx,{action:'CLARIFY',reason,tone:'undetermined',text:reason,evidenceIds:[]},'result:'+action.id);
@@ -364,18 +367,19 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row,attention?:Atte
     if (ctx.kind==='mental') await tx.query('UPDATE citta.motive_contexts c SET last_topic=$4 FROM citta.motives m WHERE c.agent_id=$1 AND c.conversation_id=$2 AND c.motive_id=m.id AND m.agent_id=c.agent_id AND m.name=$3',[config.agentId,ctx.conversationId,ctx.motive,(d.text||d.argument||d.reason).slice(0,500)]);
   } else {
     const review = reviewOutcome(action.kind,outcome);
-    const content = outcome.ok ? (action.kind==='CONSULT_AI'?'Codex advice (unverified):\n\n':'Observed source content:\n\n')+(outcome.text||'') : review.reason;
-    const source = action.kind==='CONSULT_AI'?'codex':action.kind==='READ'?'file':'local-cognition';
+    const content = outcome.ok ? (action.kind==='CONSULT_AI'?'Codex advice (unverified):\n\n':action.kind==='COMPUTER'?'Observed desktop feedback:\n\n':'Observed source content:\n\n')+(outcome.text||'') : review.reason;
+    const source = action.kind==='CONSULT_AI'?'codex':action.kind==='COMPUTER'?'computer':action.kind==='READ'?'file':'local-cognition';
     if (outcome.ok) await tx.query('INSERT INTO citta.memories(id,agent_id,conversation_id,kind,content,source_id) VALUES($1,$2,$3,$4,$5,$6)',[randomUUID(),config.agentId,ctx.conversationId,action.kind==='CONSULT_AI'?'reported':'observed',(action.kind==='CONSULT_AI'?'Codex advice (unverified):\n\n':'Source '+action.argument+':\n\n')+(outcome.text||'').slice(0,16000),observation.id]);
+    if(action.kind==='COMPUTER'&&outcome.ok&&outcome.computerScreen)ctx.computerScreen=outcome.computerScreen;
     ctx.reviewedOutcome={kind:action.kind,outcome,observationId:observation.id};
     delete ctx.proposal;
     await recordDecision(tx,ctx,{action:'REVIEW',text:content,reason:review.reason,tone:outcome.ok?'neutral':'undetermined',evidenceIds:[observation.id],uncertainty:review.criterion==='unknown'?review.reason:''},'result:'+action.id);
-    if (outcome.ok && ((action.kind==='READ' && !/^(?:read file|ဖိုင်ဖတ်ပါ)\s/iu.test(ctx.text)) || (action.kind==='CONSULT_AI' && !/^(?:ask|consult codex|codex ကိုမေးပါ)\s/iu.test(ctx.text)))) {
+    if (outcome.ok && (action.kind==='COMPUTER' || (action.kind==='READ' && !/^(?:read file|ဖိုင်ဖတ်ပါ)\s/iu.test(ctx.text)) || (action.kind==='CONSULT_AI' && !/^(?:ask|consult codex|codex ကိုမေးပါ)\s/iu.test(ctx.text)))) {
       ctx.evidence=[...ctx.evidence,{id:observation.id,kind:action.kind==='CONSULT_AI'?'reported' as const:'observed' as const,origin:'ability' as const,content:(action.kind==='CONSULT_AI'?'Unverified Codex advice: ':'Source '+action.argument+': ')+(outcome.text||'').slice(0,16000)}].slice(-16);
       delete ctx.reviewedOutcome;
       try {await queue(tx,agent,ctx,'INFER',ctx.text);} catch(error) {
         const reason=error instanceof Error?error.message:'Continuation was denied.';
-        if(ctx.kind!=='mental')await message(tx,ctx.conversationId,'The source was read, but further interpretation stopped: '+reason,ctx.goalId,ctx.observationId);
+        if(ctx.kind!=='mental')await message(tx,ctx.conversationId,'The operation returned feedback, but further interpretation stopped: '+reason,ctx.goalId,ctx.observationId);
         await closeGoal(tx,ctx.goalId,'exhausted',reason);
       }
       await event(tx,'continuation',{goalId:ctx.goalId,sourceId:observation.id});

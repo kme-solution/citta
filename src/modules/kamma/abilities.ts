@@ -1,3 +1,4 @@
+import {operateComputer} from '../../infra/computer/desktop.ts';
 import { open, realpath } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import type { Work, Outcome } from '../../contracts/runtime.ts';
@@ -8,6 +9,7 @@ import { askCodex } from '../cetana/vaca-codex.ts';
 export async function executeAbility(work: Work, signal: AbortSignal): Promise<Outcome> {
   authorize(work.kind,work.context,work.argument,config.adviserEnabled);
   if (signal.aborted) throw Error('Cancelled before execution.');
+  if (work.kind==='COMPUTER')return operateComputer(work,signal);
   if (work.kind==='INFER') return infer(work.context,signal);
   if (work.kind==='CONSULT_AI') return {ok:true,text:await askCodex(work.argument,work.context.profile,signal)};
   const target = await permittedFile(config.readRoot,work.argument);

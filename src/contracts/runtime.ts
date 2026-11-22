@@ -2,12 +2,12 @@ import type { Identity } from '../modules/nama/nama-service.ts';
 import type { AttentionSnapshot } from '../modules/manasikara/select.ts';
 export type Control = 'running' | 'paused' | 'stopped';
 export type GoalState = 'active' | 'suspended' | 'waiting' | 'paused' | 'completed' | 'exhausted' | 'cancelled';
-export type Ability = 'INFER' | 'CONSULT_AI' | 'READ';
+export type Ability = 'INFER' | 'CONSULT_AI' | 'READ' | 'COMPUTER';
 export interface ImprovementDetails {benefit:string;criteria:string;risks:string;scope:'knowledge'|'runtime-code'|'model'|'dependencies'|'policy';requiresPrivilegeExpansion:boolean}
 export interface GoalReview {criterion:string;status:'met'|'not_met'|'unknown';evidenceIds:string[]}
 export interface Evidence { id: string; kind: 'configured' | 'reported' | 'observed' | 'inferred'; content: string;origin?:'memory'|'observation'|'ability' }
 export interface Proposal {
-  action: 'RESPOND' | 'CLARIFY' | 'RECALL' | 'REMEMBER' | 'CORRECT_MEMORY' | 'SET_PREFERENCE' | 'CANCEL_GOAL' | 'REVISE_GOAL' | 'WAIT' | 'READ' | 'CONSULT_AI' | 'REFLECT' | 'ADOPT_INTEREST' | 'INITIATE' | 'PROPOSE_IMPROVEMENT';
+  action: 'RESPOND' | 'CLARIFY' | 'RECALL' | 'REMEMBER' | 'CORRECT_MEMORY' | 'SET_PREFERENCE' | 'CANCEL_GOAL' | 'REVISE_GOAL' | 'WAIT' | 'READ' | 'COMPUTER' | 'CONSULT_AI' | 'REFLECT' | 'ADOPT_INTEREST' | 'INITIATE' | 'PROPOSE_IMPROVEMENT';
   text: string;
   reason: string;
   evidenceIds: string[];
@@ -21,7 +21,10 @@ export interface Proposal {
   improvement?:ImprovementDetails;
   goalReview?:GoalReview;
 }
+export type ComputerCommand={action:'observe'}|{action:'click';x:number;y:number;button?:'left'|'right'|'middle'}|{action:'type';text:string}|{action:'key';keys:string[]}|{action:'scroll';steps:number};
+export interface ComputerScreen {frameId:string;width:number;height:number;sha256:string;capturedAt:string}
 export interface Context {
+  computerAvailable?:boolean;computerScreen?:ComputerScreen;
   observationId: string; conversationId: string; text: string; kind: string;
   profile: Identity; profileVersion: string; controlVersion: number; goalId: string; goalCriterion?:string; responseLanguage?:'en'|'my'; goalRevisionAllowed?:boolean; goalCancellationAllowed?:boolean;
   evidence: Evidence[]; recent: {role: string; text: string}[]; motive?: string;
@@ -46,7 +49,7 @@ export interface Context {
   motiveSnapshot?:{id:string;name:string;origin:string;description:string;version:number;contextSignature:string;nextEligibleAt:string;unchangedTurns:number;memoryIds:string[]};
 }
 export interface Work { id: string; kind: Ability; argument: string; context: Context; goalId: string; goalVersion: number }
-export interface Outcome { ok: boolean; text?: string; proposal?: Proposal; context?:Context; error?: string; unknown?: boolean; usage?: unknown }
+export interface Outcome { ok: boolean; text?: string; proposal?: Proposal; context?:Context; error?: string; unknown?: boolean; usage?: unknown; computerScreen?:ComputerScreen }
 export interface Tick { work: Work[]; waiting: boolean }
 export interface Decision { action: string; reason: string; text: string; evidenceIds: string[]; tone: Proposal['tone']; uncertainty?: string; argument?: string;candidateTendency?:Proposal['candidateTendency'];chosenTendency?:Proposal['chosenTendency'];regulationReason?:string;alternatives?:Proposal['alternatives'];improvement?:ImprovementDetails;goalReview?:GoalReview }
 export const ENGINE_VERSION = 'citta-runtime-v3';

@@ -15,6 +15,10 @@ if (!['127.0.0.1','localhost','[::1]'].includes(url.hostname) || url.protocol !=
 const cognitionProvider=process.env.CITTA_COGNITION_PROVIDER || 'ollama';
 if(!['ollama','codex'].includes(cognitionProvider))throw Error('CITTA_COGNITION_PROVIDER must be ollama or codex');
 export const config = {
+  computerEnabled:process.env.CITTA_COMPUTER_ENABLED==='true',
+  computerAutonomous:process.env.CITTA_COMPUTER_AUTONOMOUS==='true',
+  computerPort:integer('CITTA_COMPUTER_PORT',4180,1024,65535),
+  computerTokenFile:resolve('.local/state/computer.token'),computerImageRoot:resolve('.local/state/computer/frames'),
   cognitionProvider, codexModel:process.env.CITTA_CODEX_MODEL || undefined,
   agentId, databaseUrl: process.env.CITTA_DATABASE_URL || process.env.DATABASE_URL,
   profile: loadIdentity(process.env), port: integer('CITTA_PORT', 4173, 1024, 65535),

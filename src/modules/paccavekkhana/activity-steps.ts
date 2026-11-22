@@ -5,7 +5,7 @@ interface RecordedDecision {
 }
 interface RecordedAction {
  id:string;kind:string;state:string;created_at:string;started_at?:string;finished_at?:string;reviewed:boolean;
- result?:{ok?:boolean;error?:string;unknown?:boolean;usage?:{provider?:string}};
+ result?:{ok?:boolean;error?:string;unknown?:boolean;usage?:{provider?:string;operation?:string}};
 }
 export interface ActivityStep {id:string;module:string;operation:string;outcome:string;createdAt:string}
 /** Summaries of retained records, not independently measured module spans. */
@@ -21,10 +21,10 @@ export function activitySteps(decisions:RecordedDecision[],actions:RecordedActio
  }
  for(const a of actions){
   const add=(suffix:string,module:string,operation:string,outcome:string,createdAt:string)=>steps.push({id:a.id+':'+suffix,module,operation,outcome,createdAt});
-  const ability=a.kind==='INFER'?'Consideration':a.kind==='READ'?'Source read':a.kind==='CONSULT_AI'?'External advice':a.kind;
+  const ability=a.kind==='INFER'?'Consideration':a.kind==='COMPUTER'?'Computer input/observation':a.kind==='READ'?'Source read':a.kind==='CONSULT_AI'?'External advice':a.kind;
   add('queued','kamma','Queue an operation',ability+' queued.',a.created_at);
   if(a.started_at)add('started','kamma','Start an operation',ability+' started.',a.started_at);
-  if(a.finished_at)add('result','kamma','Record operation outcome',a.state==='succeeded'?ability+' returned successfully'+(a.result?.usage?.provider?' via '+a.result.usage.provider:'')+'.':a.state+': '+(a.result?.error||'No further outcome recorded.'),a.finished_at);
+  if(a.finished_at)add('result','kamma','Record operation outcome',a.state==='succeeded'?(a.kind==='COMPUTER'?'Computer '+(a.result?.usage?.operation||'operation')+' returned screen feedback; application outcome needs review':ability+' returned successfully')+(a.result?.usage?.provider?' via '+a.result.usage.provider:'')+'.':a.state+': '+(a.result?.error||'No further outcome recorded.'),a.finished_at);
   if(a.reviewed)add('review','paccavekkhana','Review an outcome','The runtime recorded this result as reviewed; the decision and commitment state show what followed.',a.finished_at||a.created_at);
  }
  return steps.sort((a,b)=>Date.parse(a.createdAt)-Date.parse(b.createdAt));

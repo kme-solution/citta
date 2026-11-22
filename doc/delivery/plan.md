@@ -158,3 +158,7 @@ P6 also validates Temporal workflow replay separately from domain scenario repla
 ## Completion and later work
 
 The first continuing-runtime delivery ends when its scope meets the gates above and status has credible evidence. The doctrine reference has a separate coverage gate. Browser/desktop/project actions, expanded natural-language reasoning and autonomous learning need their own scoped plans based on these same runtime boundaries; the old release numbering no longer governs development.
+
+## Laptop computer-use extension
+
+Implement one vertical path: OS-approved desktop session → screenshot → Codex next-action proposal → validated mouse/keyboard dispatch → new screenshot → reviewed continuation. Web, file/code and Git tasks use existing visible applications; defer service-specific API tools. Delivery requires actual Wayland portal consent, screen capture and input verification on Kyaw’s desktop before claiming working computer control. Source changes alone do not satisfy that gate.

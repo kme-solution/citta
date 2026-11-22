@@ -120,3 +120,15 @@ Verification: typecheck passed; final portal build and docs/diff checks passed. 
 Selected-activity detail refinement: removed per-goal decision/action/version/transition query limits and the ten-step renderer cap. All retained module steps and full outcomes are available for a selected activity, with full state-change history in a readable disclosure. Overview and Mind history caps remain ten. No persisted data removed.
 
 Selected-activity verification: typecheck/build and diff check passed. Focused assertion retained 20 steps and a 500-character outcome without truncation. Rebuilt and restarted supervised services; browser confirmed uncapped detail wording, with database/runner ready.
+
+## Human-style laptop capability — source implemented, unverified
+
+Kyaw requested web search/view, files/code, Git and computer use, then explicitly chose human-style operation of the actual laptop rather than service APIs or an isolated desktop. No Brave/search API implementation was added. The repository was previously pushed to main at b24d638; this extension is uncommitted.
+
+Added COMPUTER proposal/ability, additive migration 006, a loopback authenticated Python GI/GStreamer XDG RemoteDesktop/ScreenCast driver, screenshot feedback and Codex image attachment, complete context→authorization→dispatch→result review→continuation wiring, unknown physical-effect handling and receipt deduplication. The supervisor can launch the driver with a sanitized desktop environment and a private token. Mind has OS session connect/disconnect controls. Private runtime opts into laptop capability and autonomous use but the currently running services have not been restarted and no OS session is opened automatically.
+
+Static environment inspection: actual GNOME Wayland, Python GI/Gio/Gst/Gtk/Pillow available; xdotool/pyautogui absent. Desktop portals provide the selected supported path. No application code, tests, typecheck, build, migration, desktop session or physical input executed for this source-only slice. Source/diff inspection is not runtime acceptance.
+
+Required next: explicitly authorized verification of TypeScript/Python, focused command/unknown-effect checks and migration 006; build/restart; Kyaw approves the OS screen/input dialog; then verify actual screenshot and harmless pointer/key feedback, freshness/coordinate behavior, pause/stop/disconnect and no replay after a lost physical outcome. Actual browser search, file editing and Git workflows remain unverified until performed through the laptop UI. Source generation does not establish that those tasks work.
+
+Source review also confirmed independent dispatch requires the approved-session context and an observed frame before input. Desktop access is not a filesystem sandbox: it has the logged-in user’s OS rights, and the sharing session is the actual access boundary. This remains an explicit acceptance limitation, not a claim of a sandboxed agent. No source-only verification was represented as a passed runtime test.

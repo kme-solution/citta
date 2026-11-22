@@ -1,3 +1,4 @@
+import {ComputerFailure} from '../../infra/computer/desktop.ts';
 import { heartbeat, Context as ActivityContext } from '@temporalio/activity';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { cycle } from './cycle.ts';
@@ -29,7 +30,7 @@ export async function perform(id: string) {
   } catch (error) {
     const message = error instanceof Error?error.message:'Ability failed.';
     if(yielded)await yieldAction(id,claimed.token);
-    else await finishAction(id,claimed.token,{ok:false,error:message,unknown:claimed.work.kind==='CONSULT_AI'&&(!(error instanceof AdviserFailure)||error.effectUncertain),usage:{wallMs:Date.now()-started,usageUnknown:!(error instanceof AdviserFailure)||error.effectUncertain}});
+    else await finishAction(id,claimed.token,{ok:false,error:message,unknown:(claimed.work.kind==='CONSULT_AI'&&(!(error instanceof AdviserFailure)||error.effectUncertain))||(claimed.work.kind==='COMPUTER'&&(!(error instanceof ComputerFailure)||error.effectUncertain)),usage:{wallMs:Date.now()-started,usageUnknown:!(error instanceof AdviserFailure||error instanceof ComputerFailure)||error.effectUncertain}});
     span.setStatus({code:SpanStatusCode.ERROR,message});
   } finally { clearInterval(pulse); span.end(); }
 }

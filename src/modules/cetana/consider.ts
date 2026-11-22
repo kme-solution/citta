@@ -1,3 +1,4 @@
+import {parseComputerCommand} from '../../infra/computer/desktop.ts';
 import type { Context, Decision, Proposal } from '../../contracts/runtime.ts';
 import { describeIdentity,identityFieldLabel } from '../nama/nama-service.ts';
 import { validPreference } from '../sati/preferences.ts';
@@ -80,6 +81,12 @@ export function validateProposal(proposal: Proposal, ctx: Context): Decision {
   if(proposal.goalReview?.evidenceIds.some(id=>!ids.has(id)))throw Error('Goal review refers to evidence outside its context.');
   if(proposal.action==='SET_PREFERENCE'&&(ctx.kind!=='speech'||!proposal.evidenceIds.includes(ctx.observationId)||!validPreference(proposal.argument,proposal.text)))throw Error('A scoped preference needs explicit operator provenance and a supported key/value.');
   if (proposal.action === 'CONSULT_AI' && (!proposal.argument.trim() || !proposal.uncertainty.trim())) throw Error('Advice requires a specific question and an explicit local knowledge gap.');
+  if(proposal.action==='COMPUTER'){
+    if(!ctx.computerAvailable)throw Error('Computer session is not available for this consideration.');
+    const command=parseComputerCommand(proposal.argument);
+    if(command.action!=='observe'&&!ctx.computerScreen)throw Error('Observe the desktop before choosing an input action.');
+    if(command.action==='click'&&ctx.computerScreen&&(command.x>=ctx.computerScreen.width||command.y>=ctx.computerScreen.height))throw Error('Click is outside the observed screen.');
+  }
   if (proposal.action === 'READ' && !proposal.argument.trim()) throw Error('Read requires a relative source path.');
   if (proposal.action === 'CORRECT_MEMORY' && !ctx.evidence.some(e=>e.id===proposal.argument && e.kind==='reported'&&e.origin==='memory')) throw Error('Correction requires the exact scoped reported memory ID.');
   if (['CORRECT_MEMORY','REMEMBER'].includes(proposal.action) && (!proposal.text.trim() || ctx.kind!=='speech')) throw Error('Saving or correcting a reported memory requires operator input.');

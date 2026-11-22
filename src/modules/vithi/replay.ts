@@ -18,10 +18,10 @@ export function replayDecision(record: RecordedDecision) {
   } else if(ctx.reviewedOutcome) {
     const {kind,outcome,observationId}=ctx.reviewedOutcome;
     const review=reviewOutcome(kind,outcome);
-    const content=outcome.ok?(kind==='CONSULT_AI'?'Codex advice (unverified):\n\n':'Observed source content:\n\n')+(outcome.text||''):review.reason;
+    const content=outcome.ok?(kind==='CONSULT_AI'?'Codex advice (unverified):\n\n':kind==='COMPUTER'?'Observed desktop feedback:\n\n':'Observed source content:\n\n')+(outcome.text||''):review.reason;
     actual={action:'REVIEW',text:content,reason:review.reason,tone:outcome.ok?'neutral':'undetermined',evidenceIds:[observationId],uncertainty:review.criterion==='unknown'?review.reason:''};
   } else if(ctx.proposal) {
-    try {actual=validateProposal(ctx.proposal,ctx);if(ctx.kind==='mental'&&!['REFLECT','READ','WAIT','ADOPT_INTEREST','INITIATE','PROPOSE_IMPROVEMENT','CLARIFY'].includes(actual.action))throw Error('Internal turn proposed an ineligible action.');}
+    try {actual=validateProposal(ctx.proposal,ctx);if(ctx.kind==='mental'&&!['REFLECT','READ','COMPUTER','WAIT','ADOPT_INTEREST','INITIATE','PROPOSE_IMPROVEMENT','CLARIFY'].includes(actual.action))throw Error('Internal turn proposed an ineligible action.');}
     catch(error){const reason=error instanceof Error?error.message:'Invalid local proposal';actual={action:'CLARIFY',reason,tone:'undetermined',text:reason,evidenceIds:[]};}
   } else {
     actual=(ctx.kind==='speech'?considerLocal(ctx):null)||{action:'INFER',text:'',reason:ctx.kind==='mental'?'A fresh internal topic needs contextual local cognition.':'Input is beyond sufficient local routines; seek a local cognitive proposal.',tone:'undetermined',evidenceIds:[],argument:ctx.text};

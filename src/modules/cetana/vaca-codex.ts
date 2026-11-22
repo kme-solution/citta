@@ -31,7 +31,7 @@ function adviserEnvironment(): NodeJS.ProcessEnv {
   return Object.fromEntries(keys.filter(key=>process.env[key]!==undefined).map(key=>[key,process.env[key]]));
 }
 
-export async function askCodex(question: string, identity: Identity, signal?: AbortSignal, cognition?:{prompt:string;schema:unknown;model?:string;timeoutMs:number}): Promise<string> {
+export async function askCodex(question: string, identity: Identity, signal?: AbortSignal, cognition?:{prompt:string;schema:unknown;model?:string;timeoutMs:number;imagePath?:string}): Promise<string> {
   if(signal?.aborted)throw new AdviserFailure('Codex: cancelled before process startup.',false);
   let cwd:string;
   try{cwd=await mkdtemp(join(tmpdir(), "citta-vaca-"));}catch{throw new AdviserFailure('Codex: could not prepare an isolated working directory.',false);}
@@ -41,6 +41,7 @@ export async function askCodex(question: string, identity: Identity, signal?: Ab
     if(cognition){
       await writeFile(join(cwd,'schema.json'),JSON.stringify(cognition.schema),{mode:0o600});
       args.splice(args.length-1,0,'--output-schema',join(cwd,'schema.json'),'--output-last-message',join(cwd,'result.json'),'-c','model_reasoning_effort="low"','-c','features.shell_tool=false','-c','web_search="disabled"');
+      if(cognition.imagePath)args.splice(args.length-1,0,'--image',cognition.imagePath);
       if(cognition.model)args.splice(args.length-1,0,'--model',cognition.model);
     }
     const script = /\.m?js$/i.test(file);
