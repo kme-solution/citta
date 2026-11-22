@@ -58,6 +58,23 @@ Work through one module before expanding to another. The current module document
 | `citta-sangaha` — Consciousness-type catalog               | [မြန်မာ](design/modules/citta-sangaha/01-buddhist-explanation.md) | [Behavior](design/modules/citta-sangaha/02-digital-model.md) | [Code design](design/modules/citta-sangaha/03-implementation.md) |
 | `citta-vithi` — Reference process simulator                | [မြန်မာ](design/modules/citta-vithi/01-buddhist-explanation.md)   | [Behavior](design/modules/citta-vithi/02-digital-model.md)   | [Code design](design/modules/citta-vithi/03-implementation.md)   |
 
+### Additional concept responsibilities
+
+The earlier 19-module inventory was based on software folders and known implementation gaps; it was not a complete conceptual architecture. The following eight three-document sets introduce additional responsibilities into the design. Coding documents specify module-versus-facet decisions; no additional deployed service is needed.
+
+| Concept      | Buddhist explanation — Myanmar                                | Digital model                                             | Implementation                                                |
+| ------------ | ------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| `citta`      | [မြန်မာ](design/modules/citta/01-buddhist-explanation.md)      | [Behavior](design/modules/citta/02-digital-model.md)      | [Code design](design/modules/citta/03-implementation.md)      |
+| `vitakka`    | [မြန်မာ](design/modules/vitakka/01-buddhist-explanation.md)    | [Behavior](design/modules/vitakka/02-digital-model.md)    | [Code design](design/modules/vitakka/03-implementation.md)    |
+| `vicara`     | [မြန်မာ](design/modules/vicara/01-buddhist-explanation.md)     | [Behavior](design/modules/vicara/02-digital-model.md)     | [Code design](design/modules/vicara/03-implementation.md)     |
+| `adhimokkha` | [မြန်မာ](design/modules/adhimokkha/01-buddhist-explanation.md) | [Behavior](design/modules/adhimokkha/02-digital-model.md) | [Code design](design/modules/adhimokkha/03-implementation.md) |
+| `viriya`     | [မြန်မာ](design/modules/viriya/01-buddhist-explanation.md)     | [Behavior](design/modules/viriya/02-digital-model.md)     | [Code design](design/modules/viriya/03-implementation.md)     |
+| `ekaggata`   | [မြန်မာ](design/modules/ekaggata/01-buddhist-explanation.md)   | [Behavior](design/modules/ekaggata/02-digital-model.md)   | [Code design](design/modules/ekaggata/03-implementation.md)   |
+| `panna`      | [မြန်မာ](design/modules/panna/01-buddhist-explanation.md)      | [Behavior](design/modules/panna/02-digital-model.md)      | [Code design](design/modules/panna/03-implementation.md)      |
+| `nivarana`   | [မြန်မာ](design/modules/nivarana/01-buddhist-explanation.md)   | [Behavior](design/modules/nivarana/02-digital-model.md)   | [Code design](design/modules/nivarana/03-implementation.md)   |
+
+There are now 27 concept/module document sets (81 files). The [factor coverage ledger](reference/model.md#all-catalog-factors-have-an-explicit-coverage-disposition) records a disposition for every current cetasika catalog ID, including reference-only and still-unresearched runtime analogues. This inventory is not a claim of exhaustive Buddhist coverage, expert terminology approval or implemented human-like cognition.
+
 The shared source ledger owns bibliography and research-layer notes; module documents own their specific explanations and interpretations. Actual completion, executed evidence and the requested [module/service structure review](delivery/status.md#module-and-service-structure-review--read-only) stay in delivery status. The coding designs are proposed corrections, not permission to replace several services at once. Infrastructure such as PostgreSQL and Codex is not assigned a fabricated Buddhist identity or three doctrinal documents.
 
 ## Drawn review documents

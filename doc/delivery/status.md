@@ -1,6 +1,18 @@
 # Current status and next safe task
 
-**Updated:** 2026-11-22. This is the single implementation/verification record. Scope comes from [requirements](../product/requirements.md), [architecture](../design/architecture.md), [flows](../design/behavior-flows.md) and [delivery gates](plan.md).
+**Updated:** 2026-11-23. This is the single implementation/verification record. Scope comes from [requirements](../product/requirements.md), [architecture](../design/architecture.md), [flows](../design/behavior-flows.md) and [delivery gates](plan.md).
+
+## Latest concept-coverage correction — documentation first
+
+Kyaw clarified that the missing scope includes concepts never introduced into the design, not only unfinished modules. The earlier 19-module/57-document milestone is valid only for its folder-based inventory; it was not a complete conceptual architecture. This correction takes precedence over any broader reading of that milestone.
+
+Prepared eight additional three-document sets: [citta](../design/modules/citta/02-digital-model.md), [vitakka](../design/modules/vitakka/02-digital-model.md), [vicara](../design/modules/vicara/02-digital-model.md), [adhimokkha](../design/modules/adhimokkha/02-digital-model.md), [viriya](../design/modules/viriya/02-digital-model.md), [ekaggata](../design/modules/ekaggata/02-digital-model.md), [panna](../design/modules/panna/02-digital-model.md) and [nivarana](../design/modules/nivarana/02-digital-model.md). First documents are Myanmar; digital and implementation documents are English. MN 43's dialogue, SN 45.8, SN 46.51 and the later manual definitions are kept distinct from engineering analogues.
+
+The [ownership decision](../design/contracts.md#additional-concept-ownership-and-introduction-decision) introduces these responsibilities into the design: one pure shared citta/consideration contract, associated inquiry/examination/resolution facets, effort/coherence/discernment policies, and bounded pattern review initially composed with existing review/effort owners. No additional deployed service, independent mind loop or database authority is justified. The [factor ledger](../reference/model.md#all-catalog-factors-have-an-explicit-coverage-disposition) assigns an explicit design disposition to all 52 current catalog factors, including reference-only and unresearched analogues. It does not claim every Buddhist concept is covered or every factor implemented.
+
+**Implementation remains pending.** No source module is introduced by an empty scaffold or disconnected helper. The next safe source slice is to define versioned common consideration/adoption contracts with historical replay compatibility, then integrate a pure citta boundary with its actual consumer. Subsequent facet work follows the documented dependencies and must preserve sufficient local routines, one foreground owner, actual evidence, interruptions and controls. No code execution is authorized by this documentation task.
+
+Verification: documentation link/anchor and A/F/S/W-ID checks passed across 94 Markdown files; the inventory check confirmed 27 exact three-document sets (81 files) and exactly one disposition for each of the 52 catalog factor IDs; `git diff --check` passed. The inventory-check expression was corrected to accept formatter-aligned table whitespace before its successful rerun. The source/dependency diff is empty for this task. Source research and source inspection are not expert doctrinal/translation approval or runtime verification. No application code, migrations, dependency versions, private configuration or running services were changed. No commit/push requested for this task.
 
 ## Current scope and authority
 

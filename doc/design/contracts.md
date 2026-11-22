@@ -455,3 +455,24 @@ The [cetana module contract](modules/cetana/02-digital-model.md) owns CE-01–CE
 ## Complete module-documentation boundary
 
 The [documentation inventory](../README.md#module-documentation-three-documents-one-module-at-a-time) now lists three documents for all 16 existing module folders and the missing phassa/sanna/pannatti boundaries. This is the owning module-level research/digital/coding specification set. The preceding source tree is an older intended layout, not proof of implemented ownership. The [structure review](../delivery/status.md#module-and-service-structure-review--read-only) identifies current mismatches and the safe correction sequence. Do not create services for every doctrinal factor, turn catalogs into runtime diagnoses or call infrastructure Buddhist mental processes.
+
+## Additional concept ownership and introduction decision
+
+The [concept coverage ledger](../reference/model.md#concept-coverage-beyond-the-initial-module-inventory) corrects the earlier folder-based inventory. The new responsibilities are introduced into the design as follows; introducing names does not introduce executable mechanisms.
+
+| Concept         | Logical source boundary proposed                                                                                                                           | Deployed service / workflow                 |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| citta / vinnana | `citta/` shared consideration contracts and pure assembly, integrated with current vithi adoption; no separate vinnana engine                              | None; retain the single current agent owner |
+| vitakka         | Object-bound inquiry-opening facet, with a pure module if shared validation/formation logic warrants it                                                    | None                                        |
+| vicara          | Bounded examination facet tied to evidence and inquiry, without exposing private reasoning transcripts                                                     | None                                        |
+| adhimokkha      | Provisional resolution facet; distinct from truth, authority and adopted intention                                                                         | None                                        |
+| viriya          | Useful-effort policy, separate from resource accounting/eligibility timers                                                                                 | None                                        |
+| ekaggata        | Shared-object/concern coherence policy; no concentration score or resistance to valid interruption                                                         | None                                        |
+| panna           | Claim-support/assumption/consequence assessment, with provider judgments distinguished from independent checks                                             | None                                        |
+| nivarana        | Research boundary and narrowly observed pattern review initially composed in paccavekkhana/viriya; separate source module only if shared logic warrants it | None                                        |
+
+**Common contract:** optional facets share one authoritative consideration/object/version envelope. Optional means an applicable software record can be absent; it is not a claim about which literal Buddhist factors co-arise. Do not create a compulsory serial vitakka→vicara→resolution pipeline, require a model call for greetings or give each factor an independent foreground loop. Function evaluation order is an implementation dependency, not doctrinal temporal order.
+
+**Distinct decisions:** adhimokkha describes a candidate's supported provisional resolution; cetana coordinates purpose/direction; sikkha independently checks current scope; vithi atomically adopts; kamma executes; paccavekkhana reviews actual feedback. No facet can certify itself wise, expand permissions, mark its own effect successful or alter core identity/policy.
+
+**Introduction gate:** finalize versioned wire contracts and historical replay semantics before source integration; add a pure shared citta boundary with a real adoption consumer, then add relevant facets one coherent slice at a time. Do not scaffold disconnected helpers, empty services, duplicate stores or fake facet data. Preserve the existing Postgres/Temporal consistency protocol, control fences and private configuration. Schema/behavior verification requires explicit execution authorization under AGENTS.md.

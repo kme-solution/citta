@@ -154,3 +154,70 @@ Checked 2026-11-22 while preparing the remaining module documents. Module-local 
 - [SN 22.59, Anatta-lakkhana](https://www.dhammatalks.org/suttas/SN/SN22_59.html): khandha source location.
 
 The previously identified BPS 2007 manual was inspected at chapter I (catalog classifications), II (factor association and definitions), III (doors), IV (processes), and VIII sections 29–31 (concept/designation). These are later Theravada reference layers. Catalog/process-rule expert review and Myanmar wording approval remain open; source inspection does not certify every existing classification rule.
+
+## Concept coverage beyond the initial module inventory
+
+**Correction, 2026-11-23:** the earlier 19-module inventory covered existing software ownership and three known gaps. It was not a complete account of Buddhist concepts needed for the product. New research/digital/coding documents now cover [citta](../design/modules/citta/02-digital-model.md), [vitakka](../design/modules/vitakka/02-digital-model.md), [vicara](../design/modules/vicara/02-digital-model.md), [adhimokkha](../design/modules/adhimokkha/02-digital-model.md), [viriya](../design/modules/viriya/02-digital-model.md), [ekaggata](../design/modules/ekaggata/02-digital-model.md), [panna](../design/modules/panna/02-digital-model.md) and [nivarana](../design/modules/nivarana/02-digital-model.md). These introduce bounded software responsibilities, not eight deployed services or eight proven mental mechanisms.
+
+Additional sources inspected: [MN 43, Mahavedalla](https://www.dhammatalks.org/suttas/MN/MN43.html), specifically Sariputta's dialogue, and [SN 45.8, Magga-vibhanga](https://www.dhammatalks.org/suttas/SN/SN45_8.html), distinguishing the actual path definitions from engineering interpretations. The BPS manual chapter II Guide to sections 2–3 provides the later technical definitions for the new factor boundaries. SN 46.51 supplies the five-hindrance research context; neither a timeout nor an uncertain model answer establishes a literal hindrance.
+
+### All catalog factors have an explicit coverage disposition
+
+The following is a software-design inventory of every ID in `data/catalog/v1/cetasikas.json`, not a new doctrinal classification. A documented analogue does not mean an implemented factor. Reference-only is an honest disposition: no runtime behavior or human-like state is claimed. Further introduction needs source research, behavioral need and a correct owner before code. The entire set of 52 is not a requirement for 52 services.
+
+| Catalog factor ID  | Current design disposition                                                                                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `phassa`           | [Limited software analogue documented](../design/modules/phassa/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `vedana`           | [Limited software analogue documented](../design/modules/vedana/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `sanna`            | [Limited software analogue documented](../design/modules/sanna/02-digital-model.md); source/behavioral acceptance remains separate                        |
+| `cetana`           | [Limited software analogue documented](../design/modules/cetana/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `ekaggata`         | [Limited software analogue documented](../design/modules/ekaggata/02-digital-model.md); source/behavioral acceptance remains separate                     |
+| `jivitindriya`     | Reference-only; no literal life faculty or mapping to process liveness. Runtime facet introduction remains unresearched.                                  |
+| `manasikara`       | [Limited software analogue documented](../design/modules/manasikara/02-digital-model.md); source/behavioral acceptance remains separate                   |
+| `vitakka`          | [Limited software analogue documented](../design/modules/vitakka/02-digital-model.md); source/behavioral acceptance remains separate                      |
+| `vicara`           | [Limited software analogue documented](../design/modules/vicara/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `adhimokkha`       | [Limited software analogue documented](../design/modules/adhimokkha/02-digital-model.md); source/behavioral acceptance remains separate                   |
+| `viriya`           | [Limited software analogue documented](../design/modules/viriya/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `piti`             | Reference-only; not established by pleasant tone, success or generated enthusiasm.                                                                        |
+| `chanda`           | [Limited software analogue documented](../design/modules/chanda/02-digital-model.md); source/behavioral acceptance remains separate                       |
+| `moha`             | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `ahirika`          | Reference-only; authorization/constraint checks do not instantiate conscience or its absence. A dedicated behavioral contract remains open.               |
+| `anottappa`        | Reference-only; authorization/constraint checks do not instantiate conscience or its absence. A dedicated behavioral contract remains open.               |
+| `uddhacca`         | Reference-only; related inspiration appears in nivarana research, but engineering pattern review does not instantiate or diagnose this factor.            |
+| `lobha`            | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `ditthi`           | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `mana`             | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `dosa`             | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `issa`             | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `macchariya`       | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kukkucca`         | Reference-only; related inspiration appears in nivarana research, but engineering pattern review does not instantiate or diagnose this factor.            |
+| `thina`            | Reference-only; related inspiration appears in nivarana research, but engineering pattern review does not instantiate or diagnose this factor.            |
+| `middha`           | Reference-only; related inspiration appears in nivarana research, but engineering pattern review does not instantiate or diagnose this factor.            |
+| `vicikiccha`       | Reference-only; related inspiration appears in nivarana research, but engineering pattern review does not instantiate or diagnose this factor.            |
+| `saddha`           | Reference-only; no automatic equation with helpfulness, agreeable tone or model confidence. Further source/behavior design remains open.                  |
+| `sati`             | [Limited software analogue documented](../design/modules/sati/02-digital-model.md); source/behavioral acceptance remains separate                         |
+| `hiri`             | Reference-only; authorization/constraint checks do not instantiate conscience or its absence. A dedicated behavioral contract remains open.               |
+| `ottappa`          | Reference-only; authorization/constraint checks do not instantiate conscience or its absence. A dedicated behavioral contract remains open.               |
+| `alobha`           | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `adosa`            | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `tatramajjhattata` | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayapassaddhi`    | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittapassaddhi`   | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayalahuta`       | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittalahuta`      | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayamuduta`       | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittamuduta`      | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayakammannata`   | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittakammannata`  | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayapagunnata`    | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittapagunnata`   | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `kayujukata`       | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `cittujukata`      | Reference-only catalog association; no individual runtime-factor mechanism is introduced. Any later analogue requires a researched contract.              |
+| `sammavaca`        | Reference-only factor association; vaca/sikkha/kamma software boundaries are limited analogues, not path-factor attainment or complete abstinence models. |
+| `sammakammanta`    | Reference-only factor association; vaca/sikkha/kamma software boundaries are limited analogues, not path-factor attainment or complete abstinence models. |
+| `sammaajiva`       | Reference-only factor association; vaca/sikkha/kamma software boundaries are limited analogues, not path-factor attainment or complete abstinence models. |
+| `karuna`           | Reference-only; no automatic equation with helpfulness, agreeable tone or model confidence. Further source/behavior design remains open.                  |
+| `mudita`           | Reference-only; no automatic equation with helpfulness, agreeable tone or model confidence. Further source/behavior design remains open.                  |
+| `pannindriya`      | [Limited software analogue documented](../design/modules/panna/02-digital-model.md); source/behavioral acceptance remains separate                        |
+
+The current software contract does not attempt to instantiate all Buddhist dhammas. General citta/vinnana coverage, associated factors, hindrance research and conventional identity have different source contexts. Bhavanga remains reference-process terminology, not a label for idle polling. Unreviewed factor analogues remain open research scope rather than silently implemented features or mandatory services.
