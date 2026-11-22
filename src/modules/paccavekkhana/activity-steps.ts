@@ -1,3 +1,4 @@
+import type { ObjectAttention } from '../manasikara/attend.ts';
 interface RecordedDecision {
   id: string;
   created_at: string;
@@ -5,6 +6,8 @@ interface RecordedDecision {
   snapshot: {
     motiveSnapshot?: { name?: string };
     attention?: unknown;
+    queueSelection?: unknown;
+    objectAttention?: ObjectAttention;
     evidence?: unknown[];
     recent?: unknown[];
   };
@@ -47,8 +50,22 @@ export function activitySteps(
         'Select an interest',
         d.snapshot.motiveSnapshot.name || 'An internally motivated topic was selected.',
       );
-    if (d.snapshot.attention)
-      add('manasikara', 'Select attention', 'This input was selected for consideration.');
+    if (d.snapshot.queueSelection || d.snapshot.attention)
+      add(
+        'vithi',
+        'Choose eligible work',
+        d.snapshot.queueSelection
+          ? 'Queue arbitration selected this opportunity.'
+          : 'Historical queue selection; no object orientation was recorded.',
+      );
+    if (d.snapshot.objectAttention) {
+      const attention = d.snapshot.objectAttention;
+      add(
+        'manasikara',
+        'Orient to an object',
+        `${attention.orientation}: ${attention.object.summary} · ${attention.object.sourceKind} · ${attention.reason}`,
+      );
+    }
     add(
       'sati',
       'Gather context',

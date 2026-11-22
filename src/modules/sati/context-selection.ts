@@ -24,6 +24,8 @@ export function selectContext(context: Context): Context {
   );
   delete selected.proposal;
   delete selected.reviewedOutcome;
+  delete selected.queueSelection;
+  delete selected.inferenceQueueSelection;
   delete selected.attention;
   delete selected.inferenceAttention;
   delete selected.motiveSnapshot;
@@ -61,7 +63,9 @@ export function selectContext(context: Context): Context {
   const priority = (e: Evidence) =>
     e.id === selected.observationId
       ? 0
-      : e.id === selected.focus?.sourceMemoryId || e.id === selected.focus?.sourceObservationId
+      : e.id === selected.focus?.sourceMemoryId ||
+          e.id === selected.focus?.sourceObservationId ||
+          e.id === selected.attendedSourceId
         ? 1
         : e.origin === 'ability' && e.kind === 'observed'
           ? 2

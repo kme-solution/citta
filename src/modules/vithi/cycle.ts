@@ -16,12 +16,14 @@ import {
   type Work,
   type Evidence,
 } from '../../contracts/runtime.ts';
-import { considerLocal, validateProposal } from '../cetana/consider.ts';
+import { considerLocal } from '../vaca/interpret.ts';
+import { validateProposal } from '../sikkha/proposal.ts';
 import { authorize } from '../sikkha/authorize.ts';
 import { reviewOutcome } from '../paccavekkhana/review.ts';
 import { contactDisposition } from './contact-policy.ts';
 import { appraise } from '../vedana/appraise.ts';
-import { selectAttention, type AttentionSnapshot } from '../manasikara/select.ts';
+import { selectOpportunity, type OpportunitySnapshot } from './select-opportunity.ts';
+import { attendToObject } from '../manasikara/attend.ts';
 import { nextMotiveEligibility } from '../chanda/eligibility.ts';
 import { renderSpeech } from '../cetana/speech-policy.ts';
 
@@ -71,6 +73,7 @@ async function closeGoal(tx: Tx, goalId: string, state = 'completed', summary = 
   await retainMilestone(tx, goalId);
 }
 async function recordDecision(tx: Tx, ctx: Context, d: Decision, operationKey: string) {
+  ctx.objectAttention = attendToObject(ctx);
   const id = randomUUID();
   const affect = appraise(d, ctx.modeledAffectEnabled !== false);
   const {
@@ -179,6 +182,7 @@ async function queue(tx: Tx, agent: Row, ctx: Context, kind: Work['kind'], argum
   if (!workBudgetAvailable(agent.work_used, config.hourlyWorkLimit))
     throw Error('Global work budget is exhausted for this hour.');
   ctx.goalCriterion = goal.criterion;
+  ctx.objectAttention = attendToObject(ctx);
   const id = randomUUID();
   await tx.query(
     'INSERT INTO citta.actions(id,agent_id,goal_id,goal_version,kind,argument,context,generation,control_version) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',
@@ -1216,7 +1220,7 @@ export async function cycle(operationId: string, generation: string) {
         );
         if (internal) candidates.push(internal);
       }
-      const attention = selectAttention(
+      const attention = selectOpportunity(
         candidates.map((o) => ({
           id: o.id,
           kind: o.kind,
@@ -1232,7 +1236,7 @@ export async function cycle(operationId: string, generation: string) {
         ? candidates.find((o) => o.id === attention.selectedId)
         : undefined;
       if (selected) {
-        await event(tx, 'attention', attention);
+        await event(tx, 'opportunity_selected', attention);
         if (selected.kind === 'result')
           await reviewResult(tx, agent, selected, attention || undefined);
         else {
@@ -1304,7 +1308,7 @@ export async function cycle(operationId: string, generation: string) {
           ctx.cognitionAvailable = cognitionReady;
           ctx.cognitionUnavailableReason = availability.reason;
 
-          ctx.attention = attention || undefined;
+          ctx.queueSelection = attention || undefined;
           if (selected.payload?.recallGoalId) ctx.kind = selected.payload.originKind;
           if (selected.payload?.reminder) ctx.recallReason = selected.payload.reminder;
           const computerAllowed =
@@ -1414,7 +1418,7 @@ async function resultObservation(tx: Tx, actionId: string, goalId: string) {
   );
 }
 export { resultObservation };
-async function reviewResult(tx: Tx, agent: Row, observation: Row, attention?: AttentionSnapshot) {
+async function reviewResult(tx: Tx, agent: Row, observation: Row, attention?: OpportunitySnapshot) {
   const {
     rows: [action],
   } = await tx.query(
@@ -1426,12 +1430,13 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row, attention?: At
   const outcome = action.result as Outcome;
   const ctx = (outcome.context || action.context) as Context;
   if (action.kind === 'INFER') {
-    ctx.inferenceAttention = (action.context as Context).attention;
+    ctx.inferenceQueueSelection =
+      (action.context as Context).queueSelection || (action.context as Context).attention;
     ctx.motiveSnapshot = (action.context as Context).motiveSnapshot;
     ctx.inferenceRequestId = action.id;
   }
   ctx.selectedObservationId = observation.id;
-  ctx.attention = attention;
+  ctx.queueSelection = attention;
   if (
     ['cancelled', 'completed', 'exhausted'].includes(action.goal_state) ||
     action.goal_version !== action.current_goal_version ||
@@ -1513,12 +1518,13 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row, attention?: At
         );
         fresh.profile = ctx.profile;
         fresh.profileVersion = ctx.profileVersion;
-        fresh.attention = attention;
+        fresh.queueSelection = attention;
         fresh.availableSources = ctx.availableSources;
         fresh.cognitionAvailable = ctx.cognitionAvailable;
         fresh.computerAccess = ctx.computerAccess;
         fresh.computerAvailable = ctx.computerAvailable;
         fresh.computerScreen = ctx.computerScreen;
+        fresh.attendedSourceId = ctx.attendedSourceId;
         fresh.selectedObservationId = observation.id;
         fresh.evidence = [
           ...new Map(
@@ -1625,6 +1631,7 @@ async function reviewResult(tx: Tx, agent: Row, observation: Row, attention?: At
       );
     if (action.kind === 'COMPUTER' && outcome.ok && outcome.computerScreen)
       ctx.computerScreen = outcome.computerScreen;
+    if (outcome.ok && action.kind !== 'INFER') ctx.attendedSourceId = observation.id;
     ctx.reviewedOutcome = { kind: action.kind, outcome, observationId: observation.id };
     delete ctx.proposal;
     await recordDecision(

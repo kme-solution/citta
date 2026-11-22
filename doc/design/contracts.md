@@ -26,7 +26,7 @@ src/
   modules/
     nama/               # Validated identity and profile versions
     dvara/              # Observation ingestion and provenance
-    manasikara/         # Attention and stable selection factors
+    manasikara/         # Object orientation and source binding
     sati/               # Scoped memory, correction lineage and recall
     chanda/             # Commitments, priorities and success criteria
     cetana/             # Interpretation, consideration and proposed intention
@@ -45,19 +45,19 @@ Domain consideration/review receive plain data and perform no network/SQL calls.
 
 ## Records and lineage
 
-| Record | Required meaning and fields |
-|---|---|
-| Agent/profile version | Stable agent ID; validated configured attributes; immutable profile snapshot/version; creation/revision provenance |
-| Observation | Stable event ID/key; agent and optional conversation/run; kind and channel; source/speaker; original payload; received/available times; optional door, parent action and related observation |
-| Memory | Kind: configured, observed, reported, inferred or commitment; content; source observation/evidence IDs; agent/conversation scope; validity/review status; timestamp and superseding record |
-| Goal/version | Originating observation/memory; description; explicit success criteria; status; priority with reason; due condition; version and change history |
-| Run/cycle | Agent; pinned profile/engine/policy/catalog identity; ordered sequence; selected observation; lifecycle timestamps; stop reason; budget ledger |
-| Consideration snapshot | Interpretation/uncertainty; selected/rejected attention candidates; retrieved record IDs/content versions; active goal/version; known evidence; missing facts; action alternatives/rejection reasons; clock and budget state |
-| Intention/action | Goal/version where relevant; typed kind/validated arguments; expected effect; permission/disclosure needs; deadline; stable idempotency key; claim token/lease; attempt/outcome state |
-| Approval | Action and argument hash; deciding party; decision/time; only valid for the exact still-current proposal |
-| Effect/review | Actual result with source and action; resulting observation IDs; criterion status: met/not_met/unknown; contradictions; unresolved gaps and chosen next step |
-| Foreground/continuation | One foreground row per agent; suspended goal/run; last committed cycle; summary and evidence IDs; pending action; remaining budgets; suspension/resume conditions; parent interruption and policy version |
-| Appraisal/affect event | Cause/context IDs; interpreted significance; alternatives/confidence; modeled tone; candidate/adopted/inhibited tendency; chosen response and reflection; rule/version |
+| Record                  | Required meaning and fields                                                                                                                                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent/profile version   | Stable agent ID; validated configured attributes; immutable profile snapshot/version; creation/revision provenance                                                                                                           |
+| Observation             | Stable event ID/key; agent and optional conversation/run; kind and channel; source/speaker; original payload; received/available times; optional door, parent action and related observation                                 |
+| Memory                  | Kind: configured, observed, reported, inferred or commitment; content; source observation/evidence IDs; agent/conversation scope; validity/review status; timestamp and superseding record                                   |
+| Goal/version            | Originating observation/memory; description; explicit success criteria; status; priority with reason; due condition; version and change history                                                                              |
+| Run/cycle               | Agent; pinned profile/engine/policy/catalog identity; ordered sequence; selected observation; lifecycle timestamps; stop reason; budget ledger                                                                               |
+| Consideration snapshot  | Interpretation/uncertainty; selected/rejected attention candidates; retrieved record IDs/content versions; active goal/version; known evidence; missing facts; action alternatives/rejection reasons; clock and budget state |
+| Intention/action        | Goal/version where relevant; typed kind/validated arguments; expected effect; permission/disclosure needs; deadline; stable idempotency key; claim token/lease; attempt/outcome state                                        |
+| Approval                | Action and argument hash; deciding party; decision/time; only valid for the exact still-current proposal                                                                                                                     |
+| Effect/review           | Actual result with source and action; resulting observation IDs; criterion status: met/not_met/unknown; contradictions; unresolved gaps and chosen next step                                                                 |
+| Foreground/continuation | One foreground row per agent; suspended goal/run; last committed cycle; summary and evidence IDs; pending action; remaining budgets; suspension/resume conditions; parent interruption and policy version                    |
+| Appraisal/affect event  | Cause/context IDs; interpreted significance; alternatives/confidence; modeled tone; candidate/adopted/inhibited tendency; chosen response and reflection; rule/version                                                       |
 
 Stable shared IDs and foreign keys preserve agent ownership and source/result lineage. Keep queryable state in typed columns and structured payload/detail in JSON. Do not store an invented introspective monologue as decision evidence. Use indexes for ready input, due recall, pending actions, goal status and lineage; never scan full history for each turn.
 
@@ -136,22 +136,22 @@ If selected old notes/commitments are imported, use explicit repeat-safe source 
 
 ### Crash-window acceptance matrix
 
-| Crash/conflict point | Durable state and expected recovery |
-|---|---|
-| API before ingress commit | No accepted receipt; client may retry with the same event key |
-| API after commit, before response | Observation/outbox exist; retry returns original receipt |
-| Relay before Signal | Lease expires; another relay retries stable event |
-| Signal accepted, relay acknowledgement lost | Duplicate wakeup is harmless; pending/consumed domain state governs |
-| Context/model result becomes stale during interruption | Preserve attempted work; discard applicability and reconsider current state |
-| Model generated, outcome not stored | Bounded explicitly accounted recomputation or unknown/failure; no hidden cost reset |
-| Decision transaction committed, Activity reply lost | Operation lookup returns same decision/action; no second consumption |
-| Stop races with queued dispatch | Commit ordering at dispatch-start boundary determines prevented versus in-flight |
-| External call may have succeeded, result missing | Reconcile or unknown; do not blindly repeat |
-| Result committed, Activity reply lost | Return existing action/effect and output keys |
-| Old workflow ownership generation completes late | Reject domain mutation/dispatch; retain appropriate stale-attempt audit |
-| Continue-As-New / worker restart | Stable agent/domain IDs and stored versions/budgets retained; drain actual pending records |
-| PostgreSQL unavailable | No accepted ingress/domain success claim; backoff without external dispatch |
-| Temporal unavailable after accepted ingress | Durable pending input remains visible; outbox resumes delivery later |
+| Crash/conflict point                                   | Durable state and expected recovery                                                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| API before ingress commit                              | No accepted receipt; client may retry with the same event key                              |
+| API after commit, before response                      | Observation/outbox exist; retry returns original receipt                                   |
+| Relay before Signal                                    | Lease expires; another relay retries stable event                                          |
+| Signal accepted, relay acknowledgement lost            | Duplicate wakeup is harmless; pending/consumed domain state governs                        |
+| Context/model result becomes stale during interruption | Preserve attempted work; discard applicability and reconsider current state                |
+| Model generated, outcome not stored                    | Bounded explicitly accounted recomputation or unknown/failure; no hidden cost reset        |
+| Decision transaction committed, Activity reply lost    | Operation lookup returns same decision/action; no second consumption                       |
+| Stop races with queued dispatch                        | Commit ordering at dispatch-start boundary determines prevented versus in-flight           |
+| External call may have succeeded, result missing       | Reconcile or unknown; do not blindly repeat                                                |
+| Result committed, Activity reply lost                  | Return existing action/effect and output keys                                              |
+| Old workflow ownership generation completes late       | Reject domain mutation/dispatch; retain appropriate stale-attempt audit                    |
+| Continue-As-New / worker restart                       | Stable agent/domain IDs and stored versions/budgets retained; drain actual pending records |
+| PostgreSQL unavailable                                 | No accepted ingress/domain success claim; backoff without external dispatch                |
+| Temporal unavailable after accepted ingress            | Durable pending input remains visible; outbox resumes delivery later                       |
 
 ### Recovery, replay and privacy acceptance
 
@@ -165,15 +165,15 @@ References: [Temporal Activity definition and idempotence](https://docs.temporal
 
 These are starting tunables for evaluation, not doctrinal constants or measured guarantees. Freeze selected values with policy versions before acceptance runs; record changes in status.
 
-| Parameter | Starting proposal |
-|---|---|
-| Retrieved context | At most 20 records and 16 KB text per consideration |
-| Nested interruption frames | At most four; further messages queue |
-| Background fairness | One eligible continuation after three ordinary interruptions unless a control/explicit urgent task takes priority |
-| Task budget | 12 cycles, two adviser calls, five minutes elapsed work |
-| Adviser deadline | 120 seconds per call; one in-flight slot per agent |
-| Recall | One pending recall per outstanding waiting reason |
-| Responsiveness target | Select operator input within one second at safe boundaries; local response within two seconds; measure before promising |
+| Parameter                  | Starting proposal                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Retrieved context          | At most 20 records and 16 KB text per consideration                                                                     |
+| Nested interruption frames | At most four; further messages queue                                                                                    |
+| Background fairness        | One eligible continuation after three ordinary interruptions unless a control/explicit urgent task takes priority       |
+| Task budget                | 12 cycles, two adviser calls, five minutes elapsed work                                                                 |
+| Adviser deadline           | 120 seconds per call; one in-flight slot per agent                                                                      |
+| Recall                     | One pending recall per outstanding waiting reason                                                                       |
+| Responsiveness target      | Select operator input within one second at safe boundaries; local response within two seconds; measure before promising |
 
 ## Portal/API boundary
 
@@ -193,14 +193,14 @@ If configuration/history is initially sparse, use transparent, policy-versioned 
 
 Separate these records:
 
-| Record | Meaning |
-|---|---|
-| Motivational disposition | Persistent interests, desires, ambitions and contextual relevance, not an executable command |
-| Topic/candidate motive | Something Citta elects to consider, with origin, novelty, intended benefit/interest and uncertainty |
-| Adopted goal | Deliberately selected commitment with criteria, scope, priority and budget |
-| Local reflection | A bounded consideration/review operation that can update supported interpretations without producing speech or external calls |
-| Outgoing initiative | A proposed conversation turn with intended topic/recipient, reason, timing, expiry, deduplication and delivery state |
-| Improvement candidate | Evidence of a limitation or opportunity, desired change, criteria, scope, risks and proposal/version state |
+| Record                   | Meaning                                                                                                                       |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Motivational disposition | Persistent interests, desires, ambitions and contextual relevance, not an executable command                                  |
+| Topic/candidate motive   | Something Citta elects to consider, with origin, novelty, intended benefit/interest and uncertainty                           |
+| Adopted goal             | Deliberately selected commitment with criteria, scope, priority and budget                                                    |
+| Local reflection         | A bounded consideration/review operation that can update supported interpretations without producing speech or external calls |
+| Outgoing initiative      | A proposed conversation turn with intended topic/recipient, reason, timing, expiry, deduplication and delivery state          |
+| Improvement candidate    | Evidence of a limitation or opportunity, desired change, criteria, scope, risks and proposal/version state                    |
 
 Supported self-originated activity includes reflecting on an experience, exploring a permitted subject out of interest, considering alternative futures, forming a new bounded goal, reviewing a belief, preparing a question, initiating an appropriate local conversation or proposing a capability improvement. It is not restricted to productive work or correcting failures; interest itself can justify bounded exploration within the configured purpose and budget. Specific topic generation/interpretation competence must be evaluated honestly: deterministic routines or the agreed evaluated local interpreter may supply proposals, but ordinary Codex consultation remains conditional.
 
@@ -219,7 +219,6 @@ One unchanged unanswered topic must not repeatedly prompt the operator. Silence 
 First delivery can identify an observed gap or potential improvement, inspect permitted information and prepare a proposal with source evidence, expected benefit, risks, measurable criteria and approval state. This includes opportunities noticed through exploration, not only failed tasks. Correcting a sourced memory follows F20; changing runtime code, policy, model, dependencies or deployment is a distinct executable change.
 
 The desire to improve never grants its own workspace, installation, credential, policy or release permissions. Initial implementation stops at a reviewable proposal. A future separately authorized workspace extension may prepare reversible isolated candidates, execute specifically permitted checks and release only with the applicable authorization. Improvement claims require observed evaluation; original engine/profile/policy versions and past traces remain intact. No self-preservation, privilege expansion or unbounded optimization is introduced by naming a motive.
-
 
 ## Agreed model and orchestration boundary
 
@@ -345,7 +344,7 @@ Kyaw refined the idle scheduling requirement: with control running, no eligible 
 
 ## Activity module outcomes
 
-Activity detail presents the latest ten processing steps with ASCII Pali module, plain-language operation, recorded outcome and timestamp. Derive these summaries only from retained decision snapshots, action states and review flags; identify them as reconstructed from persisted records, not separately timed module instrumentation. Include chanda when an actual motive snapshot exists, manasikara when attention is retained, sati context selection, cetana decision, vedana modeled appraisal, kamma dispatch/result and paccavekkhana when review is recorded. Do not infer a successful authorization check from an action proposal alone, or a reviewed/completed goal from provider success. Raw contexts and payloads are absent from the default inspector. Existing history is preserved; the UI shows concise outcomes and goal continuity/budget metadata separately.
+Activity detail presents the latest ten processing steps with ASCII Pali module, plain-language operation, recorded outcome and timestamp. Derive these summaries only from retained decision snapshots, action states and review flags; identify them as reconstructed from persisted records, not separately timed module instrumentation. Include chanda when an actual motive snapshot exists, vithi for queue arbitration and manasikara when explicit object orientation is retained, sati context selection, cetana decision, vedana modeled appraisal, kamma dispatch/result and paccavekkhana when review is recorded. Do not infer a successful authorization check from an action proposal alone, or a reviewed/completed goal from provider success. Raw contexts and payloads are absent from the default inspector. Existing history is preserved; the UI shows concise outcomes and goal continuity/budget metadata separately.
 
 ### Complete history within one activity
 
@@ -444,3 +443,11 @@ Reasoning-failure metadata records the actual selected provider. Outcome review 
 The continuous-mind history read uses an agent/time partial index over committed non-INFER mental decisions. Its predicate must match the history query so growing inference/audit history does not require sorting/scanning all decision snapshots for ten visible summaries. Preserve historical rows and provenance.
 
 Normal operator operation reads only explicitly configured real local evidence, defaulting to the private .local/sources directory. Demonstration lamp/quote/deployment files remain explicit demo/test inputs and must not be automatically advertised as the agent’s everyday environment. An empty real evidence directory is honest absence of files, not a reason to fabricate sources or copy examples into it. Preserve historical observations as history; sample-file contents do not establish facts about KME.
+
+## Deep module alignment: manasikara boundary
+
+The detailed owner is [manasikara](modules/manasikara.md). Queue arbitration is engineering scheduling owned by vithi, not a sufficient implementation of the attention factor. New decisions need an explicit primary object and source binding, with associated modeled facets tied to that decision/object. Maintain compatibility readers for historical queue snapshots without manufacturing new records for old history. Appropriate-attention behavior remains a separate consequence-oriented gate involving cetana/sikkha/paccavekkhana. Pali names, type counts and generic infrastructure tests do not certify doctrinal fidelity.
+
+## Cetana ownership correction
+
+The [cetana module contract](modules/cetana.md) owns CE-01–CE-10. Communication interpretation lives in vaca/interpret.ts; proposal constraints live in sikkha/proposal.ts. Neither is sufficient intention formation. Explicit coordinated intention remains pending; do not present this ownership repair as a completed behavioral model.

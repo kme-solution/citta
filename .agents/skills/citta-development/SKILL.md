@@ -65,3 +65,13 @@ Kyaw clarified that conversations are communication contexts for one continuing 
 ### Dashboard and delivery communication
 
 Kyaw requested a dashboard where Kyaw2 can report back when he wants to say something. Use actual published initiatives, questions and milestone records across conversations, with ten-row pages, source conversation/activity links and the existing quoted Reply path. Show queued contact separately as undelivered; do not fabricate messages or bypass Quiet/contact controls. Source formatting belongs in a separate mechanical commit; applied migration contents are checksum-pinned. After dashboard/formatting/restart, review modules and services one by one and record concrete defects separately from optional improvements in the existing delivery document.
+
+### Deep module correction and current source-only boundary
+
+Kyaw requires detailed module-by-module research rather than shallow operational alignment. Derive missing behavioral requirements from authoritative sources without waiting for a complete user requirements document. Distinguish canonical discourses, later Theravada explanations and engineering interpretations. Document the module contract before source changes. A Pali label, object identifier or successful infrastructure test does not establish doctrinal fidelity or useful behavior.
+
+Kyaw authorizes replacing/removing incorrect earlier implementation; preserve user data, identity, private configuration and applied migrations. Git preserves source history. Start with one coherent module slice, keeping semantic acceptance gates explicit. Under nearest AGENTS.md, this new ordinary implementation slice is source-only: do not run application code, tests, builds, type checks, migrations or services unless Kyaw explicitly requests execution again. Prior delivery verification does not verify subsequent source changes.
+
+### Three documents per module, one module at a time
+
+Kyaw requires three separate documents for each reviewed module: (1) the Buddhist explanation with attributed sources and distinctions between discourses and later explanations; (2) how that concept is modeled digitally, including interpretation limits and behavioral requirements; (3) the coding/implementation design, integration and acceptance gates. Work through modules one at a time, beginning with cetana in the current review. Do not expand into simultaneous module redesign. Existing combined module documents still need restructuring; recording this convention does not mean that work is complete.

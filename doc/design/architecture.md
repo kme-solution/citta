@@ -10,19 +10,19 @@ The application remains a TypeScript modular monolith with a Fastify API, React/
 
 **Decision:** accepted by Kyaw on 2026-11-22. Keep domain modules in one TypeScript codebase; deploy boundaries only where they serve reliability, inference or isolation. This revises the earlier custom-runner/deterministic-only proposal while preserving one foreground stream and the accepted behavioral requirements.
 
-| Layer | Agreed selection | Ownership / qualification |
-|---|---|---|
-| Application | TypeScript, Node.js, strict ESM | Existing domain modules and shared contracts remain |
-| API | Fastify | Validated input/control/readback; HTTP commands and SSE event delivery |
-| Portal | React and Vite | Conversation, foreground/continuations, motives, evidence and controls |
-| Orchestration | Temporal with TypeScript workers | One workflow identity per agent; durable timers, queued messages and activity completion; sole foreground decision ordering |
-| Domain persistence | PostgreSQL | Authoritative profiles, memories, goals, appraisals, decisions, effects, inbox and provenance |
-| Semantic retrieval | pgvector when evaluation justifies activation | Scope-filtered semantic candidates alongside linked/lexical retrieval; no separate vector database initially |
-| Local cognition | Ollama initially | Schema-constrained interpretation, topic/motive/appraisal/intention proposals; actual model and hardware remain to be evaluated |
-| Inference scaling option | vLLM | Consider for a dedicated inference server after measurement; not an additional required first deployment |
-| External advice | Existing Codex adapter initially | Conditional adviser role, independent of ordinary local cognition |
-| Observability | Structured domain events and OpenTelemetry | Domain reasons/provenance versus operational traces, latency, errors and usage |
-| Process supervision | Docker Compose or systemd | Persistent local processes independent of the browser; deployment choice finalized at P0 |
+| Layer                    | Agreed selection                              | Ownership / qualification                                                                                                       |
+| ------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Application              | TypeScript, Node.js, strict ESM               | Existing domain modules and shared contracts remain                                                                             |
+| API                      | Fastify                                       | Validated input/control/readback; HTTP commands and SSE event delivery                                                          |
+| Portal                   | React and Vite                                | Conversation, foreground/continuations, motives, evidence and controls                                                          |
+| Orchestration            | Temporal with TypeScript workers              | One workflow identity per agent; durable timers, queued messages and activity completion; sole foreground decision ordering     |
+| Domain persistence       | PostgreSQL                                    | Authoritative profiles, memories, goals, appraisals, decisions, effects, inbox and provenance                                   |
+| Semantic retrieval       | pgvector when evaluation justifies activation | Scope-filtered semantic candidates alongside linked/lexical retrieval; no separate vector database initially                    |
+| Local cognition          | Ollama initially                              | Schema-constrained interpretation, topic/motive/appraisal/intention proposals; actual model and hardware remain to be evaluated |
+| Inference scaling option | vLLM                                          | Consider for a dedicated inference server after measurement; not an additional required first deployment                        |
+| External advice          | Existing Codex adapter initially              | Conditional adviser role, independent of ordinary local cognition                                                               |
+| Observability            | Structured domain events and OpenTelemetry    | Domain reasons/provenance versus operational traces, latency, errors and usage                                                  |
+| Process supervision      | Docker Compose or systemd                     | Persistent local processes independent of the browser; deployment choice finalized at P0                                        |
 
 Local cognition is AI. The accepted distinction is **local model-assisted consideration versus optional external-adviser consultation**, not a claim that the internal agent uses no AI. Rules still own authorization, state legality, provenance, budgets and deterministic local responses where sufficient. Model output proposes; it cannot execute tools, alter identity or grant permissions. No external fallback for local cognition is implicit.
 
@@ -62,7 +62,8 @@ The browser is not authoritative storage. Codex is a separate process using loca
 flowchart TD
     composition["Composition root: clock, IDs, repositories and abilities"] --> runner["vithi: Temporal foreground orchestration"]
     runner --> input["dvara: validate and normalize observations"]
-    runner --> attention["manasikara: select one eligible object"]
+    runner --> arbitration["vithi: choose eligible work"]
+    arbitration --> attention["manasikara: orient to a sourced object"]
     attention --> memory["sati: bounded relevant memories and recall"]
     memory --> identity["nama: pinned conventional identity"]
     memory --> goals["chanda: commitments and goal priority"]
@@ -197,7 +198,8 @@ flowchart TD
     cues --> focus["Retain one agent focus; review next step and release reason"]
     focus --> dedup["Deduplicate causal cue and check global work budget"]
     dedup --> queue["dvara: persist internal observation with source links"]
-    queue --> attention["manasikara: shared attention queue"]
+    queue --> arbitration["vithi: arbitrate eligible opportunities"]
+    arbitration --> attention["manasikara: orient to a sourced object"]
     attention --> consideration["cetana and modeled appraisal: examine motive and alternatives"]
     consideration --> goal["Adopt, revise, defer or decline commitment"]
     goal --> checks["sikkha: scope, disclosure, contact and execution checks"]
@@ -254,23 +256,23 @@ One workflow identity per agent owns foreground ordering, not one globally singl
 
 ## Review decisions and implementation constraints
 
-| Concern | Initial design decision |
-|---|---|
-| Deployment | One TypeScript codebase; Fastify/React, Temporal, PostgreSQL and local Ollama processes; Compose/systemd supervision |
-| Ownership | One Temporal workflow identity per agent; serial foreground ordering and idempotent version-checked domain writes |
-| Authority | Server/database own history; browser displays committed state |
-| Identity | Validated versioned profile; no silent change from conversation or adviser output |
-| Feeling | Contextual application model, independently labeled from doctrine and actual experience |
-| Actions | Persist, authorize, dispatch outside SQL, observe, then review |
-| AI | Optional justified adviser call with minimized permitted context; one in-flight slot |
-| Interruption | Checkpoint at safe boundaries; preserve budgets; reconcile before resumption |
-| Recovery | Unknown external effect stays unknown until reconciled; no blind replay of side effects |
-| Catalog | Existing file catalog pinned by deterministic checksum until its import milestone |
-| Current database | Additive upgrade path; preserve existing demo and portal data |
-| UI | Durable history, actual progress, pause/resume/stop, visible suspended commitments |
+| Concern             | Initial design decision                                                                                              |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Deployment          | One TypeScript codebase; Fastify/React, Temporal, PostgreSQL and local Ollama processes; Compose/systemd supervision |
+| Ownership           | One Temporal workflow identity per agent; serial foreground ordering and idempotent version-checked domain writes    |
+| Authority           | Server/database own history; browser displays committed state                                                        |
+| Identity            | Validated versioned profile; no silent change from conversation or adviser output                                    |
+| Feeling             | Contextual application model, independently labeled from doctrine and actual experience                              |
+| Actions             | Persist, authorize, dispatch outside SQL, observe, then review                                                       |
+| AI                  | Optional justified adviser call with minimized permitted context; one in-flight slot                                 |
+| Interruption        | Checkpoint at safe boundaries; preserve budgets; reconcile before resumption                                         |
+| Recovery            | Unknown external effect stays unknown until reconciled; no blind replay of side effects                              |
+| Catalog             | Existing file catalog pinned by deterministic checksum until its import milestone                                    |
+| Current database    | Additive upgrade path; preserve existing demo and portal data                                                        |
+| UI                  | Durable history, actual progress, pause/resume/stop, visible suspended commitments                                   |
 | Internal initiative | Sourced aspirations, associations and observed gaps can originate candidate goals through the same foreground runner |
-| Proactive contact | Permitted local inbox, appropriate timing, novelty, expiry and no repeated unanswered prompting |
-| Self-improvement | Evidence-backed proposal in the first delivery; executable changes require separate future capability and approval |
-| Verification | Planned joint acceptance scenarios; no application commands executed for diagram authoring |
+| Proactive contact   | Permitted local inbox, appropriate timing, novelty, expiry and no repeated unanswered prompting                      |
+| Self-improvement    | Evidence-backed proposal in the first delivery; executable changes require separate future capability and approval   |
+| Verification        | Planned joint acceptance scenarios; no application commands executed for diagram authoring                           |
 
 The architecture selects Ollama for local cognition but leaves the actual model and hardware to evaluation. It does not introduce remote access or unrestricted learning. Follow the dependency gates in the [development plan](../delivery/plan.md). The PDF is a derived rendering; this Markdown is the editable architecture authority. Progress and acceptance evidence belong in [status](../delivery/status.md).

@@ -1,5 +1,6 @@
 import type { Identity } from '../modules/nama/nama-service.ts';
-import type { AttentionSnapshot } from '../modules/manasikara/select.ts';
+import type { OpportunitySnapshot } from '../modules/vithi/select-opportunity.ts';
+import type { ObjectAttention } from '../modules/manasikara/attend.ts';
 export type Control = 'running' | 'paused' | 'stopped';
 export type GoalState =
   'active' | 'suspended' | 'waiting' | 'paused' | 'completed' | 'exhausted' | 'cancelled';
@@ -41,6 +42,7 @@ export interface ContinuingFocus {
   sourceConversationId: string;
 }
 export interface Proposal {
+  attentionObjectId?: string;
   focusReview?: FocusReview;
   action:
     | 'RESPOND'
@@ -88,6 +90,10 @@ export interface ComputerScreen {
   capturedAt: string;
 }
 export interface Context {
+  objectAttention?: ObjectAttention;
+  attendedSourceId?: string;
+  queueSelection?: OpportunitySnapshot;
+  inferenceQueueSelection?: OpportunitySnapshot;
   contextSelection?: {
     policy: string;
     originalBytes: number;
@@ -156,8 +162,9 @@ export interface Context {
   appraisals?: { tone: string; cause: string; tendency: string; uncertainty: string }[];
   recallReason?: string;
   declinedTopics?: { topic: string; text: string }[];
-  attention?: AttentionSnapshot;
-  inferenceAttention?: AttentionSnapshot;
+  /** Historical queue snapshots only; new work writes queueSelection. */
+  attention?: OpportunitySnapshot;
+  inferenceAttention?: OpportunitySnapshot;
   inferenceRequestId?: string;
   selectedObservationId?: string;
   interruption?: { parentGoalId: string | null; depth: number; transient: boolean };
@@ -205,6 +212,7 @@ export interface Tick {
   waiting: boolean;
 }
 export interface Decision {
+  attentionObjectId?: string;
   focusReview?: FocusReview;
   action: string;
   reason: string;

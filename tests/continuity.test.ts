@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { selectAttention } from '../src/modules/manasikara/select.ts';
+import { selectOpportunity } from '../src/modules/vithi/select-opportunity.ts';
 import { nextMotiveEligibility } from '../src/modules/chanda/eligibility.ts';
 import { replayContact } from '../src/modules/vithi/contact-policy.ts';
 import {
@@ -18,8 +18,8 @@ test('operator interruption quota gives an old obligation a protected turn witho
       continuation: true,
     },
   ];
-  assert.equal(selectAttention(candidates, 0, now)?.selectedId, 'speech');
-  const selection = selectAttention(candidates, 3, now)!;
+  assert.equal(selectOpportunity(candidates, 0, now)?.selectedId, 'speech');
+  const selection = selectOpportunity(candidates, 3, now)!;
   assert.equal(selection.selectedId, 'result');
   assert.equal(selection.candidates.length, 2);
 });

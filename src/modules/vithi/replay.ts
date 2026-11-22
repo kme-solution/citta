@@ -1,9 +1,11 @@
 // This module intentionally imports no repositories, clocks, network clients or abilities.
 import type { Context, Decision } from '../../contracts/runtime.ts';
 import { ENGINE_VERSION, POLICY_VERSION } from '../../contracts/runtime.ts';
-import { considerLocal, validateProposal } from '../cetana/consider.ts';
+import { considerLocal } from '../vaca/interpret.ts';
+import { validateProposal } from '../sikkha/proposal.ts';
 import { reviewOutcome } from '../paccavekkhana/review.ts';
-import { selectAttention } from '../manasikara/select.ts';
+import { selectOpportunity } from './select-opportunity.ts';
+import { attendToObject } from '../manasikara/attend.ts';
 export interface RecordedDecision {
   id: string;
   engine: string;
@@ -15,19 +17,30 @@ export function replayDecision(record: RecordedDecision) {
   if (record.engine !== ENGINE_VERSION || record.policy !== POLICY_VERSION)
     return { id: record.id, state: 'unsupported', reason: 'Engine or policy version differs.' };
   const ctx = record.snapshot;
-  if (ctx.attention) {
-    const selected = selectAttention(
-      ctx.attention.candidates,
-      ctx.attention.consecutiveUserTurns,
-      ctx.attention.now,
+  const queue = ctx.queueSelection || ctx.attention;
+  if (queue) {
+    const selected = selectOpportunity(
+      queue.candidates,
+      queue.consecutiveUserTurns,
+      queue.now,
+      queue.policy,
     );
-    if (selected?.selectedId !== ctx.attention.selectedId)
+    if (selected?.selectedId !== queue.selectedId)
       return {
         id: record.id,
         state: 'diverged',
-        reason: 'Recorded attention choice differs from the pinned policy.',
+        reason: 'Recorded queue choice differs from the pinned arbitration policy.',
       };
   }
+  if (
+    ctx.objectAttention &&
+    JSON.stringify(attendToObject(ctx)) !== JSON.stringify(ctx.objectAttention)
+  )
+    return {
+      id: record.id,
+      state: 'diverged',
+      reason: 'Recorded object orientation differs from its retained source context.',
+    };
   let actual: Decision;
   if (ctx.focusInvalidation) {
     actual = {
@@ -115,6 +128,7 @@ export function replayDecision(record: RecordedDecision) {
     'improvement',
     'goalReview',
     'focusReview',
+    'attentionObjectId',
   ] as const;
   const mismatches = keys.filter(
     (key) => JSON.stringify(actual[key]) !== JSON.stringify(record.decision[key]),

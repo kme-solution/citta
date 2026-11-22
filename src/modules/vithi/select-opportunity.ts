@@ -1,24 +1,25 @@
-export interface AttentionCandidate {
+export interface OpportunityCandidate {
   id: string;
   kind: 'speech' | 'result' | 'mental';
   createdAt: string;
   dueAt?: string;
   continuation: boolean;
 }
-export interface AttentionSnapshot {
-  policy: 'attention-v2';
+export interface OpportunitySnapshot {
+  policy: 'opportunity-v1' | 'attention-v2';
   now: string;
   consecutiveUserTurns: number;
   selectedId: string;
-  candidates: (AttentionCandidate & { priority: number; reason: string })[];
+  candidates: (OpportunityCandidate & { priority: number; reason: string })[];
   tieBreak: 'priority,arrival,id';
 }
-/** The clock and candidate window are explicit inputs, also retained for offline replay. */
-export function selectAttention(
-  candidates: AttentionCandidate[],
+/** Engineering queue arbitration. The old wire policy remains readable for historical replay. */
+export function selectOpportunity(
+  candidates: OpportunityCandidate[],
   consecutiveUserTurns: number,
   now: string,
-): AttentionSnapshot | null {
+  policy: OpportunitySnapshot['policy'] = 'opportunity-v1',
+): OpportunitySnapshot | null {
   if (!candidates.length) return null;
   const clock = Date.parse(now);
   const ranked = candidates
@@ -57,7 +58,7 @@ export function selectAttention(
         (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
     );
   return {
-    policy: 'attention-v2',
+    policy,
     now,
     consecutiveUserTurns,
     selectedId: ranked[0].id,
