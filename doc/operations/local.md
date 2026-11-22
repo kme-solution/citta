@@ -165,3 +165,9 @@ The selector bounds complete context to 10,000 UTF-8 bytes, rather than a token 
 Dashboard is the landing page. It shows ten actual shared updates at a time across Kyaw2’s conversations: initiatives, unanswered questions and milestone reports. Use All updates, Needs your reply or Milestone reports, and Older/Newer to browse history. Reply opens the source conversation with that message quoted in the existing composer. View activity opens the originating goal. A retained-concern preview links to Mind.
 
 Waiting to share shows up to ten currently queued/deferred contacts, explicitly not delivered. Opening the dashboard does not override Quiet or delivery limits. Source messages/history remain authoritative. Migration 011 adds feed indexes; apply before deploying the new API. Dashboard reads do not mark messages answered or approve proposals.
+
+## Source formatting
+
+Use Prettier 3.10.1 with .prettierrc.json for TypeScript/TSX, CSS, HTML and source configuration; Black 26.10.1 with line length 100 for tools/**/*.py; shfmt 3.14.1 with two-space indentation for tools/local/temporal.sh. Formatting tools were installed in private local/cache directories without changing dependency versions or lockfiles. Example Prettier invocation: `npm exec --yes --package=prettier@3.10.1 -- prettier --write --ignore-unknown src web tests tools package.json tsconfig.json .prettierrc.json`.
+
+Applied SQL migrations are checksum-pinned and excluded. Generated artifacts, doctrinal data, node_modules and private state are not formatter targets. Keep mechanical source formatting separate from behavior commits. Systemd unit files already use the supported readable key/value format.

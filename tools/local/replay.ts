@@ -1,12 +1,39 @@
 import { readFile } from 'node:fs/promises';
 import { replayDecision, type RecordedDecision } from '../../src/modules/vithi/replay.ts';
 import { replayContact, type ContactSnapshot } from '../../src/modules/vithi/contact-policy.ts';
-import { replayContinuity,type ContinuityArchive } from '../../src/modules/vithi/continuity-replay.ts';
-const path=process.argv[2];if(!path)throw Error('Supply a recorded domain replay file.');
-const data=JSON.parse(await readFile(path,'utf8')) as {format:string;decisions:RecordedDecision[];contacts?:{contactId:string;snapshot:ContactSnapshot;choice:{action:string;reason:string};effect:unknown}[];continuity?:ContinuityArchive};
-if(data.format!=='citta-domain-replay-v1'||!Array.isArray(data.decisions))throw Error('Unsupported replay format.');
-const results=data.decisions.map(replayDecision);
-const contacts=(data.contacts||[]).map(c=>({id:c.contactId,...replayContact(c)}));
-const continuity=replayContinuity(data.continuity);
-console.log(JSON.stringify({results,contacts,continuity,matched:results.filter(r=>r.state==='matched').length,total:results.length},null,2));
-if([...results,...contacts,continuity].some(r=>r.state!=='matched'))process.exitCode=1;
+import {
+  replayContinuity,
+  type ContinuityArchive,
+} from '../../src/modules/vithi/continuity-replay.ts';
+const path = process.argv[2];
+if (!path) throw Error('Supply a recorded domain replay file.');
+const data = JSON.parse(await readFile(path, 'utf8')) as {
+  format: string;
+  decisions: RecordedDecision[];
+  contacts?: {
+    contactId: string;
+    snapshot: ContactSnapshot;
+    choice: { action: string; reason: string };
+    effect: unknown;
+  }[];
+  continuity?: ContinuityArchive;
+};
+if (data.format !== 'citta-domain-replay-v1' || !Array.isArray(data.decisions))
+  throw Error('Unsupported replay format.');
+const results = data.decisions.map(replayDecision);
+const contacts = (data.contacts || []).map((c) => ({ id: c.contactId, ...replayContact(c) }));
+const continuity = replayContinuity(data.continuity);
+console.log(
+  JSON.stringify(
+    {
+      results,
+      contacts,
+      continuity,
+      matched: results.filter((r) => r.state === 'matched').length,
+      total: results.length,
+    },
+    null,
+    2,
+  ),
+);
+if ([...results, ...contacts, continuity].some((r) => r.state !== 'matched')) process.exitCode = 1;

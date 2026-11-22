@@ -1,0 +1,7 @@
+node_modules/
+.local/
+dist/
+artifacts/
+data/
+migrations/
+package-lock.json

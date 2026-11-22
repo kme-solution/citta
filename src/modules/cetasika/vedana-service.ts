@@ -1,4 +1,4 @@
 // Application feedback for the demo.
 export function feedback(resolved: boolean) {
-  return resolved ? "pleasant" : "neutral";
+  return resolved ? 'pleasant' : 'neutral';
 }

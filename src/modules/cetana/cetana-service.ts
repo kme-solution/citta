@@ -1,3 +1,3 @@
 export function nextAction(formGoal: boolean) {
-  return formGoal ? "READ" : "WAIT";
+  return formGoal ? 'READ' : 'WAIT';
 }
