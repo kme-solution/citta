@@ -1,3 +1,5 @@
+import {registerCodexRoutes} from './codex-routes.ts';
+import {codexAppServer} from '../infra/codex/app-server.ts';
 import {desktopSession} from '../infra/computer/desktop.ts';
 import {existsSync} from 'node:fs';
 import {delimiter,join} from 'node:path';
@@ -11,7 +13,7 @@ import { capabilities } from '../modules/kamma/registry.ts';
 import type { ServerResponse } from 'node:http';
 import { pool } from '../infra/postgres/database.ts';
 import { initialize, ingest, control, getState, eventsAfter, markSeen, declineContact, messageHistory, reviewProposal, goalDetail, Conflict, Missing, type ControlRequest, type ProposalReviewRequest } from '../infra/postgres/runtime-repository.ts';
-const app = Fastify({logger:{level:'info',redact:['req.headers.authorization','req.headers.cookie']},bodyLimit:24000});
+const app = Fastify({logger:{level:'info',redact:['req.headers.authorization','req.headers.cookie','req.body.apiKey']},bodyLimit:24000});
 const streams=new Set<ServerResponse>();
 app.addHook('preClose',async()=>{for(const stream of streams)stream.end();streams.clear();});
 const uuid = {type:'string',format:'uuid'};
@@ -36,13 +38,15 @@ app.setErrorHandler((error,request,reply)=> {
   request.log.error({message:failure.message},'Request failed');
   return reply.code(503).send({error:'The local service could not complete this request. Your accepted input remains durable; retry with the same message ID.'});
 });
+await registerCodexRoutes(app);
 app.get('/api/health',async()=> {
   await pool.query('SELECT 1');
   const {rows:[a]} = await pool.query('SELECT heartbeat_at,control FROM citta.agents WHERE id=$1',[config.agentId]);
   let cognition=config.cognitionEnabled?'unavailable':'disabled pending evaluation';
-  if(config.cognitionProvider==='codex'&&config.cognitionEnabled){const file=codexExecutable();const available=existsSync(file)||(process.env.PATH||'').split(delimiter).some(dir=>existsSync(join(dir,file)));cognition=available?'configured; authentication not checked':'CLI missing';}
+  if(config.cognitionProvider==='codex'&&config.cognitionEnabled&&config.codexTransport==='app-server'){const s=await codexAppServer.status();cognition=s.connected?(s.lastSuccessfulTurnAt?'ready':'connected; inference not verified'):'connect from Connections';}
+  if(config.cognitionProvider==='codex'&&config.cognitionEnabled&&config.codexTransport==='exec'){const file=codexExecutable();const available=existsSync(file)||(process.env.PATH||'').split(delimiter).some(dir=>existsSync(join(dir,file)));cognition=available?'configured; authentication not checked':'CLI missing';}
   if(config.cognitionProvider==='ollama')try { const r=await fetch(config.ollamaUrl+'/api/tags',{signal:AbortSignal.timeout(1500)}); const data=await r.json() as {models?:{name:string}[]}; if (r.ok&&config.cognitionEnabled) cognition=data.models?.some(m=>m.name===config.model)?'ready':'model missing'; } catch {}
-  return {database:'ready',runner:a?.heartbeat_at && Date.now()-new Date(a.heartbeat_at).getTime()<15000?'ready':'unavailable',cognition,cognitionProvider:config.cognitionProvider,model:config.cognitionProvider==='codex'?(config.codexModel||'cli-configured'):config.model,control:a?.control};
+  return {database:'ready',runner:a?.heartbeat_at && Date.now()-new Date(a.heartbeat_at).getTime()<15000?'ready':'unavailable',cognition,cognitionProvider:config.cognitionProvider,codexTransport:config.codexTransport,model:config.cognitionProvider==='codex'?(config.codexModel||'cli-configured'):config.model,control:a?.control};
 });
 app.get<{Querystring:{conversationId?:string}}>('/api/state',{schema:{querystring:conversationQuery}},async(request,reply)=>{reply.header('Cache-Control','no-store');return getState(request.query.conversationId);});
 app.get<{Querystring:{conversationId:string;before:string}}>('/api/history',{schema:{querystring:{type:'object',additionalProperties:false,required:['conversationId','before'],properties:{conversationId:uuid,before:{type:'string',pattern:'^[0-9]{1,18}$'}}}}},async(request,reply)=>{reply.header('Cache-Control','no-store');return messageHistory(request.query.conversationId,request.query.before);});

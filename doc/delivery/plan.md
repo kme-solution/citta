@@ -162,3 +162,7 @@ The first continuing-runtime delivery ends when its scope meets the gates above 
 ## Laptop computer-use extension
 
 Implement one vertical path: OS-approved desktop session → screenshot → Codex next-action proposal → validated mouse/keyboard dispatch → new screenshot → reviewed continuation. Web, file/code and Git tasks use existing visible applications; defer service-specific API tools. Delivery requires actual Wayland portal consent, screen capture and input verification on Kyaw’s desktop before claiming working computer control. Source changes alone do not satisfy that gate.
+
+## Portal Codex connection extension
+
+Checkpoint existing desktop source first (e675872). Implement persistent local app-server transport, portal connection/sign-in/key/logout UI and authenticated worker broker. Preserve authoritative Citta context, independent action checks, interrupt semantics and credential privacy. Verify actual local protocol/auth/model and portal flows only when execution is explicitly authorized; redirect delivery alone is not a completed login or working inference.

@@ -7,7 +7,7 @@ import type { Context, Proposal, Outcome } from '../../contracts/runtime.ts';
 import { config } from '../../app/config.ts';
 import { selectContext } from '../../modules/sati/context-selection.ts';
 import { createHash } from 'node:crypto';
-export const COGNITION_PROMPT_VERSION='cognition-v12-desktop';
+export const COGNITION_PROMPT_VERSION='cognition-v13-working-memory';
 export const COGNITION_SCHEMA_VERSION=8;
 export const proposalSchema = {
   type:'object',additionalProperties:false,
@@ -54,21 +54,22 @@ export async function infer(ctx: Context, signal?: AbortSignal): Promise<Outcome
   if(selected.computerScreen&&config.cognitionProvider==='codex'){try{imagePath=await computerImage(selected.computerScreen);}catch{delete selected.computerScreen;}}
   const input=JSON.stringify(selected);
   const outputSchema=proposalOutputSchema(selected.goalCriterion,[...new Set([...selected.evidence.map(e=>e.id),'profile',selected.observationId])],(selected.eligibleGoals||[]).map(g=>g.id),selected.availableSources||[],selected.goalRevisionAllowed,selected.goalCancellationAllowed,selected.kind==='mental',!!selected.computerAvailable&&config.cognitionProvider==='codex');
-  const prompt=system+'\n'+continuationRules+'\n'+computerRules+'\nConfigured own name (data): '+JSON.stringify(selected.profile.name)+'. Required response text language: English.';
+  const prompt='The supplied current context and policy are authoritative over older thread context. Old source facts, permissions, evidence IDs and unfinished tasks may be superseded. Use only currently supplied evidence IDs and eligible goals.\n'+system+'\n'+continuationRules+'\n'+computerRules+'\nConfigured own name (data): '+JSON.stringify(selected.profile.name)+'. Required response text language: English.';
   if(config.cognitionProvider==='codex'){
     const codexSchema={...proposalSchema,properties:{...proposalSchema.properties,
       action:{type:'string',enum:outputSchema.oneOf.map(branch=>branch.properties.action.const)},
       goalReview:{anyOf:[proposalSchema.properties.goalReview,{type:'null'}]},
       improvement:{anyOf:[proposalSchema.properties.improvement,{type:'null'}]}
     },required:Object.keys(proposalSchema.properties)};
+    const metadata:Record<string,unknown>={transport:config.codexTransport};
     const raw=await askCodex('',selected.profile,signal,{
       prompt:prompt+'\nFor this output schema, return null for unused goalReview and improvement. You have no direct tool authority. A proposal may request a COMPUTER step; never invoke tools or execute commands yourself. Return one JSON proposal only.\nContext data:\n'+input,
-      schema:codexSchema,model:config.codexModel,timeoutMs:config.inferenceTimeoutMs,imagePath});
+      schema:codexSchema,model:config.codexModel,timeoutMs:config.inferenceTimeoutMs,imagePath,metadata,scope:selected.workingMemory?{conversationId:selected.conversationId,profileVersion:selected.profileVersion,contextKey:COGNITION_PROMPT_VERSION+':'+COGNITION_SCHEMA_VERSION}:undefined});
     let proposal:unknown;
     try{const parsed=JSON.parse(raw);if(parsed&&typeof parsed==='object'){if(parsed.goalReview===null)delete parsed.goalReview;if(parsed.improvement===null)delete parsed.improvement;}proposal=parsed;}catch{throw Error('Codex cognition returned invalid JSON.');}
     const scopedValidate=new Ajv({allErrors:true}).compile<Proposal>(outputSchema);
     if(!scopedValidate(proposal))throw Error('Codex cognition returned an invalid or unauthorized proposal schema.');
-    return {ok:true,proposal,context:selected,usage:{provider:'codex',model:config.codexModel||'cli-configured',promptVersion:COGNITION_PROMPT_VERSION,schemaVersion:COGNITION_SCHEMA_VERSION,contextHash:createHash('sha256').update(input).digest('hex'),promptHash:createHash('sha256').update(prompt).digest('hex')}};
+    return {ok:true,proposal,context:selected,usage:{provider:'codex',...metadata,model:config.codexModel||'cli-configured',promptVersion:COGNITION_PROMPT_VERSION,schemaVersion:COGNITION_SCHEMA_VERSION,contextHash:createHash('sha256').update(input).digest('hex'),promptHash:createHash('sha256').update(prompt).digest('hex')}};
   }
   const tagsResponse=await fetch(config.ollamaUrl+'/api/tags',{redirect:'error',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(5000)]):AbortSignal.timeout(5000)});
   if(!tagsResponse.ok)throw Error('Cannot identify the configured local model.');

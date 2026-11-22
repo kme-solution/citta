@@ -14,7 +14,11 @@ const url = new URL(ollamaUrl);
 if (!['127.0.0.1','localhost','[::1]'].includes(url.hostname) || url.protocol !== 'http:') throw Error('Ollama must be a local HTTP service');
 const cognitionProvider=process.env.CITTA_COGNITION_PROVIDER || 'ollama';
 if(!['ollama','codex'].includes(cognitionProvider))throw Error('CITTA_COGNITION_PROVIDER must be ollama or codex');
+const codexTransport=process.env.CITTA_CODEX_TRANSPORT || 'app-server';
+if(!['app-server','exec'].includes(codexTransport))throw Error('CITTA_CODEX_TRANSPORT must be app-server or exec');
 export const config = {
+  codexTransport,codexHome:resolve('.local/state/codex',agentId,'home'),
+  codexWorkRoot:resolve('.local/state/codex',agentId,'work'),codexBrokerTokenFile:resolve('.local/state/codex',agentId,'broker.token'),
   computerEnabled:process.env.CITTA_COMPUTER_ENABLED==='true',
   computerAutonomous:process.env.CITTA_COMPUTER_AUTONOMOUS==='true',
   computerPort:integer('CITTA_COMPUTER_PORT',4180,1024,65535),

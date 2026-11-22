@@ -24,7 +24,7 @@ export interface Proposal {
 export type ComputerCommand={action:'observe'}|{action:'click';x:number;y:number;button?:'left'|'right'|'middle'}|{action:'type';text:string}|{action:'key';keys:string[]}|{action:'scroll';steps:number};
 export interface ComputerScreen {frameId:string;width:number;height:number;sha256:string;capturedAt:string}
 export interface Context {
-  computerAvailable?:boolean;computerScreen?:ComputerScreen;
+  workingMemory?:boolean;cognitionAvailable?:boolean;computerAvailable?:boolean;computerScreen?:ComputerScreen;
   observationId: string; conversationId: string; text: string; kind: string;
   profile: Identity; profileVersion: string; controlVersion: number; goalId: string; goalCriterion?:string; responseLanguage?:'en'|'my'; goalRevisionAllowed?:boolean; goalCancellationAllowed?:boolean;
   evidence: Evidence[]; recent: {role: string; text: string}[]; motive?: string;
