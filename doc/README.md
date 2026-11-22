@@ -10,6 +10,7 @@
 | 2 | [Approved architecture](design/architecture.md) | A01-A10 system boundaries and module ownership |
 | 3 | [Approved behavior flows](design/behavior-flows.md) | F01-F26, S01-S60 and W01-W06 behavioral cases |
 | 4 | [Runtime contracts](design/contracts.md) | Derived invariants, records, state transitions and interface boundaries |
+| As needed | [Local cognition evaluation](design/model-evaluation.md) | Laptop constraints, model candidates and paired English/Myanmar measurement protocol |
 | 5 | [Development plan](delivery/plan.md) | Dependency gates, implementation order and acceptance mapping |
 | 6 | [Current status](delivery/status.md) | Actual completion, verification, open decisions and next safe task |
 | As needed | [Local operations](operations/local.md) | Commands supported by the current code and local configuration |

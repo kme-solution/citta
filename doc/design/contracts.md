@@ -95,17 +95,71 @@ The existing demo memory/goal schema is incompatible with the richer contracts. 
 
 If selected old notes/commitments are imported, use explicit repeat-safe source keys, ownership and a documented transformation. Do not turn old demo logs into claimed new-runtime cycles. Existing file-backed catalog data stays pinned by deterministic identity/checksum until a separately scoped import/versioning task. Do not prescribe new database libraries or a PostgreSQL upgrade without demonstrated need.
 
-## Transaction, recovery and replay boundary
+## Temporal and PostgreSQL consistency protocol
 
-1. Use one stable Temporal workflow identity per agent as the decision owner; apply idempotency, domain-version checks and action claim fencing at PostgreSQL write/dispatch boundaries. Do not introduce a competing custom foreground scheduler.
-2. Persist accepted input with a stable source key. Recall emission and recall-task completion are atomic.
-3. Read/snapshot the bounded decision context. Commit consideration, goal changes, consumed input and queued action together.
-4. Claim the action in a short transaction, recheck permissions/control state, and dispatch outside SQL.
-5. Commit actual effect and derived observations together with stable action/output keys. Review them through the foreground stream.
-6. Recover uncommitted expired claims. Retry external effects only if safe under the adapter's idempotency/reconciliation contract; otherwise keep `unknown`.
-7. Resume foreground/continuations with the same remaining budgets. Replay under a distinct run identity using recorded time/context/effects and no live dispatch/input access.
+**P0 design decision, 2026-11-22:** PostgreSQL owns domain truth and Temporal owns durable orchestration. Use at-least-once delivery with idempotent, version-checked domain operations. There is no distributed transaction and no claim that arbitrary external effects execute exactly once. Implementation and failure-injection validation remain pending.
 
-Temporal orchestration and PostgreSQL commits are not one transaction. Use durable ingress/outbox delivery and idempotent activity/domain operations; neither framework retry nor locking alone makes external effects exactly once. Define the crash window between marking an action running and dispatch, as well as after dispatch before result commit. Completion must report observed state honestly.
+### Stable identities and ownership
+
+- Workflow ID is stable per agent, for example `citta-agent/<agent-id>`, with conflicting concurrent executions rejected. Continue-As-New retains this identity and the current ownership generation; it must not create a new agent or reset budgets.
+- Persist a workflow ownership generation for intentional replacement of a closed/lost execution. An idempotent activation operation advances it once for a new ownership epoch, not for every Activity retry. Old-generation domain commits/dispatch are fenced. Define this replacement protocol before implementing automatic restart/replacement.
+- Domain observation, goal/version, frame/version, action and operation IDs remain stable across Activity attempts and workflow-history continuation. Do not derive durable domain deduplication solely from a Temporal Run ID that changes on continuation.
+- The workflow is the single deliberation owner. API ingestion, explicit operator controls and adapter results can persist their own input/control/effect records, but cannot independently adopt goals, appraise motives or consume an observation as a decision.
+- `domain_version`, `control_version`, goal/frame versions and ownership generation have distinct meanings. Snapshot relevant versions before deliberation; compare them at decision/dispatch commit. Reuse the stored result when an operation ID already committed.
+
+### Ingress and notification
+
+1. Fastify validates the request and its agent/conversation scope. In one PostgreSQL transaction, insert the original observation, unique `(agent_id, source, source_event_key)`, a receipt and a durable outbox wakeup. A duplicate returns the same receipt; a reused key with different content returns a conflict.
+2. A committed receipt means accepted/persisted, not considered, acted on or answered. The UI can display it immediately even if Temporal is unavailable.
+3. An outbox relay claims a bounded batch with a lease/token, commits that claim, then sends a Temporal Signal outside SQL. A wakeup carries stable event/agent IDs; domain payload stays in scoped storage. The handler only records/coalesces a pending wakeup, not a parallel thought/action.
+4. Mark outbox delivery only after Temporal acknowledges acceptance and the relay token is current. A crash after Signal acceptance but before marking delivery leads to a duplicate wakeup, not a second logical action.
+5. The workflow drains eligible PostgreSQL observations through an Activity. PostgreSQL consumed/pending state remains authoritative; a notification cache is only an optimization. Fair selection can process observations out of arrival order, so a high-water event cursor cannot silently mark earlier unselected observations consumed.
+6. Reconnection/periodic bounded reconciliation can re-wake an agent with old pending input. It does not create a new observation or bypass work budgets. Do not rely on volatile database notification delivery for correctness.
+
+### Context, inference and decision commit
+
+1. A context Activity returns an immutable/sourced snapshot reference and relevant domain/control/goal/frame versions. Store exact retrieved record versions, profile/model/prompt/schema/policy identities, candidate selection factors and budget state for domain replay. Keep large/private payloads out of the orchestration journal when references suffice.
+2. Deterministic local routines can propose a sufficient response without inference. A local-model Activity uses a stable inference-request ID scoped to that context and its configuration. It checks for a stored completed outcome before invoking Ollama.
+3. Inference occurs outside SQL. Persist its validated output or failure and attempt/usage record before returning a durable reference to the workflow. A unique inference-request record admits one chosen outcome. A crash after generation but before persistence can require recomputation; this is a bounded cost/retry case, not an exactly-once-generation guarantee. Account for attempted work and uncertain usage rather than resetting the budget.
+4. When input interrupts or a goal changes, a completed model proposal may be stale. Record its outcome/usage, then compare the referenced frame/goal/control versions; never apply it blindly to current intent. Schema validity is not semantic authority.
+5. A `CommitDecision` Activity receives stable operation ID, expected versions, selected observation, context/outcome references, candidate reasons and proposed transition/action. In one transaction validate ownership/scope/versions, record the decision, revise applicable goals/memories/appraisal, consume exactly the selected input, debit applicable budget and queue the action plus committed UI events. No SQL commit executes an external effect.
+6. Unique operation/action/consumption keys prevent logical duplicates. If the transaction committed but the Activity acknowledgement was lost, retry returns the committed result. If expected versions changed, return a typed stale-context outcome and reconsider; do not automatically rebase a model proposal onto new context.
+
+### Controls, dispatch and observed effects
+
+- An operator pause/stop/cancel is persisted with a monotonically increasing control version and an outbox wakeup. Revocation is an explicit control path, not a second planner. Every dispatch transaction checks current control, goal/frame version, generation, approval and budget.
+- The dispatch transaction claims the stable action and marks its attempt running before the external call. This commit is the dispatch-start boundary. A control committed before that boundary prevents dispatch. A control after it cannot guarantee an already-started effect is undone; report in-flight/cancellation/reconciliation state honestly.
+- Execute the adapter outside SQL using the same external idempotency key on permitted retries. Adapter policy declares safe repeat, remote idempotency, reconciliation support or unsafe retry. Never let generic Temporal retries blindly repeat unsafe effects.
+- In one result transaction, persist action outcome/attempt, source-attributed effect and stable `(action_id, output_position)` observations plus UI/outbox events. A retry after lost acknowledgement returns the stored outcome. Failed or stale claim tokens cannot finalize another attempt.
+- If a process dies after a possibly real external effect but before its result commit, reconcile by external receipt/key where supported. Otherwise mark `unknown` and block redispatch until explicit reconciliation. No automatic successful/failed assumption.
+- Result ingestion may record a late output for audit, but only a current foreground decision can review/apply it. A cancelled goal is never revived by a late result. Inference results, Codex speech and local-inbox delivery remain distinguishable.
+
+### Crash-window acceptance matrix
+
+| Crash/conflict point | Durable state and expected recovery |
+|---|---|
+| API before ingress commit | No accepted receipt; client may retry with the same event key |
+| API after commit, before response | Observation/outbox exist; retry returns original receipt |
+| Relay before Signal | Lease expires; another relay retries stable event |
+| Signal accepted, relay acknowledgement lost | Duplicate wakeup is harmless; pending/consumed domain state governs |
+| Context/model result becomes stale during interruption | Preserve attempted work; discard applicability and reconsider current state |
+| Model generated, outcome not stored | Bounded explicitly accounted recomputation or unknown/failure; no hidden cost reset |
+| Decision transaction committed, Activity reply lost | Operation lookup returns same decision/action; no second consumption |
+| Stop races with queued dispatch | Commit ordering at dispatch-start boundary determines prevented versus in-flight |
+| External call may have succeeded, result missing | Reconcile or unknown; do not blindly repeat |
+| Result committed, Activity reply lost | Return existing action/effect and output keys |
+| Old workflow ownership generation completes late | Reject domain mutation/dispatch; retain appropriate stale-attempt audit |
+| Continue-As-New / worker restart | Stable agent/domain IDs and stored versions/budgets retained; drain actual pending records |
+| PostgreSQL unavailable | No accepted ingress/domain success claim; backoff without external dispatch |
+| Temporal unavailable after accepted ingress | Durable pending input remains visible; outbox resumes delivery later |
+
+### Recovery, replay and privacy acceptance
+
+Temporal workflow replay consumes recorded Activity outcomes; it cannot run new inference as a substitute for missing history. Domain scenario replay runs under a separate replay identity using recorded context/clock/proposals/effects, with production queues and live adapters inaccessible. Missing/mismatched versions are explicit unsupported outcomes. Neither replay rewrites the original domain records.
+
+The protocol passes only after failure-injection checks demonstrate one logical decision/action per input, valid fencing, no lost committed inputs, no duplicated non-idempotent effects from blind retries, preserved interruption state/budgets and correct control acknowledgement. Temporal reliability does not automatically prove these application invariants.
+
+References: [Temporal Activity definition and idempotence](https://docs.temporal.io/activity-definition), [Activity lifecycle](https://docs.temporal.io/activities), [TypeScript Workflow messages](https://docs.temporal.io/develop/typescript/workflows/message-passing), [Continue-As-New](https://docs.temporal.io/develop/typescript/workflows/continue-as-new).
 
 ## Proposed engineering limits
 
@@ -176,3 +230,57 @@ Schema-valid JSON is only structural validity. Domain checks must validate refer
 Temporal message handlers enqueue observations/controls only; the serial foreground decision loop chooses what to consider. SQL, model inference and abilities are activities. Durable timers drive internal opportunities and recall. Long-running inference/adviser work releases attention according to the interruption policy. Continue/version workflow history with stable domain identifiers and remaining budgets.
 
 PostgreSQL owns domain facts/lineage. Temporal owns execution history and workflow progress. P0 must specify outbox/idempotent delivery, expected domain versions, reconciliation of each journal/database crash window and cancellation semantics. Do not implement both a Temporal owner and a PostgreSQL session-lock foreground owner. Workflow replay uses recorded activity outcomes; domain replay additionally compares application decisions, motives/appraisals and normalized effects with live queues/abilities/inference disabled.
+
+## Executable local runtime v1
+
+The first implementation uses an additive `citta` schema in a separate local database. Migration bookkeeping stores a SHA-256 checksum and refuses edited applied files. Agent IDs are deployment configuration; conversation IDs and client event keys are UUIDs. Immutable profile hashes identify configured identity versions. The single Temporal workflow ID is `citta/<agentId>`; workflow handlers only wake the loop. SQL operations lock the agent row for atomic ingress/control/decision/dispatch ordering. No SQL lock is held across inference or an ability call.
+
+`GET /api/state?conversationId=<uuid>` returns committed messages, goals, motives, current control, appraisals, proposals and recent events. `POST /api/messages` takes `conversationId`, `messageId`, `text`; idempotent retries return the original observation, conflicting reuse returns 409. `POST /api/control` takes `requestId`, `operation` (`pause`, `resume`, `stop`, `cancel`, `quiet`, `unquiet`), optional `goalId`, and `expectedVersion`. A mismatched control version returns 409. Stop cancels all current commitments and disables initiative until explicit resume; quiet suppresses proactive contact while preserving internal reflection. Pause preserves pending work/results. GET `/api/events` uses Last-Event-ID / `after` only as an event readback cursor, never as an observation-consumption cursor. All endpoints are loopback-only with strict same-origin mutation checks. This is a single-operator local deployment, not a remotely authenticated multi-user service.
+
+The runner selects durable results, operator inputs and eligible internal cues. Pending model/adviser/read operations release the foreground; subsequent local input can be processed while they run. Actions retain their own originating goal/context/profile snapshots. Completion is recorded separately, then reviewed only by the workflow's next serialized decision Activity. Stop/control versions fence dispatch; cancelled goal versions fence late effects. Completed local/HTTP reads are repeat-safe; a claimed adviser with an expired heartbeat is `unknown`, not redispatched. Failed model inference is visible and can be retried explicitly by a new operator request; there is no automatic cloud fallback.
+
+Initial ability scope: local profile/history, explicitly saved conversation notes, bounded regular-file reads beneath `data/fixtures` (symlinks resolved and checked), Ollama structured local proposals, optional explicit or justified Codex advice. Model proposals cannot execute arbitrary commands, change identity, mutate permissions or upgrade code. Adviser output is attributed and unverified unless supported independently; it cannot complete an evidence criterion by its own assertion. Improvement candidates remain persisted proposals. Unsupported free-form tasks clarify or report their limit.
+
+Persistent bootstrap motives are transparently configured defaults: understand permitted sources, reflect on grounded experiences and develop appropriate local connection. An internal turn can choose a fresh topic without a pending goal. Local work is limited by a persisted hourly ledger, per-goal cycle/adviser limits, maximum one inference and one adviser, novelty keys and backoff. Proactive contact is local-inbox-only, limited to one unanswered initiative at a time and a persisted interval/quiet policy. Silence is never treated as consent or rejection. Initial retrieval uses bounded scoped text queries; pgvector is disabled until a meaningful retrieval comparison warrants it.
+
+Local supervision uses a persistent Temporal development service bound to loopback, PostgreSQL, Ollama and supervised Node processes. This is laptop working mode; production Temporal hosting/authentication is a separate operational concern. A private `.env.runtime` can select an isolated database without rewriting `.env`. Runtime commands and exact setup/stop behavior are maintained in operations alongside their implementation. Replay exports stored decision snapshots and validates pure decisions with no live adapter access; Temporal history replay is a separate check.
+
+### Runtime v1 refinements from source implementation
+
+A scheduled `WAIT` retains its original goal/version and a due timestamp. Due recall creates a deduplicated input only for the still-waiting version; cancellation/revision makes old recalls no-ops. Waiting time does not spend the five-minute active-work allowance. Attempts retain actual/uncertain elapsed-work accounting, and an explicit exhausted-goal extension adds capacity without resetting used counts or permitting unknown-effect redispatch. Exact operator reminders can be delivered locally without inference.
+
+A correction identifies a scoped goal/memory version. It preserves the original record, fences obsolete queued/running work, retains previous evidence and revisits the existing commitment. Ambiguous cancellation/revision asks for a target. Clarification waits for operator input instead of falsely completing the original task.
+
+A local inference can yield to a newer operator inference; its context/goal remains durable, uncertain attempted usage is charged, and after three yields it receives protected resumption priority. Global internal work reserves part of the hourly allowance for operator work. New inferred candidate interests are bounded to twelve enabled dispositions and cannot overwrite configured identity/values/defaults or reset the global ledger.
+
+Proactive openings have independent persistent contact records with a stable topic key, reason, expiry and deferred/delivered/seen/answered/declined state. Quiet/unanswered/interval constraints defer delivery; repeated unchanged topic keys do not generate another opening. “Answered” requires an explicit topic reply, not unrelated chat. Declined topics stay suppressed. Contact-policy snapshots and normalized local-inbox effects are exported for offline comparison. No live replay can dispatch speech or consume queues.
+
+Selected model context contains explicit bounded excerpts and is stored with the inference outcome. Record actual model digest, prompt/schema identity, selected-context hash, counts and durations. Appraisals distinguish candidate tendency, adopted tendency and brief regulation reason, with at most three action alternatives. These are inspectable decision summaries, not hidden thought transcripts or proof of experience. Local cognition defaults disabled until evaluation; enabling it is an explicit local configuration step.
+
+### Design-alignment corrections (source only)
+
+F02/F26 require a bounded attention candidate comparison, not just an unrecorded SQL ordering. Record the selection clock, policy, candidate kind/due/arrival factors, selected ID and stable tie-break in each resulting decision snapshot. A due obligation has an explicit persisted due timestamp; after the interruption quota, an eligible continuation receives a turn.
+
+F06/F20 distinguish current input from saved memory even when both are reported speech. Carry an explicit evidence origin. Local recall returns saved reported records, not the current recall request. Before applying asynchronous cognition, recheck referenced saved memories against current scoped validity; superseded evidence invalidates applicability without discarding the recorded model outcome or resetting budgets.
+
+F21/F25 require durable eligibility and causal backoff. Track a motive's last grounded-context signature, unchanged-turn count and next eligible time. The signature uses configured motive/profile and distinct grounded content, not a new timer ID or repeated inferred thought. Unchanged context can still support a fresh topic at a bounded review opportunity; it cannot force an endless repeated action. These refinements use additive migration 004; migration 003 is already applied and remains unchanged.
+
+F05 pause/resume preserves a commitment's pre-pause state and pending-effect checkpoint rather than changing only the agent banner. Pause does not invalidate the version of an already-running effect; results can be recorded but are reviewed only after explicit resume. Cancelled/completed commitments cannot be restored by resume.
+
+F24 improvement proposals carry their specific expected benefit, success criteria, risk/uncertainty and proposed change scope. Operator acceptance/decline is a versioned, idempotent review of that exact proposal, not permission for an execution adapter. The initial registry still has no code/model/policy/deployment mutation capability. Proposals explicitly seeking privilege expansion are declined at the independent boundary.
+
+Replay compares attention policy and contact effects, not merely response text. Contact snapshots include the immutable proposed inbox payload so offline replay can derive the expected delivery effect independently of the stored effect. Missing proof/version data is unsupported rather than silently counted as a match. Inference receives only relevant cognitive context; attention/eligibility audit metadata remains in the durable action snapshot and is restored for review, avoiding consumption of the model's context budget by scheduling traces.
+
+A03/F05 version history remains append-only: goal identity, source, criteria, budgets and state are recorded when a new goal version is created; separate transition entries retain lifecycle changes within that version. Completed/cancelled goals cannot re-enter active states. Each committed consideration also records an agent-local sequence and the actual goal/control/generation state at commit, separately from the earlier model input. The doctrinal catalog is explicitly `not-used` in ordinary runtime decisions rather than implying a fabricated catalog mapping.
+
+F03 bounds suspended nested continuations to four levels. A new long-running task links to its interrupted pending commitment; deeper work remains a durable, temporarily deferred observation rather than being dropped or admitted with a reset budget. Sufficient local responses that finish in the same transaction do not allocate another suspended continuation slot. Exact operator controls remain available through their independent ingress boundary. Pending internally generated candidates are deduplicated before producing another cue.
+
+F20 scoped preferences are explicit operator-sourced conversation records (`response-language`, `response-length`, `explanation-style`). Revising one preserves the prior reported memory and version. Preferences influence future consideration within that conversation; they cannot change configured identity, values, permissions or other conversations. An asynchronous proposal using a superseded preference is reconsidered through the same stale-evidence boundary.
+
+F19 speech rendering includes the chosen decision's explicit uncertainty. Reported external advice cannot lose its unverified attribution merely because it passes through local cognition. This rendering policy is independent of tone and model wording; it does not certify arbitrary generated conclusions or claim a general factual verifier.
+
+Emerging interests retain originating observation/evidence and conversation scope. Configured bootstrap dispositions may be agent-wide; an inferred interest from one conversation cannot supply private content to another conversation's cue or be revised there. Existing inferred interests with unavailable origin/scope are retained but disabled by the additive migration rather than assigned invented provenance.
+
+F15 completion is explicit for model-generated responses: a goal review names the supported criterion, classifies it as met/not_met/unknown, and links evidence. A reply alone does not establish success. Unknown/unmet criteria retain a waiting commitment for evidence or operator input. A generated met claim grounded only in unverified adviser speech is downgraded unless the original operator explicitly requested receiving advice as such. Sufficient deterministic local operations retain their directly observed bounded completion criteria; no general factual verifier is implied.
+
+The planned affect comparison can explicitly disable modeled appraisal with `CITTA_AFFECT_ENABLED=false`. This omits prior appraisals from cognitive context and normalizes recorded agent tone/tendencies to undetermined/hold. Task evidence, user-reported feelings, authorization, controls and all work budgets remain intact. This is a software ablation boundary, not a claim that natural language has no social meaning.

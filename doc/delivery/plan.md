@@ -22,6 +22,10 @@ Review migration source against both the fresh database path and current tables;
 
 P0 also specifies persistent motivational dispositions, topic selection with no pending work, a global internal-work ledger, local inbox/contact policy, initiative deduplication/expiry and improvement-proposal records. Decide bounded topic-generation competence explicitly: Ollama is the agreed local cognition service and must not implicitly fall back to Codex. Evaluate a candidate model on English/Myanmar interpretation, structured proposals, uncertainty, latency, interruption and hardware/resource use before enabling it.
 
+P0 now uses the concrete [Temporal/PostgreSQL consistency protocol](../design/contracts.md#temporal-and-postgresql-consistency-protocol) as the consistency specification. Its crash-window matrix must become meaningful failure-injection acceptance during implementation; writing the protocol does not validate it. DDL and APIs remain separate unfinished P0 deliverables.
+
+The [hardware/model assessment](../design/model-evaluation.md) and paired English/Myanmar fixtures define model evaluation. Record exact model/service/image identities, schema and semantic outcomes by language, critical failures and measured cold/warm latency. No candidate is accepted solely because it fits RAM or produces valid JSON. A benchmark is a separate local service assessment, not proof of the integrated runtime. P3 must retain failed/unsupported outcomes and inference budgets; performance limits cannot silently turn every difficult message into Codex consultation.
+
 ## P1 - Durable local conversation and one decision owner
 
 Implement additive persistence/contracts, composition root, agent/profile pinning, durable ingestion/deduplication, one stable Temporal workflow identity per agent and a minimal consideration/action/review path using scripted cognition initially. Provide scoped profile and local memory responses with explicit uncertainty and an inspectable decision snapshot. Unsupported input clarifies. Initialize goals, budget accounting, pending actions and continuation identifiers now so later phases do not replace the data model.
@@ -87,6 +91,59 @@ Run the full agreed scenario suite with Kyaw, emphasizing fresh/upgrade migratio
 **Gate:** every REQ-01 through REQ-18 item is traced to evidence or explicitly pending scope. All S01-S60 and W01-W06 are classified as executed/passed, failed, or unsupported with a visible limitation; unsupported required behavior prevents claiming the full scope complete. No broader language/doctrine coverage is implied. Existing reference commands remain intact. A clean replay cannot contact Codex or mutate live work.
 
 **Trace:** all A/F/S/W identifiers; particularly REQ-10, REQ-11, REQ-13, REQ-14 and A06-A07.
+
+## Execution packages and dependencies
+
+These packages make P0-P6 executable without changing the approved behavior. Paths below are intended code ownership, not a statement that files/commands already exist. Final interface names are resolved in P0. Keep one package small enough to review and resume; do not start another package to hide a failed gate. The status document records actual state per package when implementation starts.
+
+| Package | Depends on | Source/configuration boundary and concrete deliverable | Required completion evidence |
+|---|---|---|---|
+| P0.1 protocol and state agreement | Approved A/F/S/W baseline | `doc/design/contracts.md`: ingress/outbox, ownership generation, domain/control/frame versions, complete legal transition tables, API/event envelopes and failure outcomes | Every P1/P2 write/dispatch/control has an owner, stable key, transaction and recovery rule; unresolved choices explicitly listed |
+| P0.2 laptop/model decision | Existing evaluation service only | `doc/design/model-evaluation.md`, `data/evaluation/`, `tools/evaluation/`, `artifacts/evaluation/`: CPU/RAM snapshot and measured candidate results | English/Myanmar outcomes reported separately; critical failures and actual cold/warm latency visible; no automatic production integration |
+| P0.3 schema and upgrade specification | P0.1 | Additive DDL/migration source proposal, dependency order, constraints/indexes and legacy-note compatibility; no applied migration rewritten | Review fresh/upgrade paths and exact invariants before execution; existing data preservation explicit |
+| P0.4 interface and local deployment specification | P0.1; hardware evidence informs resource limits | Typed API/SSE/control/reconnect contract, Ollama proposal schema, Temporal task/workflow/activity roles, local supervision configuration and private configuration loading | No circular database/journal authority, unavailable command or secret in public config; model outage/control behavior specified |
+| P1.1 foundation and profile | P0.1, P0.3, P0.4 | `src/app/` composition/configuration and `nama`; immutable profile version, agent identity and dependency injection; dedicated test configuration when authorized | Blank attributes remain unknown; no secret/profile leakage; invalid setup fails explicitly |
+| P1.2 domain persistence and outbox | P1.1 | `src/infra/postgres/`: ledger-managed additive migration, scoped repositories, receipt/outbox, operation-result lookup and versioned commits | Same input key returns same receipt; conflicting payload rejected; commit/acknowledgement failure cases preserve one logical outcome |
+| P1.3 foreground workflow and local cycle | P1.2 | `modules/vithi`, `dvara`, `cetana`, `sikkha`, `kamma`, `paccavekkhana`: stable Temporal owner, handler enqueue, scripted inference, deterministic local response and committed review | A real local profile/memory request traverses HTTP/input to durable decision/action/result; no Codex required; stale/duplicate operations fenced |
+| P1.4 first portal vertical slice | P1.3 | Fastify entry point and React/Vite portal; receipt versus response, domain-event readback/SSE and scoped history | Refresh/two tabs see committed history; no session-storage-only authority; keyboard/composer behaviors retained |
+| P2.1 continuations and control ordering | P1.3 | `vithi` foreground/suspended frames, goal/control versions, pause/resume/cancel dispatch barrier and reconciliation | W01 with scripted pending work; clear stop prevents new dispatch; ambiguous scope clarifies; no stale result revives cancelled work |
+| P2.2 nonblocking activities and fairness | P2.1 | Temporal timers/messages and pending inference/ability handling, nesting/fairness/global budgets, history continuation | Local response precedes pending scripted ability completion; starvation, rapid-input/two-tab and restart cases preserve earlier work |
+| P2.3 visible control and continuity | P1.4, P2.2 | React foreground/suspended/pending state, exact control receipts/outcomes and reconnect cursor | W01/W03 observable without terminal interpretation; UI does not invent cancellation or success |
+| P3.1 sourced context and commitments | P2.2 | `sati`, `chanda`, scoped repositories: source-linked memory, belief correction, success criteria, due recalls and bounded retrieval | Observed/reported/inferred/configured records remain distinct; only eligible recalls emit once; old claims remain inspectable |
+| P3.2 internal motivation and new topics | P3.1 | `chanda`, `vithi`, `manasikara`: persistent dispositions, fresh-topic candidates, internal observations, adoption/deferral and global-work ledger | W04 begins with no message, pending task or unfinished commitment; its chosen topic/action has an inspectable motive, outcome and budget |
+| P3.3 evaluated local cognition | P0.2 model gate, P3.1-P3.2 | Consumer inference port plus `infra/ollama` Activity adapter; schema/domain checks, persisted model outcomes, stale-result fencing, usage/resource budgets | Paired English/Myanmar semantic cases; no external fallback; cached Activity retry does not re-infer a committed outcome; outage leaves controls responsive |
+| P3.4 contextual appraisal and review | P3.1-P3.3 | Application `vedana`, `cetana`, `paccavekkhana`: contextual tone/tendency/alternatives and outcome feedback | W02; useful criticism, false praise and ambiguity give grounded alternatives; affect changes are explainable and cannot override evidence/scope |
+| P3.5 proactive interaction and improvement proposals | P3.2-P3.4; pending ability contracts from P2 | Durable local outgoing-inbox turns, availability/topic/expiry/rate policy, proposal records and current-versus-proposed capability lineage | W05/W06; fresh shared-interest opening without a request; silence is not rejection; no duplicate nudge/restart; no executable self-upgrade |
+| P4.1 permitted evidence abilities | P3.1; P1 action framework | `kamma` registry and fixture reader with normalized effects, resolved-path scope, failure/deadline/reconciliation declarations | S05 completes from an actual permitted source; out-of-scope and malicious content cannot expand permissions |
+| P4.2 evidence-first integrated initiative | P3.5, P4.1 | Same runtime for self-originated investigation, memory review, quote conclusion and evidence-backed improvement proposal | Local-sufficient task uses zero external-adviser calls; demonstrated result changes the goal/review; no scripted-success bypass |
+| P5.1 adviser lifecycle | P2, P3.3, P4 | Existing Codex adapter behind the typed registry; justified gap, minimized context, external slot/budgets and explicit failures | A request can be deferred/denied independently of the model; local tasks and controls remain available while advice is pending |
+| P5.2 advice review and conflicts | P5.1, P4.2 | Reported-speech lineage, independent evidence checks, unverified-answer handling and interruption/cancellation | S06-S08, S28-S32, W03; no blind trust, late-result revival or repeated uncertain external effect |
+| P6.1 replay and failure campaign | Earlier phases supply snapshots/checkpoints | Separate domain replay composition and Temporal replay checks; live inference/queues/adapters inaccessible; crash-window matrix automated when testing authorized | Same recorded choices/effects/switches or explicit unsupported version; crash/retry/duplicate/outage cases meet domain invariants |
+| P6.2 integrated acceptance and local release | P6.1 and all prior gates | Scenario/evidence review, English/Myanmar human review, desktop/mobile inspector and bounded supervised deployment | REQ-01-REQ-18, all S01-S60/W01-W06 classified with actual evidence; required unsupported cases block full completion |
+
+P0.2 may proceed while protocol work is unfinished. Infrastructure, deterministic local routines and scripted interruption tests can proceed without a selected production model; enabling model-assisted autonomy cannot. P3.1/P3.2 can be developed with recorded/scripted proposal inputs, but P3 completion requires the evaluated live local model and integrated evidence. Do not let a model benchmark block unrelated schema work, or let schema progress silently waive model quality.
+
+## Implementation change map
+
+| Existing area | Treatment during transition |
+|---|---|
+| `src/app/portal.ts` | Keep prototype available until the Fastify/React durable path passes its replacement gate; do not claim its existing synchronous Codex call is the target workflow |
+| `portal/` | Preserve keyboard, composition, composer and scrolling behavior in the React replacement; move/delete replaced assets only after visual/workflow verification |
+| `src/modules/nama/` | Reuse validation and explicit unknown fields; extend with immutable persisted profile/version ownership |
+| `src/modules/cetana/vaca-service.ts` | Retain sufficient local response routines; replace keyword-as-deliberation with validated interpretation/context and a recorded decision contract |
+| `src/modules/cetana/vaca-codex.ts` | Wrap the existing adviser process behind the durable adapter; preserve temporary-directory isolation/errors while adding idempotency/attempt/scope semantics |
+| `src/infra/postgres/` and applied SQL | Preserve legacy data and scenario readers; add scoped repositories/ledger-managed migrations and explicit repeat-safe imports |
+| Catalog and doctrinal modules/data | Preserve identity/classification/reference behavior; do not rewrite them to fit an application thought loop |
+| Evaluation tools/fixtures | Keep synthetic evidence reproducible; distinguish model smoke results from integrated acceptance |
+| Public scripts/configuration | Add only working commands in the package actually implementing them; update operations in the same change; never overwrite populated private `.env` |
+
+Avoid an all-at-once rewrite. The replacement portal/runtime must have an explicit cutover and rollback path that preserves committed input, notes and profile/configuration. A reversible code rollback must not require dropping new domain data or editing old applied migrations. Installation, DB migration and service cutover are explicit operations, never implied by a documentation update.
+
+## Package completion and resumption record
+
+For each package, record in status: package ID, requirement/diagram/scenario references, concrete changed boundary, source/commit identity when available, checks actually executed, observed outcome, limitations/open decisions and the exact next safe task. Never mark a phase complete from a subordinate package or a model benchmark alone.
+
+Use `not_started`, `in_progress`, `implemented_unverified`, `verified`, or `blocked` with a concrete reason. A product decision blocks only its dependents. When a task is interrupted, preserve what is already implemented/verified rather than reopening the entire architecture. Do not invent calendar estimates before the model/hardware and migration-interface evidence exists; dependencies and acceptance determine order.
 
 ## Verification and change rules
 

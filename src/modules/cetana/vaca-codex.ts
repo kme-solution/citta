@@ -18,7 +18,16 @@ function executable() {
   return "codex";
 }
 
-export async function askCodex(question: string, identity: Identity): Promise<string> {
+function adviserEnvironment(): NodeJS.ProcessEnv {
+  // Do not expose the application's database credentials or private configuration to the adviser process.
+  const keys = ["PATH","HOME","USER","LOGNAME","SHELL","LANG","LC_ALL","LC_CTYPE","TMPDIR",
+    "XDG_CONFIG_HOME","XDG_CACHE_HOME","CODEX_HOME","OPENAI_API_KEY","OPENAI_BASE_URL",
+    "HTTPS_PROXY","HTTP_PROXY","NO_PROXY","SSL_CERT_FILE","SSL_CERT_DIR","NODE_EXTRA_CA_CERTS",
+    "SYSTEMROOT","WINDIR","APPDATA","LOCALAPPDATA","USERPROFILE","TEMP","TMP"];
+  return Object.fromEntries(keys.filter(key=>process.env[key]!==undefined).map(key=>[key,process.env[key]]));
+}
+
+export async function askCodex(question: string, identity: Identity, signal?: AbortSignal): Promise<string> {
   const cwd = await mkdtemp(join(tmpdir(), "citta-vaca-"));
   try {
     const file = executable();
@@ -26,7 +35,7 @@ export async function askCodex(question: string, identity: Identity): Promise<st
     const script = /\.m?js$/i.test(file);
     return await new Promise<string>((resolve, reject) => {
       const child = execFile(script ? process.execPath : file, script ? [file, ...args] : args, {
-        cwd, timeout: 120000, killSignal: "SIGKILL", maxBuffer: 1024 * 1024, windowsHide: true
+        cwd, env: adviserEnvironment(), timeout: 120000, killSignal: "SIGKILL", maxBuffer: 1024 * 1024, windowsHide: true, signal
       }, (error, stdout, stderr) => {
         if (error) {
           const reason = error.code === "ENOENT" ? "CLI unavailable. Check PATH or CITTA_CODEX_PATH."

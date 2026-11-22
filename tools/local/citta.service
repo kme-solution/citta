@@ -1,0 +1,16 @@
+[Unit]
+Description=Citta local continuing agent
+After=network.target citta-temporal.service
+Requires=citta-temporal.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/kme/citta
+ExecStart=/usr/bin/env npm run start
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=25
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=default.target

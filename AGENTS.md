@@ -1,3 +1,7 @@
 # Citta project conventions
 
 Write product, architecture, and operating documents under doc/ before writing code. Use ASCII Pāli names for domain modules and services. Kyaw installs dependencies, builds, runs, tests, and fixes locally. For ordinary implementation tasks, write source only. Do not create tests or execute application code, migrations, builds, or test commands unless Kyaw explicitly requests it. Start from `doc/README.md`. Approved architecture and behavior flows define the design baseline; `doc/design/contracts.md` refines the implementation boundaries, `doc/delivery/plan.md` defines development gates, and `doc/delivery/status.md` is the sole progress and verification record. Resolve document conflicts before implementing affected behavior. Do not revive retired plans or infer completed capability from target diagrams.
+
+For Citta development, load `.agents/skills/citta-development/SKILL.md`. It records Kyaw's app requirements and session-specific execution preferences. The latest instruction is code-only until Kyaw explicitly requests execution: no tests, builds, type checks, migrations, service startup or model benchmarks. Broad local implementation permission remains granted; report unverified source honestly.
+
+Latest explicit correction: code-only until Kyaw explicitly asks to run. Do not infer execution permission from finishing a source pass. No tests, builds, type checks, migrations, service starts or model benchmarks; see the Citta skill for the recorded correction.

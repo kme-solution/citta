@@ -33,6 +33,12 @@ Unrestricted human-like language understanding is not implied by these tasks. If
 
 Future capabilities include public-web research, desktop/workspace abilities, broader evaluated language competence, relationship/personality learning and full doctrinal coverage. They require separate scope and acceptance decisions after the continuing-runtime gates; they are not part of a prescribed older release order.
 
+## Language and operational acceptance
+
+English and Myanmar are separate evaluation dimensions for the agreed local cognition model. Before enabling model-assisted foreground decisions, measure structured and semantic validity, evidence use, uncertain/ambiguous meaning, interruption/cancellation, no-pending-work initiative, proactive contact and improvement-permission boundaries in both languages. Model multilingual support is not evidence of Myanmar competence. The [evaluation protocol](../design/model-evaluation.md) defines the paired assessment; failures and unsupported language remain visible rather than silently falling back to an external adviser.
+
+The application must remain controllable while inference is slow or unavailable. Deterministic profile/local controls do not wait behind a long model call. Hardware feasibility and measured quality/latency determine the deployed model and cadence; they do not weaken scope, truthfulness or the internal-initiative requirement. Durable receipts, committed decisions, started effects and reviewed success must remain distinguishable under the [consistency protocol](../design/contracts.md#temporal-and-postgresql-consistency-protocol).
+
 ## Behavioral repertoire and completeness
 
 The design includes internally initiated reflection/exploration, goal formation from ambition, ordinary conversation, evidence-seeking, correction, continuation, contextual affect, learning proposals and deliberate quiet. New experiences can revise supported memories and candidate interests; they cannot silently grant capabilities. Each added behavior needs a trigger/motive, context, intention, observed outcome, budget and acceptance example. “All human behaviors” is a research direction rather than a finite completed specification; biological experience, unrestricted learning and subjective consciousness are not established by this repertoire.

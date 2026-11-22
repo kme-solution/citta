@@ -12,14 +12,49 @@
     "demo": "node --env-file-if-exists=.env src/app/cli.ts demo",
     "trace": "node --env-file-if-exists=.env src/app/cli.ts trace",
     "auto-recall": "node --env-file-if-exists=.env src/app/cli.ts auto-recall",
-    "portal": "node --env-file-if-exists=.env src/app/portal.ts"
+    "portal:legacy": "node --env-file-if-exists=.env src/app/portal.ts",
+    "portal": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx src/app/server.ts",
+    "worker": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx src/app/worker.ts",
+    "relay": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx src/app/relay.ts",
+    "start": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/services.ts start",
+    "stop": "node --env-file-if-exists=.env --import tsx tools/local/services.ts stop",
+    "db:prepare": "node --env-file-if-exists=.env --import tsx tools/local/prepare-database.ts",
+    "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/migrate.ts",
+    "db:import-notes": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/import-notes.ts",
+    "temporal": "bash tools/local/temporal.sh",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/domain.test.ts",
+    "test:integration": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/integration.ts",
+    "replay:export": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/export-replay.ts",
+    "replay": "node --import tsx tools/local/replay.ts",
+    "replay:temporal": "node --import tsx tools/local/temporal-replay.ts",
+    "workflow:recover": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx tools/local/recover-workflow.ts"
   },
   "dependencies": {
-    "pg": "^8.13.0"
+    "@fastify/static": "^10.1.12",
+    "@opentelemetry/api": "~1.9.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.0",
+    "@opentelemetry/sdk-trace-base": "^2.0.0",
+    "@temporalio/activity": "^1.26.0",
+    "@temporalio/client": "^1.26.0",
+    "@temporalio/worker": "^1.26.0",
+    "@temporalio/workflow": "^1.26.0",
+    "ajv": "^8.20.0",
+    "fastify": "^5.12.8",
+    "pg": "^8.13.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/node": "^24.0.0",
     "@types/pg": "^8.11.0",
-    "typescript": "^5.8.0"
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.0",
+    "vite": "^8.3.8"
   }
 }

@@ -1,3 +1,7 @@
 node_modules/
 .env
 dist/
+.env.runtime
+.local/
+playwright-report/
+test-results/
