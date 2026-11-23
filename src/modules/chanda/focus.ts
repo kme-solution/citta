@@ -17,6 +17,34 @@ export async function continuingFocus(
   } = await tx.query("SELECT * FROM citta.focuses WHERE agent_id=$1 AND state='active'", [
     config.agentId,
   ]);
+  let conversationPriority = false;
+  if (focus) {
+    const {
+      rows: [newerConcern],
+    } = await tx.query(
+      `SELECT g.id FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id
+       WHERE g.agent_id=$1 AND o.kind='speech' AND g.created_at>$2 AND g.id IS DISTINCT FROM $3::uuid
+       AND (g.state IN ('active','waiting','suspended') OR g.state='completed' AND g.cycles>=3
+         AND (EXISTS(SELECT 1 FROM citta.actions a WHERE a.goal_id=g.id AND a.agent_id=g.agent_id AND a.kind<>'INFER') OR (SELECT count(*) FROM citta.messages m WHERE m.agent_id=g.agent_id AND m.goal_id=g.id AND m.role='operator')>=2))
+       AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown')
+       AND NOT EXISTS(SELECT 1 FROM citta.focuses f WHERE f.agent_id=g.agent_id AND f.source_goal_id=g.id AND f.source_goal_version=g.version AND f.updated_at>=g.updated_at)
+       ORDER BY g.created_at DESC,g.id LIMIT 1`,
+      [config.agentId, focus.created_at, focus.source_goal_id || null],
+    );
+    if (newerConcern) {
+      await tx.query(
+        "UPDATE citta.focuses SET state='deferred',version=version+1,reason='Follow up newer conversation activity; retain this concern and its return point.',updated_at=now() WHERE id=$1 AND agent_id=$2",
+        [focus.id, config.agentId],
+      );
+      await event(tx, 'focus_deferred', {
+        focusId: focus.id,
+        sourceGoalId: newerConcern.id,
+        reason: 'newer conversation activity',
+      });
+      focus = undefined;
+      conversationPriority = true;
+    }
+  }
   if (focus) {
     const {
       rows: [motive],
@@ -46,7 +74,7 @@ export async function continuingFocus(
       (!focus.source_goal_id ||
         (goal &&
           goal.version === focus.source_goal_version &&
-          ['active', 'waiting', 'suspended'].includes(goal.state) &&
+          ['active', 'waiting', 'suspended', 'completed'].includes(goal.state) &&
           !goal.unknown_effect));
     if (eligible) return { focus, motive };
     const reason = !motive
@@ -62,11 +90,24 @@ export async function continuingFocus(
   const {
     rows: [last],
   } = await tx.query(
-    'SELECT state FROM citta.focuses WHERE agent_id=$1 ORDER BY updated_at DESC,id LIMIT 1',
+    'SELECT state,updated_at FROM citta.focuses WHERE agent_id=$1 ORDER BY updated_at DESC,id LIMIT 1',
     [config.agentId],
   );
-  const exploring = last?.state === 'deferred';
-  if (!exploring) {
+  if (!conversationPriority && last?.state === 'deferred') {
+    const {
+      rows: [newerConversation],
+    } = await tx.query(
+      `SELECT g.id FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id
+       WHERE g.agent_id=$1 AND o.kind='speech' AND g.created_at>$2
+       AND (g.state IN ('active','waiting','suspended') OR g.state='completed' AND g.cycles>=3
+         AND (EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.kind<>'INFER') OR (SELECT count(*) FROM citta.messages m WHERE m.agent_id=g.agent_id AND m.goal_id=g.id AND m.role='operator')>=2))
+       AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown') LIMIT 1`,
+      [config.agentId, last.updated_at],
+    );
+    conversationPriority = !!newerConversation;
+  }
+  const exploring = !conversationPriority && last?.state === 'deferred';
+  if (!exploring && !conversationPriority) {
     const {
       rows: [saved],
     } = await tx.query(
@@ -74,7 +115,7 @@ export async function continuingFocus(
   LEFT JOIN citta.goals g ON g.id=f.source_goal_id AND g.agent_id=f.agent_id
   WHERE f.agent_id=$1 AND f.state='deferred' AND m.enabled
   AND (f.source_memory_id IS NULL OR EXISTS(SELECT 1 FROM citta.memories n WHERE n.id=f.source_memory_id AND n.agent_id=f.agent_id AND n.valid))
-  AND (f.source_goal_id IS NULL OR g.version=f.source_goal_version AND g.state IN ('active','waiting','suspended') AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown'))
+  AND (f.source_goal_id IS NULL OR g.version=f.source_goal_version AND g.state IN ('active','waiting','suspended','completed') AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown'))
   ORDER BY f.updated_at,f.id LIMIT 1`,
       [config.agentId],
     );
@@ -114,9 +155,11 @@ export async function continuingFocus(
   const {
     rows: [concern],
   } = await tx.query(
-    `SELECT g.id,g.version,g.description,g.conversation_id,g.observation_id FROM citta.goals g
+    `SELECT g.id,g.version,g.state,g.description,g.conversation_id,g.observation_id FROM citta.goals g
  JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id
- WHERE g.agent_id=$1 AND NOT $3::boolean AND o.kind='speech' AND g.state IN ('active','waiting','suspended')
+ WHERE g.agent_id=$1 AND NOT $3::boolean AND o.kind='speech'
+ AND (g.state IN ('active','waiting','suspended') OR g.state='completed' AND g.cycles>=3
+  AND (EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.kind<>'INFER') OR (SELECT count(*) FROM citta.messages m WHERE m.agent_id=g.agent_id AND m.goal_id=g.id AND m.role='operator')>=2))
  AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown')
  AND NOT EXISTS(SELECT 1 FROM citta.focuses f WHERE f.agent_id=g.agent_id AND f.source_goal_id=g.id
  AND f.source_goal_version=g.version AND f.context_signature=$2 AND f.updated_at>=g.updated_at)
@@ -150,7 +193,9 @@ export async function continuingFocus(
   );
   if (!motive) return null;
   const reason = concern
-    ? 'Retain an unresolved operator concern across internal turns.'
+    ? concern.state === 'completed'
+      ? 'Review the outcome of substantial conversation work without reopening its task.'
+      : 'Retain an unresolved operator concern across internal turns.'
     : remembered
       ? 'Develop a sourced remembered concern; it is not approval or proof of an outcome.'
       : 'Choose a concrete question from an enabled interest; retain a return point for deliberate exploration.';
@@ -244,7 +289,7 @@ export async function currentFocus(tx: Tx, focus: NonNullable<Context['focus']>)
  LEFT JOIN citta.goals g ON g.id=f.source_goal_id AND g.agent_id=f.agent_id
  WHERE f.agent_id=$1 AND f.id=$2 AND f.version=$3 AND f.state='active' AND m.enabled
  AND (f.source_memory_id IS NULL OR EXISTS(SELECT 1 FROM citta.memories n WHERE n.id=f.source_memory_id AND n.agent_id=f.agent_id AND n.valid))
- AND (f.source_goal_id IS NULL OR g.version=f.source_goal_version AND g.state IN ('active','waiting','suspended') AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown'))`,
+ AND (f.source_goal_id IS NULL OR g.version=f.source_goal_version AND g.state IN ('active','waiting','suspended','completed') AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=g.agent_id AND a.goal_id=g.id AND a.state='unknown'))`,
     [config.agentId, focus.id, focus.version],
   );
   return !!rowCount;

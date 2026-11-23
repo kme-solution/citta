@@ -5,7 +5,8 @@ import {
   COGNITION_PROMPT_VERSION,
   COGNITION_SCHEMA_VERSION,
 } from '../../src/infra/ollama/cognition.ts';
-import { considerLocal, validateProposal } from '../../src/modules/cetana/consider.ts';
+import { considerLocal } from '../../src/modules/vaca/interpret.ts';
+import { validateProposal } from '../../src/modules/sikkha/proposal.ts';
 import type { Context, Decision, Evidence, Outcome } from '../../src/contracts/runtime.ts';
 import { config } from '../../src/app/config.ts';
 interface Case {

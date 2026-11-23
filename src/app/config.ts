@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import { loadMotivationConfiguration } from '../modules/chanda/configuration.ts';
 import { loadIdentity } from '../modules/nama/nama-service.ts';
 function integer(name: string, fallback: number, min: number, max: number) {
   const raw = process.env[name];
@@ -19,7 +20,16 @@ if (!['ollama', 'codex'].includes(cognitionProvider))
 const codexTransport = process.env.CITTA_CODEX_TRANSPORT || 'app-server';
 if (!['app-server', 'exec'].includes(codexTransport))
   throw Error('CITTA_CODEX_TRANSPORT must be app-server or exec');
+const motivations = loadMotivationConfiguration(process.env);
+const profile = loadIdentity(process.env);
+if (motivations.explicitAmbitions)
+  profile.goals =
+    motivations.entries
+      .filter((m) => m.category === 'ambition')
+      .map((m) => m.description)
+      .join('\n\n') || undefined;
 export const config = {
+  motivations,
   codexProgressTimeoutMs: integer('CITTA_CODEX_PROGRESS_TIMEOUT_MS', 60000, 10000, 600000),
   codexTransport,
   codexHome: resolve('.local/state/codex', agentId, 'home'),
@@ -34,7 +44,7 @@ export const config = {
   codexModel: process.env.CITTA_CODEX_MODEL || undefined,
   agentId,
   databaseUrl: process.env.CITTA_DATABASE_URL || process.env.DATABASE_URL,
-  profile: loadIdentity(process.env),
+  profile,
   port: integer('CITTA_PORT', 4173, 1024, 65535),
   temporalAddress: process.env.CITTA_TEMPORAL_ADDRESS || '127.0.0.1:7233',
   temporalNamespace: process.env.CITTA_TEMPORAL_NAMESPACE || 'default',

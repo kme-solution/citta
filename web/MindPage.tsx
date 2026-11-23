@@ -204,22 +204,52 @@ export function MindPage({
           <time className="muted">{new Date(a.created_at).toLocaleString()}</time>
         </article>
       ))}
-      <h2>Interests & ambitions</h2>
-      <div className="mind-topics">
-        {state.motives.map((m) => (
-          <article key={m.id}>
-            <div className="card-top">
-              <h3>{m.name}</h3>
-              <span className="tag">{m.enabled ? 'Enabled' : 'Disabled'}</span>
+      {(['ambition', 'interest'] as const).map((category) => {
+        const items = state.motives.filter(
+          (m) =>
+            (m.category ||
+              (m.name === 'aspiration' && m.origin === 'configured-profile'
+                ? 'ambition'
+                : 'interest')) === category,
+        );
+        return (
+          <section key={category} aria-label={category === 'ambition' ? 'Ambitions' : 'Interests'}>
+            <h2>{category === 'ambition' ? 'Ambitions' : 'Interests'}</h2>
+            {category === 'ambition' && (
+              <p className="muted">
+                Desired direction and outcomes. Recorded consideration is not verified progress
+                toward an ambition.
+              </p>
+            )}
+            <div className="mind-topics">
+              {items.map((m) => (
+                <article key={m.id}>
+                  <div className="card-top">
+                    <h3>{m.display_name || m.name}</h3>
+                    <span className="tag">{m.enabled ? 'Enabled' : 'Disabled'}</span>
+                  </div>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>{m.description}</p>
+                  <small>
+                    {m.origin} · {m.turns} recorded internal turns
+                  </small>
+                </article>
+              ))}
             </div>
-            <p>{m.description}</p>
-            <small>
-              {m.origin} · {m.turns} internal turns
-            </small>
-          </article>
-        ))}
-      </div>
-      {!state.motives.length && <p className="muted">No interests recorded.</p>}
+            {!items.length && (
+              <p className="muted">
+                {category === 'ambition'
+                  ? 'No ambitions configured. Interests may still supply independent curiosity.'
+                  : 'No interests recorded.'}
+              </p>
+            )}
+            {!!items.length && !items.some((m) => m.enabled) && (
+              <p className="muted">
+                All recorded {category === 'ambition' ? 'ambitions' : 'interests'} are disabled.
+              </p>
+            )}
+          </section>
+        );
+      })}
       <h2>Improvement proposals</h2>
       {!state.proposals.length && (
         <p className="muted">

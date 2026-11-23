@@ -660,7 +660,18 @@ async function deliverContact(tx: Tx, agent: Row) {
   const {
     rows: [candidate],
   } = await tx.query(
-    "SELECT * FROM citta.contacts WHERE agent_id=$1 AND state IN ('created','deferred') AND expires_at>now() ORDER BY created_at LIMIT 1",
+    `SELECT c.*,EXISTS(
+      SELECT 1 FROM citta.goals g JOIN citta.observations o ON o.id=g.observation_id AND o.agent_id=g.agent_id
+      JOIN citta.focuses f ON f.agent_id=g.agent_id AND f.id::text=o.payload->'focus'->>'id'
+      JOIN citta.goals source ON source.id=f.source_goal_id AND source.agent_id=f.agent_id
+      JOIN citta.observations original ON original.id=source.observation_id AND original.agent_id=source.agent_id
+      WHERE g.id=c.goal_id AND g.agent_id=c.agent_id AND g.state='waiting' AND g.wait_reason='contact_delivery'
+      AND source.version=f.source_goal_version AND source.state IN ('active','waiting','suspended','completed')
+      AND original.kind='speech' AND source.conversation_id=c.conversation_id
+      AND NOT EXISTS(SELECT 1 FROM citta.actions a WHERE a.agent_id=source.agent_id AND a.goal_id=source.id AND a.state='unknown')
+    ) AS conversation_question FROM citta.contacts c
+    WHERE c.agent_id=$1 AND c.state IN ('created','deferred') AND c.expires_at>now()
+    ORDER BY conversation_question DESC,c.created_at,c.id LIMIT 1`,
     [config.agentId],
   );
   if (!candidate) return;
@@ -680,7 +691,7 @@ async function deliverContact(tx: Tx, agent: Row) {
     quiet: !!agent.quiet,
     pending: !!pending,
     lastContactAt: agent.last_contact_at ? new Date(agent.last_contact_at).toISOString() : null,
-    intervalMs: config.contactIntervalMs,
+    intervalMs: candidate.conversation_question ? 0 : config.contactIntervalMs,
     now: new Date().toISOString(),
     expiresAt: new Date(candidate.expires_at).toISOString(),
   };
@@ -788,6 +799,56 @@ async function context(tx: Tx, observation: Row, goalId: string, agent: Row): Pr
     content: m.content.slice(0, 1000),
     origin: 'memory',
   }));
+  const sourceGoalId = observation.payload?.focus?.sourceGoalId;
+  if (sourceGoalId) {
+    const {
+      rows: [source],
+    } = await tx.query(
+      'SELECT description,criterion,state,summary FROM citta.goals WHERE id=$1 AND agent_id=$2',
+      [sourceGoalId, config.agentId],
+    );
+    if (source)
+      evidence.push({
+        id: 'source-goal:' + sourceGoalId,
+        kind: 'inferred',
+        origin: 'observation',
+        content:
+          `Retained source task (recorded state, not independent proof): ${source.description}\nCriterion: ${source.criterion}\nState: ${source.state}\nRecorded outcome: ${source.summary}`.slice(
+            0,
+            2400,
+          ),
+      });
+    const { rows: discussion } = await tx.query(
+      `SELECT observation_id,text FROM citta.messages WHERE agent_id=$1 AND goal_id=$2 AND role='operator'
+       AND observation_id IS NOT NULL ORDER BY ordinal DESC LIMIT 3`,
+      [config.agentId, sourceGoalId],
+    );
+    for (const message of discussion)
+      if (!evidence.some((e) => e.id === message.observation_id))
+        evidence.push({
+          id: message.observation_id,
+          kind: 'reported',
+          origin: 'observation',
+          content: 'Operator contribution to source task: ' + message.text.slice(0, 1200),
+        });
+    const { rows: results } = await tx.query(
+      `SELECT o.id,a.kind,a.result FROM citta.actions a JOIN citta.observations o
+       ON o.agent_id=a.agent_id AND o.kind='result' AND o.payload->>'actionId'=a.id::text
+       WHERE a.agent_id=$1 AND a.goal_id=$2 AND a.kind<>'INFER' AND a.result IS NOT NULL
+       ORDER BY a.finished_at DESC,a.id DESC LIMIT 3`,
+      [config.agentId, sourceGoalId],
+    );
+    for (const result of results)
+      if (!evidence.some((e) => e.id === result.id))
+        evidence.push({
+          id: result.id,
+          kind: result.kind === 'CONSULT_AI' ? 'reported' : 'observed',
+          origin: 'ability',
+          content:
+            `Source-task operation feedback (${result.kind}; outcome still requires review): ` +
+            JSON.stringify(result.result).slice(0, 1800),
+        });
+  }
   const requestedCorrection = /^correct saved note ([0-9a-f-]{36}):/i.exec(observation.text);
   if (requestedCorrection && !evidence.some((e) => e.id === requestedCorrection[1])) {
     const {
@@ -996,6 +1057,7 @@ async function internalObservation(
   const retained = await continuingFocus(tx, conversation.id, agent.profile_id, desktopConnected);
   if (!retained) return null;
   const { focus, motive } = retained;
+  conversation = { ...conversation, id: focus.conversation_id };
   const {
     rows: [prior],
   } = await tx.query(
@@ -1083,10 +1145,10 @@ async function internalObservation(
     "UPDATE citta.agents SET internal_count=internal_count+1,next_internal_at=now()+$2::double precision*interval '1 millisecond' WHERE id=$1",
     [config.agentId, config.internalIntervalMs],
   );
-  await tx.query(
-    'UPDATE citta.motives SET turns=turns+1,version=version+1 WHERE id=$1 AND agent_id=$2',
-    [motive.id, config.agentId],
-  );
+  await tx.query('UPDATE citta.motives SET turns=turns+1 WHERE id=$1 AND agent_id=$2', [
+    motive.id,
+    config.agentId,
+  ]);
   await tx.query(
     'INSERT INTO citta.motive_contexts(agent_id,motive_id,conversation_id,last_context_signature,unchanged_turns,turns,next_eligible_at) VALUES($1,$2,$3,$4,$5,1,$6) ON CONFLICT(agent_id,motive_id,conversation_id) DO UPDATE SET last_context_signature=EXCLUDED.last_context_signature,unchanged_turns=EXCLUDED.unchanged_turns,turns=citta.motive_contexts.turns+1,next_eligible_at=EXCLUDED.next_eligible_at',
     [

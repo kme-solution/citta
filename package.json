@@ -6,6 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "terminal": "node --env-file-if-exists=.env --env-file-if-exists=.env.runtime --import tsx src/app/cli.ts chat",
     "eye": "node --env-file-if-exists=.env src/app/cli.ts eye",
     "catalog": "node --env-file-if-exists=.env src/app/cli.ts catalog",
     "recall": "node --env-file-if-exists=.env src/app/cli.ts recall",

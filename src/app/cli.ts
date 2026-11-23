@@ -1,8 +1,11 @@
-import { catalogView, listTypes } from '../modules/citta-sangaha/citta-sangaha-service.ts';
-import { eyeDoorProcess } from '../modules/citta-vithi/citta-vithi-service.ts';
-
 switch (process.argv[2]) {
+  case 'chat': {
+    const { terminalChat } = await import('./terminal.ts');
+    await terminalChat();
+    break;
+  }
   case 'eye': {
+    const { eyeDoorProcess } = await import('../modules/citta-vithi/citta-vithi-service.ts');
     const door = process.argv[3] ?? 'eye';
     const grade = process.argv[4] ?? (door === 'mind' ? 'clear' : 'very-great');
     if (door === 'eye' && grade === 'very-great') console.table(eyeDoorProcess());
@@ -13,6 +16,8 @@ switch (process.argv[2]) {
     break;
   }
   case 'catalog': {
+    const { catalogView, listTypes } =
+      await import('../modules/citta-sangaha/citta-sangaha-service.ts');
     const view = process.argv[3];
     if (view === undefined) console.log(catalogView());
     else if (view === 'cetasika' || view === 'kicca') {
@@ -55,5 +60,5 @@ switch (process.argv[2]) {
     break;
   }
   default:
-    throw new Error('Choose eye, catalog, recall, auto-recall, demo, or trace.');
+    throw new Error('Choose chat, eye, catalog, recall, auto-recall, demo, or trace.');
 }

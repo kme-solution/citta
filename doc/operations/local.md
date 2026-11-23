@@ -175,3 +175,30 @@ Applied SQL migrations are checksum-pinned and excluded. Generated artifacts, do
 ## Real reading sources versus examples
 
 The operator service now defaults to .local/sources. Put permitted real text documents there or explicitly set CITTA_READ_ROOT to a chosen evidence directory. An empty directory supplies no files to READ; persistent thought may still use sourced memory or permitted computer use. The checked-in data/fixtures lamp/quote/deployment files remain only for explicit demo/test runs. Integration verification selects data/fixtures explicitly. This change does not import, invent or delete operator records; historical sample-file observations are not evidence about KME’s real projects.
+
+## Configuring interests and ambitions
+
+`CITTA_INTERESTS` and `CITTA_AMBITIONS` are optional JSON arrays stored in the private environment. Use stable lowercase IDs (letters, digits and hyphens), display names and descriptions. Each ambition also needs a concrete `successCriterion`. These describe desired direction, not authority or achieved results. Example syntax only:
+
+```dotenv
+CITTA_INTERESTS='[{"id":"understanding","name":"Understanding","description":"Explore permitted sources and understand how things work."}]'
+CITTA_AMBITIONS='[{"id":"business-growth","name":"Business growth","description":"Earn income for KME Solutions.","successCriterion":"A real paid engagement is recorded with supporting evidence."}]'
+```
+
+Omitting a setting retains legacy configured defaults; omitted ambitions fall back to `CITTA_GOALS` when present. `[]` explicitly disables that configuration-owned class. Each list supports at most eight entries. Removed managed entries are disabled, with history preserved; operator-configured entries cannot overwrite inferred interests with conflicting identities. Do not copy example ambitions as if Kyaw approved their substance. Restart application services after editing; this source slice does not itself restart or verify them.
+
+Mind lists ambitions separately from interests. An ambition's success criterion is proposed operator configuration; no milestones, income verification or autonomous achievement is claimed by storing it.
+
+## Terminal chat client (source implementation; unverified)
+
+`npm run terminal` connects to the configured local portal API and displays recorded mind/focus/operations and recent thoughts above the conversation input. It needs an interactive terminal and the existing backend; it never starts services or enables cognition. The current operator hold keeps those services stopped until explicitly authorized. The client alone cannot reason or execute shell commands.
+
+Enter sends one message; `/new` chooses a new communication context without deleting individual memory; `/retry` resubmits an uncertain message with its original idempotency key; `/discard` clears only the client's retry buffer, not a possibly accepted server message; `/help` shows commands; `/quit` exits the client without claiming to cancel an accepted operation. An unavailable backend is shown honestly. The bounded display uses excerpts; the portal retains full conversation/history.
+
+Top stats are read-only state polling, not generated thoughts. Work units are not tokens or billed currency; token cost remains unavailable unless real telemetry exists. Replies depend on the configured backend and its controls, including explicitly disabled cognition. Terminal rendering and keyboard/network flows remain unverified until authorized interactive checks.
+
+Explicit `CITTA_AMBITIONS` also supplies current profile goal answers; omitted configuration continues to use `CITTA_GOALS`. Updating/removing a managed motive blocks affected retained focus episodes and rejects queued work carrying obsolete motive versions before dispatch. Existing source/history is preserved. Large configured background/ambition descriptions still count toward the bounded inference context; configuration is not a promise that arbitrary text will fit.
+
+## Operator-authorized fresh runtime reset — 2026-11-23
+
+Kyaw explicitly requested clearing current Citta memory/activity and restarting fresh. Stop Citta processes first; terminate only the configured agent's Temporal owner; clear that agent's runtime rows in foreign-key order, including provider thread references and action attempts. Preserve schema/migration ledger, other agents, catalogs, original source files, environment configuration and sign-in credentials. Fence the fresh owner with a newer generation and restart it explicitly. Remove only Citta-owned provider session/memory caches and desktop frames/receipts after processes stop; never touch personal Codex history. Verify zero old runtime rows before restarting; fresh autonomous activity can appear afterward under the existing enabled cognition and interval settings. This one-time operator reset is not a general authorization for future deletion.

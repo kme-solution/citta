@@ -29,29 +29,54 @@ export async function initialize() {
       );
       await event(tx, 'profile_changed', { version });
     }
-    const motives = [
-      [
-        'understanding',
-        'configured-default',
-        'Explore permitted sources and understand how things work.',
-      ],
-      [
-        'reflection',
-        'configured-default',
-        'Consider grounded experience, alternative interpretations and possible improvements.',
-      ],
-      [
-        'connection',
-        'configured-default',
-        'Share an appropriate new idea or question in the local inbox.',
-      ],
-      ...(config.profile.goals ? [['aspiration', 'configured-profile', config.profile.goals]] : []),
-    ];
-    for (const [name, origin, description] of motives) {
-      await tx.query(
-        "INSERT INTO citta.motives(id,agent_id,name,origin,description) VALUES($1,$2,$3,$4,$5) ON CONFLICT(agent_id,name) DO UPDATE SET description=EXCLUDED.description,version=citta.motives.version+1 WHERE citta.motives.origin='configured-profile' AND EXCLUDED.origin='configured-profile' AND citta.motives.description IS DISTINCT FROM EXCLUDED.description",
-        [randomUUID(), config.agentId, name, origin, description],
+    const configured = config.motivations.entries;
+    let changed = false;
+    const changedMotiveIds: string[] = [];
+    for (const motive of configured) {
+      const {
+        rows: [existing],
+      } = await tx.query('SELECT origin FROM citta.motives WHERE agent_id=$1 AND name=$2', [
+        config.agentId,
+        motive.name,
+      ]);
+      if (existing && existing.origin !== motive.origin)
+        throw Error(
+          'Configured motive conflicts with an existing differently owned motive: ' + motive.name,
+        );
+      const result = await tx.query(
+        `INSERT INTO citta.motives(id,agent_id,name,origin,description) VALUES($1,$2,$3,$4,$5)
+         ON CONFLICT(agent_id,name) DO UPDATE SET description=EXCLUDED.description,enabled=true,version=citta.motives.version+1
+         WHERE citta.motives.origin=EXCLUDED.origin AND (citta.motives.description IS DISTINCT FROM EXCLUDED.description OR NOT citta.motives.enabled) RETURNING id`,
+        [randomUUID(), config.agentId, motive.name, motive.origin, motive.description],
       );
+      changed ||= !!result.rowCount;
+      if (existing && result.rowCount) changedMotiveIds.push(result.rows[0].id);
+    }
+    const disabled = await tx.query(
+      `UPDATE citta.motives SET enabled=false,version=version+1 WHERE agent_id=$1 AND enabled
+       AND NOT(name=ANY($2::text[])) AND (
+         origin IN ('configured-interest','configured-ambition')
+         OR ($3 AND origin='configured-default' AND name IN ('understanding','reflection','connection'))
+         OR ($4 AND origin='configured-profile' AND name='aspiration')) RETURNING id`,
+      [
+        config.agentId,
+        configured.map((m) => m.name),
+        config.motivations.explicitInterests,
+        config.motivations.explicitAmbitions,
+      ],
+    );
+    changedMotiveIds.push(...disabled.rows.map((m) => m.id));
+    if (changedMotiveIds.length)
+      await tx.query(
+        `UPDATE citta.focuses SET state='blocked',version=version+1,updated_at=now(),reason='Supporting configured interest or ambition changed; reconsider from current configuration.'
+         WHERE agent_id=$1 AND motive_id=ANY($2::uuid[]) AND state IN ('active','deferred')`,
+        [config.agentId, changedMotiveIds],
+      );
+    if (changed || disabled.rowCount) {
+      await tx.query('UPDATE citta.agents SET domain_version=domain_version+1 WHERE id=$1', [
+        config.agentId,
+      ]);
+      await event(tx, 'motive_configuration_changed', { names: configured.map((m) => m.name) });
     }
   });
 }
@@ -520,7 +545,16 @@ export async function getState(conversationId?: string) {
       conversations,
       messages,
       goals,
-      motives,
+      motives: motives.map((m) => ({
+        ...m,
+        display_name:
+          config.motivations.entries.find((entry) => entry.name === m.name)?.displayName || m.name,
+        category:
+          m.origin === 'configured-ambition' ||
+          (m.name === 'aspiration' && m.origin === 'configured-profile')
+            ? 'ambition'
+            : 'interest',
+      })),
       appraisals,
       proposals,
       memories,

@@ -27,6 +27,16 @@ export async function claimAction(id: string): Promise<{ work: Work; token: stri
     }
     let denial: string | undefined;
     try {
+      const motive = a.context?.motiveSnapshot;
+      if (motive) {
+        const {
+          rows: [current],
+        } = await tx.query(
+          'SELECT 1 FROM citta.motives WHERE agent_id=$1 AND id=$2 AND version=$3 AND enabled',
+          [config.agentId, motive.id, motive.version],
+        );
+        if (!current) throw Error('Supporting interest or ambition changed before dispatch.');
+      }
       authorize(a.kind, a.context, a.argument, config.adviserEnabled);
       if (a.kind === 'INFER' && !config.cognitionEnabled)
         throw Error('Local cognition was disabled before dispatch.');

@@ -87,3 +87,23 @@ The three-document inventory is prepared for all current module folders and the 
 ### Concept coverage precedes module introduction
 
 Kyaw clarified on 2026-11-23 that existing-folder coverage is not complete conceptual coverage. Eight additional three-document sets cover citta/vinnana integration, vitakka, vicara, adhimokkha, viriya, ekaggata, panna and nivarana. All current catalog factors have explicit design dispositions in doc/reference/model.md, including reference-only and unresearched analogues. Do not claim exhaustive Buddhist coverage or introduce one service for every factor. Follow doc/design/contracts.md ownership decisions: shared consideration/adoption envelope, optional applicable facets, pure policies, one serialized owner. Document first, then introduce a source module only with a real integration consumer and version/replay compatibility; no empty/disconnected scaffolding or new deployed service is justified by a Pali name.
+
+### Explicit operating hold after ineffective token consumption
+
+On 2026-11-23 Kyaw requested stopping services because autonomous Codex calls consumed tokens without effective progress. Citta processes, Temporal and its Ollama container were stopped; private runtime cognition was disabled. Do not restart or re-enable autonomous cognition without Kyaw's explicit instruction. Prior continuous-mode operation permission is superseded by this hold. Preserve the long-term independent-initiative design requirement while adding meaningful spend/progress controls before activation; do not invent billing totals or claim past usage was cancelled.
+
+### Sequential development, product usefulness and terminal client
+
+Kyaw requested continued development one slice at a time against the module documents and wants a useful app that may become a commercial product. Do not confuse source/document completeness with behavioral or sale readiness. Finish a coherent integration before expanding into other modules; preserve the stopped-services/cognition hold. Current slices separate configured interests/ambitions and provide a terminal chat client with top-of-screen recorded Mind/thought status. Terminal chat uses the existing API and shared public read contracts; status refresh never triggers inference. Shell command execution is a distinct unresolved capability, not permission to execute terminal chat text. Resource work units are not billed tokens, and configured success criteria are not achieved progress.
+
+### Authorized rebuild/startup with cognition held off
+
+Kyaw subsequently requested rebuilding and running the local application. That authorizes the corresponding build/focused checks and local stack startup, not re-enabling autonomous cognition. The rebuild/startup milestone in doc/delivery/status.md owns actual verification and limits. CITTA_COGNITION_ENABLED=false remains in the private runtime override. Future ordinary implementation remains source-only unless explicitly authorized; do not infer another restart or paid inference from completing source.
+
+### Explicit cognition reactivation
+
+On 2026-11-23 Kyaw explicitly requested enabling cognition after explanation that both conversational and autonomous Codex usage resume. The private runtime override was enabled and supervised services restarted. This later instruction supersedes the earlier cognition operating hold; preserve current controls and accurately report that separate conversational/autonomous spend limits remain unfinished. It does not authorize unrelated deployments, pushes or unlimited verification calls.
+
+### Latest application stop
+
+Kyaw subsequently requested stopping the application while considering existing background coding products, then requested commit/push. Citta application processes are stopped; preserve that state. The commit/push request does not authorize starting services, paid inference, applying pending migration 013 or running application checks. Earlier cognition enablement remains a configuration fact, not permission to restart after this later stop.
